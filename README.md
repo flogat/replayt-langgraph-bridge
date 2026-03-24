@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project builds on **[replayt](https://pypi.org/project/replayt/)** as a **LangGraph framework bridge**. Read
+This project builds on **replayt** as a **LangGraph framework bridge**. Read
 **[docs/REPLAYT_ECOSYSTEM_IDEA.md](docs/REPLAYT_ECOSYSTEM_IDEA.md)** for the primary pattern and compatibility stance, then
 **[docs/MISSION.md](docs/MISSION.md)** for users, scope, success metrics, and version intent.
 
