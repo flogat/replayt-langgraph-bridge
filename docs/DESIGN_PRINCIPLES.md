@@ -21,6 +21,8 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 3. **Errors and logging** — Transition validation raises `RuntimeError` messages that include step names and allowed
    targets to aid debugging. Avoid logging full graph state in production if it may contain sensitive fields.
 
+For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md).
+
 ## LLM / demos (if applicable)
 
 Document models, secrets handling, cost and redaction expectations here or in MISSION.
