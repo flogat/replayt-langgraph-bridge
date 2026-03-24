@@ -39,6 +39,36 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
+### Secrets handling
+**Important**: Never commit secrets to version control. Store API keys and tokens in environment variables.
+
+**Example setup**:
+```bash
+# Set environment variables (Linux/macOS)
+export OPENAI_API_KEY="your-key-here"
+export LANGCHAIN_API_KEY="your-key-here"
+
+# Or use a .env file (but never commit it!)
+echo "OPENAI_API_KEY=your-key-here" >> .env
+echo "LANGCHAIN_API_KEY=your-key-here" >> .env
+```
+
+**In code**:
+```python
+import os
+from replayt_langgraph_bridge import compile_to_langgraph
+
+# Read secrets from environment
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise ValueError("OPENAI_API_KEY environment variable not set")
+
+# Use the key in your workflow
+# ... (your workflow code here)
+```
+
+For the complete secrets policy, see **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
+
 ## Run tests
 
 ```bash
