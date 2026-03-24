@@ -25,6 +25,14 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
+## Run tests
+
+```bash
+pytest
+```
+
+Uses the **dev** extra (`pytest` is listed in `pyproject.toml`). CI will run the same checks once a workflow is added.
+
 ## Optional agent workflows
 
 This repo may include a [`.cursor/skills/`](.cursor/skills/) directory for Cursor-style agent skills. **`.gitignore`**
