@@ -13,6 +13,19 @@ expectations, and (for showcases) **LLM** boundaries.
 
 For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**.
 
+## Compatibility matrix
+
+| Component | Supported versions | Notes |
+|-----------|-------------------|-------|
+| replayt | 0.4.x | `replayt>=0.4.0,<0.5` in `pyproject.toml` |
+| LangGraph | 1.1.x | `langgraph>=1.1.0,<1.2` in `pyproject.toml` |
+| Python | 3.11+ | `requires-python = ">=3.11"` in `pyproject.toml` |
+
+**Version policy:**
+- Patch versions within the supported minor version range are automatically compatible
+- Minor version bumps require explicit testing and may require bridge updates
+- Major version bumps are breaking changes and will require significant bridge updates
+
 ## Reference documentation (optional)
 
 This checkout does not yet include [`docs/reference-documentation/`](docs/reference-documentation/). You can add markdown
@@ -38,7 +51,7 @@ Uses the **dev** extra (`pytest` is listed in `pyproject.toml`). **CI** (GitHub 
 
 This repo may include a [`.cursor/skills/`](.cursor/skills/) directory for Cursor-style agent skills. **`.gitignore`**
 lists **`.cursor/skills/`** so those files stay local and are not pushed. Adapt or remove the directory to match your
-team’s tooling.
+team's tooling.
 
 ## Project layout
 
