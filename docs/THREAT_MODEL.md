@@ -35,7 +35,24 @@ This document outlines the threat model for the `replayt-langgraph-bridge` regar
 - **Compliance Claims**: This model does not assert compliance with GDPR, HIPAA, or other regulations.
 - **Encryption**: The bridge does not enforce encryption at rest or in transit for checkpoints; this depends on the checkpointer implementation.
 
-## 6. Recommendations for Integrators
+## 6. Unsafe Fields
+
+The following field types should **never** be persisted in LangGraph checkpoints or workflow state without proper redaction:
+
+- **API Keys and Tokens**: Any authentication credentials (e.g., `api_key`, `token`, `secret_key`)
+- **Password Fields**: User passwords or hashed passwords
+- **Personal Identifiable Information (PII)**: Names, email addresses, phone numbers, social security numbers, etc.
+- **Financial Data**: Credit card numbers, bank account details, transaction records
+- **Health Information**: Medical records, health identifiers, insurance information
+- **Encryption Keys**: Private keys, symmetric keys, or any cryptographic material
+- **Session Tokens**: Active session identifiers or cookies
+- **Database Connection Strings**: Contains credentials and should be treated as secrets
+- **OAuth Tokens**: Access tokens, refresh tokens, or client secrets
+- **Private Messages**: Direct messages, chat logs, or confidential communications
+
+**Note**: This list is not exhaustive. Integrators should apply the principle of least privilege and consult their organization's security policies when determining what data is safe to persist.
+
+## 7. Recommendations for Integrators
 
 - **Avoid Storing Secrets**: Do not place API keys, passwords, or tokens in `ReplaytBridgeState["context"]`.
 - **Use Secure Checkpoint Backends**: Configure LangGraph checkpointers with encrypted, access-controlled storage.
