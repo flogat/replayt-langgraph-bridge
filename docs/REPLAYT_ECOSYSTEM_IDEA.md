@@ -28,8 +28,8 @@ product, and not filling a gap we pretend belongs in replayt core.
 **Public API of the bridge:** The Python package under `src/replayt_langgraph_bridge/` (import `replayt_langgraph_bridge`);
 concrete modules and symbols will grow with implementation and stay documented in README or reference docs.
 
-**First supported versions (intent):** Validate against **replayt 0.4.x** and **LangGraph 1.1.x** on PyPI as the initial
-baseline; encode exact pins when the integration code ships.
+**First supported versions:** The adapter targets **replayt 0.4.x** and **LangGraph 1.1.x** on PyPI; declared ranges live in
+**`pyproject.toml`** (`replayt>=0.4.0,<0.5`, `langgraph>=1.1.0,<1.2`) and may widen as CI proves patch compatibility.
 
 ---
 
