@@ -13,6 +13,17 @@ expectations, and (for showcases) **LLM** boundaries.
 
 For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**.
 
+## Dependency Strategy
+
+This project follows a deliberate dependency and pin policy to ensure stability for downstream teams:
+
+- **Runtime dependencies**: `replayt>=0.4.0,<0.5` and `langgraph>=1.1.0,<1.2`
+- **Version selection**: Minimum supported versions based on tested functionality; upper bounds prevent automatic breaking changes
+- **Testing matrix**: CI runs against specific versions to ensure compatibility
+- **Breaking changes**: Process established for monitoring, testing, and documenting upstream releases
+
+See **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** for the complete dependency policy.
+
 ## Reference documentation (optional)
 
 This checkout does not yet include [`docs/reference-documentation/`](docs/reference-documentation/). You can add markdown
@@ -38,7 +49,7 @@ Uses the **dev** extra (`pytest` is listed in `pyproject.toml`). **CI** (GitHub 
 
 This repo may include a [`.cursor/skills/`](.cursor/skills/) directory for Cursor-style agent skills. **`.gitignore`**
 lists **`.cursor/skills/`** so those files stay local and are not pushed. Adapt or remove the directory to match your
-team’s tooling.
+team's tooling.
 
 ## Project layout
 
