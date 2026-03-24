@@ -30,6 +30,20 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 4. **Document**: Update compatibility matrix and changelog
 5. **Communicate**: Use issue templates to track compatibility work
 
+#### Issue Templates and Maintainer Checklist
+- **Issue Template**: Create a "Compatibility Update" issue template in `.github/ISSUE_TEMPLATE/` that includes:
+  - Upstream package and version
+  - Test results against new version
+  - Impact assessment on bridge functionality
+  - Required changes (if any)
+  - Documentation updates needed
+- **Maintainer Checklist**: When a new major version of replayt or LangGraph is released:
+  1. Create a new issue using the compatibility template
+  2. Run CI against the new version
+  3. Document findings in the issue
+  4. Update dependency constraints if needed
+  5. Release a new version of the bridge with updated constraints
+
 ### Rollout Risk for LangGraph Majors
 - **Minor/patch updates**: Generally safe, CI should catch regressions
 - **Major updates**: Require explicit testing and may need bridge modifications
