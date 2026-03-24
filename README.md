@@ -2,14 +2,14 @@
 
 ## Overview
 
-This project builds on **[replayt](https://pypi.org/project/replayt/)**. Read
-**[docs/REPLAYT_ECOSYSTEM_IDEA.md](docs/REPLAYT_ECOSYSTEM_IDEA.md)** for positioning prompts, then
-**[docs/MISSION.md](docs/MISSION.md)** for scope and goals (stubs until you flesh them out).
+This project builds on **[replayt](https://pypi.org/project/replayt/)** as a **LangGraph framework bridge**. Read
+**[docs/REPLAYT_ECOSYSTEM_IDEA.md](docs/REPLAYT_ECOSYSTEM_IDEA.md)** for the primary pattern and compatibility stance, then
+**[docs/MISSION.md](docs/MISSION.md)** for users, scope, success metrics, and version intent.
 
 ## Design principles
 
-**[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, and (for showcases)
-**LLM** boundaries.
+**[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, integrator security
+expectations, and (for showcases) **LLM** boundaries.
 
 
 ## Reference documentation (optional)
@@ -25,6 +25,14 @@ python -m venv .venv
 pip install -e ".[dev]"
 ```
 
+## Run tests
+
+```bash
+pytest
+```
+
+Uses the **dev** extra (`pytest` is listed in `pyproject.toml`). **CI** (GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml), job **`test`**) runs the same **`pytest`** suite on Python **3.11** and **3.12**.
+
 ## Optional agent workflows
 
 This repo may include a [`.cursor/skills/`](.cursor/skills/) directory for Cursor-style agent skills. **`.gitignore`**
@@ -35,10 +43,11 @@ team’s tooling.
 
 | Path | Purpose |
 | ---- | ------- |
-| `docs/REPLAYT_ECOSYSTEM_IDEA.md` | Positioning (core-gap / showcase / bridge / combinator prompts) |
+| `docs/REPLAYT_ECOSYSTEM_IDEA.md` | Positioning; **primary pattern: framework bridge** |
 | `docs/MISSION.md` | Mission and scope |
 | `docs/DESIGN_PRINCIPLES.md` | Design and integration principles |
 | `docs/reference-documentation/` | Optional markdown snapshot for contributors (when present) |
-| `src/replayt_langgraph_bridge/` | Python package (import `replayt_langgraph_bridge`) |
-| `pyproject.toml` | Package metadata |
+| `src/replayt_langgraph_bridge/` | Python package (`compile_replayt_workflow`, `ReplaytBridgeState`, …) |
+| `tests/` | Pytest suite (mirrors CI job **`test`**) |
+| `pyproject.toml` | Package metadata and **replayt** / **LangGraph** version ranges |
 | `.gitignore` | Ignores `.orchestrator/` and `.cursor/skills/` (local tooling) |

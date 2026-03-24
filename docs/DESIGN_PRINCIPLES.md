@@ -10,6 +10,17 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 5. **Not a lever on core** — This repo does not exist to steer replayt core; propose upstream changes through normal
    channels.
 
+## Security considerations
+
+1. **Trust boundary** — Workflow step handlers, the `Workflow` definition, and the `Runner` (and its store) are
+   integrator-controlled. The bridge forwards execution to replayt and LangGraph; it does not sandbox or authenticate
+   application logic.
+2. **Durable state** — `ReplaytBridgeState["context"]` is shallow-merged across updates and may be written by LangGraph
+   checkpointers you supply. Treat checkpoint backends like any persistence layer: do not put secrets or sensitive PII in
+   graph state unless your storage and retention policies allow it.
+3. **Errors and logging** — Transition validation raises `RuntimeError` messages that include step names and allowed
+   targets to aid debugging. Avoid logging full graph state in production if it may contain sensitive fields.
+
 ## LLM / demos (if applicable)
 
 Document models, secrets handling, cost and redaction expectations here or in MISSION.

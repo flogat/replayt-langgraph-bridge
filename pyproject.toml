@@ -3,7 +3,10 @@ name = "replayt-langgraph-bridge"
 version = "0.1.0"
 description = "LangGraph adapter mapping replayt workflow states to graph nodes and checkpoints: Python project using replayt; see docs for scope."
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+  "replayt>=0.4.0,<0.5",
+  "langgraph>=1.1.0,<1.2",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -20,3 +23,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
