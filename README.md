@@ -8,8 +8,8 @@ This project builds on **[replayt](https://pypi.org/project/replayt/)** as a **L
 
 ## Design principles
 
-**[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, and (for showcases)
-**LLM** boundaries.
+**[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, integrator security
+expectations, and (for showcases) **LLM** boundaries.
 
 
 ## Reference documentation (optional)
