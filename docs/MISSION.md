@@ -36,12 +36,11 @@ normal upstream channels (see **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)**).
 
 ## Success metrics
 
-1. **Documented compatibility baseline** — Initial integration work targets **replayt 0.4.x** (validated against current
-   0.4.x releases on PyPI) and **LangGraph 1.1.x** (validated against current 1.1.x). Exact pins will appear in
-   `pyproject.toml` as the adapter implementation lands; ranges may widen as CI proves compatibility.
+1. **Documented compatibility baseline** — Initial integration targets **replayt 0.4.x** and **LangGraph 1.1.x**;
+   declared dependency ranges live in **`pyproject.toml`** and may widen as CI proves compatibility across patch releases.
 2. **Automated tests in CI** — Unit and boundary tests for behavior we document; CI fails on regressions with clear logs
-   (see **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)**). The README describes how to run tests locally (`pytest`, dev
-   extras).
+   (see **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)**). GitHub Actions workflow **[`.github/workflows/ci.yml`](../.github/workflows/ci.yml)**
+   runs job **`test`** (Python **3.11** and **3.12** matrix) with **`pytest`**, matching the local command in the README.
 3. **Small, explicit public surface** — Narrow APIs and documented extension points so integrators can depend on stable
    contracts.
 

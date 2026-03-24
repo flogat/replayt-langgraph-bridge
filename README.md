@@ -31,7 +31,7 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Uses the **dev** extra (`pytest` is listed in `pyproject.toml`). CI will run the same checks once a workflow is added.
+Uses the **dev** extra (`pytest` is listed in `pyproject.toml`). **CI** (GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml), job **`test`**) runs the same **`pytest`** suite on Python **3.11** and **3.12**.
 
 ## Optional agent workflows
 
@@ -47,6 +47,7 @@ team’s tooling.
 | `docs/MISSION.md` | Mission and scope |
 | `docs/DESIGN_PRINCIPLES.md` | Design and integration principles |
 | `docs/reference-documentation/` | Optional markdown snapshot for contributors (when present) |
-| `src/replayt_langgraph_bridge/` | Python package (import `replayt_langgraph_bridge`) |
-| `pyproject.toml` | Package metadata |
+| `src/replayt_langgraph_bridge/` | Python package (`compile_replayt_workflow`, `ReplaytBridgeState`, …) |
+| `tests/` | Pytest suite (mirrors CI job **`test`**) |
+| `pyproject.toml` | Package metadata and **replayt** / **LangGraph** version ranges |
 | `.gitignore` | Ignores `.orchestrator/` and `.cursor/skills/` (local tooling) |
