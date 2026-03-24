@@ -11,6 +11,7 @@ This project builds on **[replayt](https://pypi.org/project/replayt/)** as a **L
 **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, integrator security
 expectations, and (for showcases) **LLM** boundaries.
 
+For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**.
 
 ## Reference documentation (optional)
 
@@ -46,6 +47,7 @@ team’s tooling.
 | `docs/REPLAYT_ECOSYSTEM_IDEA.md` | Positioning; **primary pattern: framework bridge** |
 | `docs/MISSION.md` | Mission and scope |
 | `docs/DESIGN_PRINCIPLES.md` | Design and integration principles |
+| `docs/THREAT_MODEL.md` | Threat model for checkpoint and state data |
 | `docs/reference-documentation/` | Optional markdown snapshot for contributors (when present) |
 | `src/replayt_langgraph_bridge/` | Python package (`compile_replayt_workflow`, `ReplaytBridgeState`, …) |
 | `tests/` | Pytest suite (mirrors CI job **`test`**) |
