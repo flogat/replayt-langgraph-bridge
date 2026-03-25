@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 replayt-langgraph-bridge: LangGraph adapter for replayt workflows.
 
@@ -14,6 +15,10 @@ Internal modules (not part of the public API):
 """
 
 from .graph import (
+=======
+from .graph import (
+    ReplaytBridgeState,
+>>>>>>> mc/backlog-591f8168
     compile_replayt_workflow,
     initial_bridge_state,
 )
@@ -21,6 +26,10 @@ from .graph import (
 __version__ = "0.1.0"
 
 __all__ = [
+<<<<<<< HEAD
+=======
+    "ReplaytBridgeState",
+>>>>>>> mc/backlog-591f8168
     "compile_replayt_workflow",
     "initial_bridge_state",
     "__version__",
