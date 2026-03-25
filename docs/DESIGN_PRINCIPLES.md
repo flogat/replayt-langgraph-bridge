@@ -36,10 +36,6 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 
 For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md).
 
-## LLM / demos (if applicable)
-
-Document models, secrets handling, cost and redaction expectations here or in MISSION.
-
 ## Audience (extend)
 
 | Audience | Needs |
