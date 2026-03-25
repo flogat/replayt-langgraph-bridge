@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any, Dict, Set, TypedDict, Optional
 
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.base import BaseCheckpointSaver
 
 from replayt.workflow import Workflow
 from replayt.runner import Runner
@@ -14,15 +13,10 @@ class ReplaytBridgeState(TypedDict):
     replayt_next: str
 
 
-class ReplaytBridgeContext(TypedDict):
-    runner: Runner
-
-
 class Context:
     """Proxy context for replayt step handlers."""
 
-    def __init__(self, runner: Runner, data: Dict[str, Any]):
-        self.runner = runner
+    def __init__(self, data: Dict[str, Any]):
         self._data = data
 
     def get(self, key: str, default: Any = None) -> Any:
@@ -40,8 +34,8 @@ def initial_bridge_state(context: Optional[Dict[str, Any]] = None) -> ReplaytBri
 
 
 def compile_replayt_workflow(
-    wf: Workflow, checkpointer: Optional[BaseCheckpointSaver] = None
-) -> StateGraph[Any, ReplaytBridgeState]:
+    wf: Workflow, checkpointer: Optional[Any] = None
+) -> StateGraph[ReplaytBridgeState]:
     if not hasattr(wf, "_initial") or wf._initial is None:
         raise ValueError("Workflow must have an initial state set with set_initial()")
 
@@ -51,14 +45,11 @@ def compile_replayt_workflow(
             "replayt_next": wf._initial,
         }
 
-    def execute_next(
-        state: ReplaytBridgeState, context: ReplaytBridgeContext
-    ) -> ReplaytBridgeState:
-        runner: Runner = context["runner"]
+    def execute_next(state: ReplaytBridgeState) -> ReplaytBridgeState:
         current_step: str = state["replayt_next"]
         handler = wf._steps[current_step]
         ctx_data = dict(state["context"])
-        ctx = Context(runner, ctx_data)
+        ctx = Context(ctx_data)
         next_step = handler(ctx)
         if next_step is None:
             next_step = ""
