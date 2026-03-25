@@ -21,3 +21,4 @@
 
 ### Running audits locally
 
+To check for vulnerabilities in dependencies, run:
