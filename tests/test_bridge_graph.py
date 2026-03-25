@@ -48,6 +48,7 @@ def test_linear_workflow_via_langgraph(tmp_path: Path) -> None:
     out = graph.invoke(
         initial_bridge_state(context={"seed": True}),
         config={"configurable": {"thread_id": "t1"}},
+        context={"runner": runner},
     )
 
     assert out["context"]["seed"] is True
@@ -75,6 +76,7 @@ def test_unknown_next_state_raises(tmp_path: Path) -> None:
         graph.invoke(
             initial_bridge_state(),
             config={"configurable": {"thread_id": "t2"}},
+            context={"runner": runner},
         )
 
 
@@ -103,4 +105,5 @@ def test_declared_edge_violation_raises(tmp_path: Path) -> None:
         graph.invoke(
             initial_bridge_state(),
             config={"configurable": {"thread_id": "t3"}},
+            context={"runner": runner},
         )
