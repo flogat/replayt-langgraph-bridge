@@ -1,26 +1,18 @@
 
-### Version pinning strategy
+### Pin strategy
 
-- **Runtime dependencies**: Use compatible version ranges (e.g., `replayt>=0.4.0,<0.5`) to allow patch updates while preventing breaking changes
-- **Dev dependencies**: Pin to specific minor versions for reproducibility
-- **Python version**: Requires Python 3.11+ as specified in `pyproject.toml`
+Use minor version ranges per `docs/DESIGN_PRINCIPLES.md` compatibility matrix (e.g., `>=0.4.0,<0.5`). No lockfile: allows automatic patch updates while reproducible via ranges.
 
-### Handling vulnerabilities
+### Noise handling
 
-When `pip-audit` reports vulnerabilities:
-
-1. **Assess impact**: Determine if the vulnerability affects your usage patterns
-2. **Check for patches**: Upgrade to the latest patched version if available
-3. **Document decisions**: If you must accept a risk, document it in `docs/DEPENDENCY_AUDIT.md` with:
-   - The vulnerability details
-   - Why it doesn't affect this project
-   - Any mitigation strategies
-   - Timeline for re-evaluation
+False positives are assessed using the framework in `docs/DEPENDENCY_AUDIT.md`. Document accepted risks before overriding CI.
 
 ### CI integration
 
-The CI workflow includes a `supply-chain` job that runs `pip-audit --desc --severity-high` on every push and pull request to the `master` branch. This job will fail if any high-severity vulnerabilities are found, preventing them from entering the codebase.
+The `supply-chain` job (matrixed across Python 3.11/3.12) runs `pip-audit --desc --severity-high` on every push/PR to `master`. Fails on high-severity issues.
 
-### Dependency audit documentation
+### Upgrade policy
 
-For detailed information about accepted risks and audit history, see [docs/DEPENDENCY_AUDIT.md](docs/DEPENDENCY_AUDIT.md).
+- Monitor upstream (`replayt`, `langgraph`) changelogs.
+- Test minor bumps locally (update range, re-run audits/tests).
+- Widen ranges in `pyproject.toml` after verification; update compatibility matrix/docs.

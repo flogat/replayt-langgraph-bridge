@@ -8,7 +8,7 @@ All dependencies are scanned using `pip-audit --desc --severity-high` in the CI 
 
 ## Current Status
 
-**Last audit**: CI baseline (no high-severity vulnerabilities detected).  
+**Last audit**: Post-phase-3 matrixed CI (no high-severity vulnerabilities detected).  
 **Status**: Clean on runtime + dev dependencies.
 
 ## Vulnerability Assessment Framework
@@ -26,15 +26,20 @@ When vulnerabilities are reported, we assess them based on:
 
 ## History
 
-### [Date] - Initial Setup
+### Initial Setup
 - Added `pip-audit` to CI workflow
 - Created dependency audit documentation
 - No vulnerabilities detected in initial dependency set (dev-only)
 
-### [Date] - Runtime Dependencies Added
+### Runtime Dependencies Added
 - Added `replayt>=0.4.0,<0.5` and `langgraph>=1.1.0,<1.2`
 - CI `pip-audit` passed (no high-severity issues)
 - Matches compatibility matrix in `docs/DESIGN_PRINCIPLES.md`
+
+### Phase 3 - CI Enhancement
+- Matrixed `supply-chain` job across Python 3.11/3.12
+- Confirmed no high-severity vulnerabilities
+- Completed `CONTRIBUTING.md` dependency management docs
 
 ## Dependency Inventory
 
