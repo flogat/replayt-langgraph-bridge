@@ -1,7 +1,8 @@
-# LangGraph adapter mapping replayt workflow states to graph nodes and checkpoints
+# replayt-langgraph-bridge
 
-## Overview
+LangGraph adapter mapping replayt workflow states to graph nodes and checkpoints.
 
+<<<<<<< HEAD
 This project builds on **replayt** as a **LangGraph framework bridge**. Read
 **[docs/REPLAYT_ECOSYSTEM_IDEA.md](docs/REPLAYT_ECOSYSTEM_IDEA.md)** for the primary pattern and compatibility stance, then
 **[docs/MISSION.md](docs/MISSION.md)** for users, scope, success metrics, and version intent.
@@ -45,37 +46,57 @@ This checkout does not yet include [`docs/reference-documentation/`](docs/refere
 copies of upstream replayt documentation there for offline review or agent context.
 
 ## Quick start
+=======
+## Installation
+>>>>>>> mc/backlog-4542c070
 
 ```bash
-python -m venv .venv
-# Windows: .venv\\Scripts\\activate
-pip install -e ".[dev]"
+pip install replayt-langgraph-bridge
 ```
 
-## Run tests
+## Usage
 
-```bash
-pytest
+```python
+from replayt.workflow import Workflow
+from replayt_langgraph_bridge import compile_replayt_workflow, initial_bridge_state
+
+# Define a replayt workflow
+wf = Workflow()
+
+@wf.step("start")
+def start(ctx):
+    print("Starting workflow")
+    return "next_step"
+
+@wf.step("next_step")
+def next_step(ctx):
+    print("Next step")
+    return "end"
+
+# Compile the workflow into a LangGraph runnable
+graph = compile_replayt_workflow(wf)
+
+# Create initial state
+initial_state = initial_bridge_state()
+
+# Run the graph (example, requires LangGraph runtime)
+# result = graph.invoke(initial_state)
 ```
 
-Uses the **dev** extra (`pytest` is listed in `pyproject.toml`). **CI** (GitHub Actions workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml), job **`test`**) runs the same **`pytest`** suite on Python **3.11** and **3.12**.
+## Public API
 
-## Optional agent workflows
+- `compile_replayt_workflow(workflow, *, checkpointer=None, ...)`: Compile a replayt `Workflow` into a LangGraph `Runnable`.
+- `initial_bridge_state(*, context=None)`: Create the initial state dictionary for the bridge graph.
+- `__version__`: The package version.
 
-This repo may include a [`.cursor/skills/`](.cursor/skills/) directory for Cursor-style agent skills. **`.gitignore`**
-lists **`.cursor/skills/`** so those files stay local and are not pushed. Adapt or remove the directory to match your
-team's tooling.
+## Internal Modules
 
-## Project layout
+The `graph` module contains internal implementation details and is not part of the public API. It may change without notice.
 
-| Path | Purpose |
-| ---- | ------- |
-| `docs/REPLAYT_ECOSYSTEM_IDEA.md` | Positioning; **primary pattern: framework bridge** |
-| `docs/MISSION.md` | Mission and scope |
-| `docs/DESIGN_PRINCIPLES.md` | Design and integration principles |
-| `docs/THREAT_MODEL.md` | Threat model for checkpoint and state data |
-| `docs/reference-documentation/` | Optional markdown snapshot for contributors (when present) |
-| `src/replayt_langgraph_bridge/` | Python package (`compile_replayt_workflow`, `ReplaytBridgeState`, …) |
-| `tests/` | Pytest suite (mirrors CI job **`test`**) |
-| `pyproject.toml` | Package metadata and **replayt** / **LangGraph** version ranges |
-| `.gitignore` | Ignores `.orchestrator/` and `.cursor/skills/` (local tooling) |
+## Compatibility
+
+- replayt 0.4.x
+- LangGraph 1.1.x
+- Python 3.11+
+
+See `pyproject.toml` for exact dependency ranges.
