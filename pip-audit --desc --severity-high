@@ -1,0 +1,20 @@
+
+The CI workflow runs this automatically on every push and pull request.
+
+### Vulnerability threshold
+
+The CI fails on high-severity vulnerabilities. Medium and low severity issues are reported but don't fail the build.
+
+### Handling false positives
+
+If `pip-audit` reports a false positive:
+1. Check the vulnerability details
+2. If it doesn't affect your code, add an ignore flag to the CI command
+3. Document the reason in `docs/DEPENDENCY_AUDIT.md`
+
+## Code standards
+
+- Follow existing code style
+- Add tests for new functionality
+- Update documentation as needed
+- Ensure CI passes before merging
