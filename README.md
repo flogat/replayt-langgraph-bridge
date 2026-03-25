@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project builds on **[replayt](https://pypi.org/project/replayt/)** as a **LangGraph framework bridge**. Read
+This project builds on **replayt** as a **LangGraph framework bridge**. Read
 **[docs/REPLAYT_ECOSYSTEM_IDEA.md](docs/REPLAYT_ECOSYSTEM_IDEA.md)** for the primary pattern and compatibility stance, then
 **[docs/MISSION.md](docs/MISSION.md)** for users, scope, success metrics, and version intent.
 
@@ -13,6 +13,7 @@ expectations, and (for showcases) **LLM** boundaries.
 
 For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**.
 
+<<<<<<< HEAD
 ## Compatibility matrix
 
 | Component | Supported versions | Notes |
@@ -25,6 +26,18 @@ For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MOD
 - Patch versions within the supported minor version range are automatically compatible
 - Minor version bumps require explicit testing and may require bridge updates
 - Major version bumps are breaking changes and will require significant bridge updates
+=======
+## Dependency Strategy
+
+This project follows a deliberate dependency and pin policy to ensure stability for downstream teams:
+
+- **Runtime dependencies**: `replayt>=0.4.0,<0.5` and `langgraph>=1.1.0,<1.2`
+- **Version selection**: Minimum supported versions based on tested functionality; upper bounds prevent automatic breaking changes
+- **Testing matrix**: CI runs against specific versions to ensure compatibility
+- **Breaking changes**: Process established for monitoring, testing, and documenting upstream releases
+
+See **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** for the complete dependency policy.
+>>>>>>> mc/backlog-befc42a4
 
 ## Reference documentation (optional)
 
