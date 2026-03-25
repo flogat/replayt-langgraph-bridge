@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- _(Add user-visible changes here; move bullets into a version section when you release.)_
+- Added matrixed `supply-chain` CI job (`pip-audit --desc --severity-high`) that scans runtime and dev dependencies across Python 3.11/3.12, failing on high-severity vulnerabilities.
 
 ## [0.1.0] - 2026-03-25
 
