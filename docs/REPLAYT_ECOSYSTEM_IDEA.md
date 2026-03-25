@@ -1,6 +1,6 @@
 # Positioning — LangGraph adapter mapping replayt workflow states to graph nodes and checkpoints
 
-This project **uses** [replayt](https://pypi.org/project/replayt/). It is **not** a fork of replayt. Compatibility,
+This project **uses** replayt. It is **not** a fork of replayt. Compatibility,
 version pins, and CI are maintained **in this repository** (consumer-side), not inside replayt core.
 
 **Test coverage (required):** Ship automated tests for behavior you claim (unit, contract/integration at replayt
@@ -28,14 +28,14 @@ product, and not filling a gap we pretend belongs in replayt core.
 **Public API of the bridge:** The Python package under `src/replayt_langgraph_bridge/` (import `replayt_langgraph_bridge`);
 concrete modules and symbols will grow with implementation and stay documented in README or reference docs.
 
-**First supported versions:** The adapter targets **replayt 0.4.x** and **LangGraph 1.1.x** on PyPI; declared ranges live in
+**First supported versions:** The adapter targets **replayt 0.4.x** and **LangGraph 1.1.x**; declared ranges live in
 **`pyproject.toml`** (`replayt>=0.4.0,<0.5`, `langgraph>=1.1.0,<1.2`) and may widen as CI proves patch compatibility.
 
 ---
 
 ## Other patterns (context only)
 
-These describe *adjacent* ways a replayt-related repo might be shaped. **This repo’s leading pattern is (3) only.**
+These describe *adjacent* ways a replayt-related repo might be shaped. **This repo's leading pattern is (3) only.**
 
 ### 1) Core-gap
 
@@ -52,5 +52,5 @@ _See section above._
 
 ### 4) Combinator
 
-_Novel composition of replayt + other tools._ Possible future examples could build on this bridge, but the repo’s mission
+_Novel composition of replayt + other tools._ Possible future examples could build on this bridge, but the repo's mission
 remains the LangGraph adapter first.

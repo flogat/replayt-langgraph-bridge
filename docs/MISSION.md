@@ -1,6 +1,6 @@
 # Mission: LangGraph adapter mapping replayt workflow states to graph nodes and checkpoints
 
-This repository is a **framework bridge**: it connects **[replayt](https://pypi.org/project/replayt/)** workflows to **[LangGraph](https://pypi.org/project/langgraph/)** so integrators can express replayt-backed execution as a graph (nodes, edges, checkpoints) without re-implementing replayt semantics.
+This repository is a **framework bridge**: it connects **replayt** workflows to **LangGraph** so integrators can express replayt-backed execution as a graph (nodes, edges, checkpoints) without re-implementing replayt semantics.
 
 See **[REPLAYT_ECOSYSTEM_IDEA.md](docs/REPLAYT_ECOSYSTEM_IDEA.md)** for positioning relative to other adapter patterns.
 
