@@ -1,31 +1,28 @@
 
-## Handling audit results
+### CI supply-chain gates
 
-### High-severity vulnerabilities
-- **Must be addressed before merging**. Either:
-  1. Upgrade to a patched version
-  2. Document why the vulnerability doesn't affect this project
-- The CI supply-chain job will fail if any high-severity vulnerabilities are found
+The CI workflow includes a `supply-chain` job that runs `pip-audit --desc --severity-high`.
+This job will fail if any high-severity vulnerabilities are detected in the dependency tree.
 
-### Medium/low-severity vulnerabilities
-- Review and address as appropriate
-- Document any accepted risks in this file
+**Threshold:** High-severity vulnerabilities (CVSS score >= 7.0) will cause CI to fail.
 
-### False positives
-- Document in this file with justification
-- Consider contributing fixes to `pip-audit` or the vulnerability database
+### Handling vulnerabilities
 
-## Version pinning strategy
+1. **Check impact**: Determine if the vulnerability affects your usage of the dependency
+2. **Upgrade**: If a patched version is available, upgrade the dependency in `pyproject.toml`
+3. **Document**: If you must accept a risk, document it in `docs/DEPENDENCY_AUDIT.md`
+4. **Re-run audit**: After changes, run `pip-audit --desc --severity-high` locally to verify
 
-- Use compatible version ranges in `pyproject.toml` (e.g., `replayt>=0.4.0,<0.5`)
-- Pin exact versions only when necessary for security or stability
-- Update dependencies regularly to include security patches
-- Test with the full Python version matrix (3.11, 3.12) after any dependency change
+### Lock files
 
-## Accepted risks
+This project does not use lock files (like `requirements.txt` or `pipenv.lock`). Instead:
+- Dependencies are specified in `pyproject.toml` with version ranges
+- CI runs audits against the latest compatible versions
+- Integrators should pin versions in their own deployments as needed
 
-*No accepted risks documented yet.*
+### Version pinning strategy
 
-## Audit history
-
-*No audit history documented yet.*
+- **Runtime dependencies**: Use conservative ranges (e.g., `replayt>=0.4.0,<0.5`)
+- **Dev dependencies**: Use minimum versions that work, allowing CI to test against latest
+- **Security updates**: Patch versions within ranges are automatically picked up
+- **Breaking changes**: Minor version bumps require explicit testing and may require bridge updates
