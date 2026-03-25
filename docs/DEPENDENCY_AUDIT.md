@@ -4,12 +4,12 @@ This document tracks supply-chain vulnerabilities that have been identified and 
 
 ## Audit Process
 
-All dependencies are scanned using `pip-audit --desc --severity-high` in the CI pipeline. Any high-severity vulnerabilities will cause the CI to fail, preventing them from entering the codebase.
+All dependencies are scanned using `pip-audit --desc --severity-high` in the CI pipeline (`supply-chain` job). Any high-severity vulnerabilities will cause the CI to fail, preventing them from entering the codebase.
 
 ## Current Status
 
-**Last audit**: Initial setup  
-**Status**: No high-severity vulnerabilities detected in current dependencies.
+**Last audit**: CI baseline (no high-severity vulnerabilities detected).  
+**Status**: Clean on runtime + dev dependencies.
 
 ## Vulnerability Assessment Framework
 
@@ -29,14 +29,20 @@ When vulnerabilities are reported, we assess them based on:
 ### [Date] - Initial Setup
 - Added `pip-audit` to CI workflow
 - Created dependency audit documentation
-- No vulnerabilities detected in initial dependency set
+- No vulnerabilities detected in initial dependency set (dev-only)
+
+### [Date] - Runtime Dependencies Added
+- Added `replayt>=0.4.0,<0.5` and `langgraph>=1.1.0,<1.2`
+- CI `pip-audit` passed (no high-severity issues)
+- Matches compatibility matrix in `docs/DESIGN_PRINCIPLES.md`
 
 ## Dependency Inventory
 
-As of initial setup, the project has no runtime dependencies in `pyproject.toml`. The following dev dependencies are pinned:
+**Runtime dependencies** (pinned per compatibility policy):
+- `replayt>=0.4.0,<0.5`
+- `langgraph>=1.1.0,<1.2`
 
+**Dev dependencies**:
 - `pytest>=8.0`
 - `ruff>=0.6.0`
 - `pip-audit>=2.7.0`
-
-When runtime dependencies are added (e.g., `replayt>=0.4.0,<0.5`, `langgraph>=1.1.0,<1.2`), they will be documented here with their audit status.
