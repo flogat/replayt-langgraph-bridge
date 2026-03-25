@@ -39,6 +39,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
+
     steps:
     - uses: actions/checkout@v4
 
@@ -52,6 +53,5 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[dev]
 
-    - name: Run pip-audit
-      run: |
-        pip-audit --desc --severity-high
+    - name: Run supply-chain audit
+      run: pip-audit --desc --severity-high

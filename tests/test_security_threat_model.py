@@ -38,6 +38,7 @@ def test_sensitive_data_not_logged_in_errors(tmp_path: Path) -> None:
         graph.invoke(
             initial_bridge_state(context={"api_key": "secret-key-123", "user_pii": "sensitive@example.com"}),
             config={"configurable": {"thread_id": "t1"}},
+            context={"runner": runner},
         )
     
     # Verify that error message doesn't contain the sensitive data
@@ -79,6 +80,7 @@ def test_context_shallow_merge_behavior(tmp_path: Path) -> None:
     out = graph.invoke(
         initial_bridge_state(context={"initial": "data"}),
         config={"configurable": {"thread_id": "t1"}},
+        context={"runner": runner},
     )
 
     # Verify final state
@@ -109,6 +111,7 @@ def test_no_secrets_in_state_by_default(tmp_path: Path) -> None:
     out = graph.invoke(
         initial_bridge_state(),
         config={"configurable": {"thread_id": "t1"}},
+        context={"runner": runner},
     )
 
     # Verify no unexpected secrets in output
@@ -144,12 +147,14 @@ def test_checkpoint_state_isolation(tmp_path: Path) -> None:
     out1 = graph.invoke(
         initial_bridge_state(context={"seed": "instance1"}),
         config={"configurable": {"thread_id": "t1"}},
+        context={"runner": runner1},
     )
     
     # Second instance with different thread_id
     out2 = graph.invoke(
         initial_bridge_state(context={"seed": "instance2"}),
         config={"configurable": {"thread_id": "t2"}},
+        context={"runner": runner2},
     )
 
     # Verify state isolation

@@ -41,6 +41,12 @@ When vulnerabilities are reported, we assess them based on:
 - Confirmed no high-severity vulnerabilities
 - Completed `CONTRIBUTING.md` dependency management docs
 
+### Supply-Chain Gates Spec (Backlog 591f8168)
+- Retroactively documented for existing runtime deps (already clean per CI).
+- Threshold: `--severity-high` (CI fails PRs).
+- Noise handling: Assessed/documented here if accepted.
+- Bump process: CONTRIBUTING.md + local/CI audits + DESIGN_PRINCIPLES.md policy.
+
 ## Dependency Inventory
 
 **Runtime dependencies** (pinned per compatibility policy):

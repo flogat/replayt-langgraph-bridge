@@ -10,20 +10,6 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 5. **Not a lever on core** — This repo does not exist to steer replayt core; propose upstream changes through normal
    channels.
 
-<<<<<<< HEAD
-## Compatibility matrix
-
-| Component | Supported versions | Notes |
-|-----------|-------------------|-------|
-| replayt | 0.4.x | `replayt>=0.4.0,<0.5` in `pyproject.toml` |
-| LangGraph | 1.1.x | `langgraph>=1.1.0,<1.2` in `pyproject.toml` |
-| Python | 3.11+ | `requires-python = ">=3.11"` in `pyproject.toml` |
-
-**Version policy:**
-- Patch versions within the supported minor version range are automatically compatible
-- Minor version bumps require explicit testing and may require bridge updates
-- Major version bumps are breaking changes and will require significant bridge updates
-=======
 ## Dependency and Pin Policy
 
 ### Version Selection Strategy
@@ -62,7 +48,6 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 - **Minor/patch updates**: Generally safe, CI should catch regressions
 - **Major updates**: Require explicit testing and may need bridge modifications
 - **Transition period**: Support both old and new majors during migration if feasible
->>>>>>> mc/backlog-befc42a4
 
 ## Security considerations
 
