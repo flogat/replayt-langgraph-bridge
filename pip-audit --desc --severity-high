@@ -1,20 +1,31 @@
 
-The CI workflow runs this automatically on every push and pull request.
+## Handling audit results
 
-### Vulnerability threshold
+### High-severity vulnerabilities
+- **Must be addressed before merging**. Either:
+  1. Upgrade to a patched version
+  2. Document why the vulnerability doesn't affect this project
+- The CI supply-chain job will fail if any high-severity vulnerabilities are found
 
-The CI fails on high-severity vulnerabilities. Medium and low severity issues are reported but don't fail the build.
+### Medium/low-severity vulnerabilities
+- Review and address as appropriate
+- Document any accepted risks in this file
 
-### Handling false positives
+### False positives
+- Document in this file with justification
+- Consider contributing fixes to `pip-audit` or the vulnerability database
 
-If `pip-audit` reports a false positive:
-1. Check the vulnerability details
-2. If it doesn't affect your code, add an ignore flag to the CI command
-3. Document the reason in `docs/DEPENDENCY_AUDIT.md`
+## Version pinning strategy
 
-## Code standards
+- Use compatible version ranges in `pyproject.toml` (e.g., `replayt>=0.4.0,<0.5`)
+- Pin exact versions only when necessary for security or stability
+- Update dependencies regularly to include security patches
+- Test with the full Python version matrix (3.11, 3.12) after any dependency change
 
-- Follow existing code style
-- Add tests for new functionality
-- Update documentation as needed
-- Ensure CI passes before merging
+## Accepted risks
+
+*No accepted risks documented yet.*
+
+## Audit history
+
+*No audit history documented yet.*
