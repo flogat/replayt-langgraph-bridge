@@ -2,7 +2,6 @@
 
 LangGraph adapter mapping replayt workflow states to graph nodes and checkpoints.
 
-<<<<<<< HEAD
 This project builds on **replayt** as a **LangGraph framework bridge**. Read
 **[docs/REPLAYT_ECOSYSTEM_IDEA.md](docs/REPLAYT_ECOSYSTEM_IDEA.md)** for the primary pattern and compatibility stance, then
 **[docs/MISSION.md](docs/MISSION.md)** for users, scope, success metrics, and version intent.
@@ -14,20 +13,6 @@ expectations, and (for showcases) **LLM** boundaries.
 
 For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**.
 
-<<<<<<< HEAD
-## Compatibility matrix
-
-| Component | Supported versions | Notes |
-|-----------|-------------------|-------|
-| replayt | 0.4.x | `replayt>=0.4.0,<0.5` in `pyproject.toml` |
-| LangGraph | 1.1.x | `langgraph>=1.1.0,<1.2` in `pyproject.toml` |
-| Python | 3.11+ | `requires-python = ">=3.11"` in `pyproject.toml` |
-
-**Version policy:**
-- Patch versions within the supported minor version range are automatically compatible
-- Minor version bumps require explicit testing and may require bridge updates
-- Major version bumps are breaking changes and will require significant bridge updates
-=======
 ## Dependency Strategy
 
 This project follows a deliberate dependency and pin policy to ensure stability for downstream teams:
@@ -38,23 +23,18 @@ This project follows a deliberate dependency and pin policy to ensure stability 
 - **Breaking changes**: Process established for monitoring, testing, and documenting upstream releases
 
 See **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** for the complete dependency policy.
->>>>>>> mc/backlog-befc42a4
 
 ## Reference documentation (optional)
 
 This checkout does not yet include [`docs/reference-documentation/`](docs/reference-documentation/). You can add markdown
 copies of upstream replayt documentation there for offline review or agent context.
 
-## Quick start
-=======
 ## Installation
->>>>>>> mc/backlog-4542c070
 
 ```bash
 pip install replayt-langgraph-bridge
 ```
 
-<<<<<<< HEAD
 ### Secrets handling
 **Important**: Never commit secrets to version control. Store API keys and tokens in environment variables.
 
@@ -72,7 +52,7 @@ echo "LANGCHAIN_API_KEY=your-key-here" >> .env
 **In code**:
 ```python
 import os
-from replayt_langgraph_bridge import compile_to_langgraph
+from replayt_langgraph_bridge import compile_replayt_workflow
 
 # Read secrets from environment
 api_key = os.getenv("OPENAI_API_KEY")
@@ -83,12 +63,9 @@ if not api_key:
 # ... (your workflow code here)
 ```
 
-For the complete secrets policy, see **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
+For the complete secrets policy, see **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
 
-## Run tests
-=======
 ## Usage
->>>>>>> master
 
 ```python
 from replayt.workflow import Workflow
