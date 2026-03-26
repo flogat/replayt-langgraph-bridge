@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added matrixed `supply-chain` CI job (`pip-audit --ignore-vuln CVE-2026-4539 --desc`) that scans runtime and dev dependencies across Python 3.11/3.12 (PyPA `pip-audit` has no `--severity-high` flag; ignore documented in `docs/DEPENDENCY_AUDIT.md`).
 - Secrets policy for LLM and tool integrations, covering environment-backed configuration, key rotation, safe/anti-patterns, and tracing considerations (`docs/DESIGN_PRINCIPLES.md`).
+- Log redaction hooks (`redactor` param on `compile_replayt_workflow`) with default deny-list (e.g., `api_key`, `token`), value masking patterns (API keys, emails, UUIDs, prompts), strict mode (`REPLAYT_BRIDGE_STRICT_REDACT=1`), and custom extension (`docs/LOG_REDACTION.md`).
 
 ## [0.1.0] - 2026-03-25
 
