@@ -17,7 +17,7 @@ def test_compile_requires_initial_state() -> None:
     wf = Workflow("t")
     wf.step("a")(lambda ctx: None)
 
-    with pytest.raises(ValueError, match="initial_state"):
+    with pytest.raises(ValueError, match="set_initial"):
         compile_replayt_workflow(wf)
 
 
@@ -47,8 +47,8 @@ def test_linear_workflow_via_langgraph(tmp_path: Path) -> None:
     graph = compile_replayt_workflow(wf, checkpointer=MemorySaver())
     out = graph.invoke(
         initial_bridge_state(context={"seed": True}),
-        context={"runner": runner},
         config={"configurable": {"thread_id": "t1"}},
+        context={"runner": runner},
     )
 
     assert out["context"]["seed"] is True
@@ -75,8 +75,8 @@ def test_unknown_next_state_raises(tmp_path: Path) -> None:
     with pytest.raises(RuntimeError, match="unknown next state"):
         graph.invoke(
             initial_bridge_state(),
-            context={"runner": runner},
             config={"configurable": {"thread_id": "t2"}},
+            context={"runner": runner},
         )
 
 
@@ -104,6 +104,6 @@ def test_declared_edge_violation_raises(tmp_path: Path) -> None:
     with pytest.raises(RuntimeError, match="undeclared transition"):
         graph.invoke(
             initial_bridge_state(),
-            context={"runner": runner},
             config={"configurable": {"thread_id": "t3"}},
+            context={"runner": runner},
         )

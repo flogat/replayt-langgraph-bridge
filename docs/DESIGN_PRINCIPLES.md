@@ -10,18 +10,44 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 5. **Not a lever on core** — This repo does not exist to steer replayt core; propose upstream changes through normal
    channels.
 
-## Compatibility matrix
+## Dependency and Pin Policy
 
-| Component | Supported versions | Notes |
-|-----------|-------------------|-------|
-| replayt | 0.4.x | `replayt>=0.4.0,<0.5` in `pyproject.toml` |
-| LangGraph | 1.1.x | `langgraph>=1.1.0,<1.2` in `pyproject.toml` |
-| Python | 3.11+ | `requires-python = ">=3.11"` in `pyproject.toml` |
+### Version Selection Strategy
+- **Minimum supported versions**: Set based on tested functionality and security patches
+- **Upper bounds**: Use `< next-major` to prevent breaking changes from automatic updates
+- **Tested matrix**: CI runs against specific versions to ensure compatibility
+- **Optional extras**: Clearly separated from core runtime dependencies
 
-**Version policy:**
-- Patch versions within the supported minor version range are automatically compatible
-- Minor version bumps require explicit testing and may require bridge updates
-- Major version bumps are breaking changes and will require significant bridge updates
+### Current Dependency Constraints
+- **replayt**: `>=0.4.0,<0.5` (initial integration target, tested with 0.4.x series)
+- **LangGraph**: `>=1.1.0,<1.2` (initial integration target, tested with 1.1.x series)
+- **Python**: `>=3.11` (matches LangGraph and replayt requirements)
+
+### Breaking Upstream Releases
+1. **Monitor**: Watch for new major versions of replayt and LangGraph
+2. **Test**: Run existing test suite against new versions
+3. **Assess**: Determine if changes affect bridge functionality
+4. **Document**: Update compatibility matrix and changelog
+5. **Communicate**: Use issue templates to track compatibility work
+
+#### Issue Templates and Maintainer Checklist
+- **Issue Template**: Create a "Compatibility Update" issue template in `.github/ISSUE_TEMPLATE/` that includes:
+  - Upstream package and version
+  - Test results against new version
+  - Impact assessment on bridge functionality
+  - Required changes (if any)
+  - Documentation updates needed
+- **Maintainer Checklist**: When a new major version of replayt or LangGraph is released:
+  1. Create a new issue using the compatibility template
+  2. Run CI against the new version
+  3. Document findings in the issue
+  4. Update dependency constraints if needed
+  5. Release a new version of the bridge with updated constraints
+
+### Rollout Risk for LangGraph Majors
+- **Minor/patch updates**: Generally safe, CI should catch regressions
+- **Major updates**: Require explicit testing and may need bridge modifications
+- **Transition period**: Support both old and new majors during migration if feasible
 
 ## Security considerations
 
@@ -36,6 +62,7 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 
 For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md).
 
+<<<<<<< HEAD
 ## Secrets policy
 
 ### Environment-backed configuration
@@ -71,6 +98,8 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md).
 ## LLM / demos (if applicable)
 Document models, secrets handling, cost and redaction expectations here or in MISSION.
 
+=======
+>>>>>>> master
 ## Audience (extend)
 
 | Audience | Needs |
