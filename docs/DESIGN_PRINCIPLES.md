@@ -62,7 +62,6 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 
 For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md).
 
-<<<<<<< HEAD
 ## Secrets policy
 
 ### Environment-backed configuration
@@ -91,6 +90,11 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md).
 - **Production**: Use secure secret management systems (e.g., AWS Secrets Manager, HashiCorp Vault, Kubernetes secrets).
 - **Consistency**: The same secret handling patterns should apply to both demo and production paths.
 
+### Rotation
+- **Recommended cadence**: Rotate API keys and tokens every 90 days (or per organizational policy) and immediately upon suspected compromise.
+- **Automation**: Leverage secret management services with built-in rotation features (e.g., AWS Secrets Manager, Google Secret Manager, HashiCorp Vault).
+- **Coordination**: Rotate secrets across all consumers (demos, staging, production) atomically to prevent desynchronization.
+
 ### References
 - See [THREAT_MODEL.md](THREAT_MODEL.md) for detailed security considerations.
 - See [MISSION.md](MISSION.md) for operational guidelines.
@@ -98,8 +102,6 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md).
 ## LLM / demos (if applicable)
 Document models, secrets handling, cost and redaction expectations here or in MISSION.
 
-=======
->>>>>>> master
 ## Audience (extend)
 
 | Audience | Needs |
