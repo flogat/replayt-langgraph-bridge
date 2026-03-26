@@ -62,6 +62,46 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 
 For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md).
 
+## Secrets policy
+
+### Environment-backed configuration
+- **Preferred method**: Store API keys, tokens, and other secrets in environment variables.
+- **Example**: Set `OPENAI_API_KEY`, `LANGCHAIN_API_KEY`, etc., in your shell or deployment environment.
+- **Never commit secrets**: Do not commit `.env` files or any files containing raw secrets to version control.
+
+### Secret handling patterns
+- **Safe pattern**: Read secrets from environment variables at runtime:
+  ```python
+  import os
+  api_key = os.getenv("OPENAI_API_KEY")
+  if not api_key:
+      raise ValueError("OPENAI_API_KEY environment variable not set")
+  ```
+- **Anti-pattern**: Hardcoding secrets in code, configuration files, or graph state.
+- **Anti-pattern**: Logging raw secrets or including them in error messages.
+
+### LLM and tool integrations
+- **LLM providers**: Use environment variables for API keys (OpenAI, Anthropic, etc.).
+- **Tool integrations**: Each tool should document its own secret requirements and follow the same pattern.
+- **Tracing and exporters**: If using LangSmith or similar exporters, ensure secrets are not logged or stored in traces.
+
+### Demo vs production
+- **Demos**: May use environment files for convenience, but never commit them.
+- **Production**: Use secure secret management systems (e.g., AWS Secrets Manager, HashiCorp Vault, Kubernetes secrets).
+- **Consistency**: The same secret handling patterns should apply to both demo and production paths.
+
+### Rotation
+- **Recommended cadence**: Rotate API keys and tokens every 90 days (or per organizational policy) and immediately upon suspected compromise.
+- **Automation**: Leverage secret management services with built-in rotation features (e.g., AWS Secrets Manager, Google Secret Manager, HashiCorp Vault).
+- **Coordination**: Rotate secrets across all consumers (demos, staging, production) atomically to prevent desynchronization.
+
+### References
+- See [THREAT_MODEL.md](THREAT_MODEL.md) for detailed security considerations.
+- See [MISSION.md](MISSION.md) for operational guidelines.
+
+## LLM / demos (if applicable)
+Document models, secrets handling, cost and redaction expectations here or in MISSION.
+
 ## Audience (extend)
 
 | Audience | Needs |
