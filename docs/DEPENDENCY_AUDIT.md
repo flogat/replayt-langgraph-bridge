@@ -4,12 +4,12 @@ This document tracks supply-chain vulnerabilities that have been identified and 
 
 ## Audit Process
 
-All dependencies are scanned using `pip-audit --desc` in the CI pipeline (`supply-chain` job). The PyPA tool does not support a `--severity-high` filter; any reported vulnerability fails the job.
+All dependencies are scanned using `pip-audit --ignore-vuln CVE-2026-4539 --desc` in the CI pipeline (`supply-chain` job). The PyPA tool does not support a `--severity-high` filter; any reported vulnerability fails the job except CVEs explicitly ignored here and mirrored in the workflow.
 
 ## Current Status
 
-**Last audit**: Post-phase-3 matrixed CI (no high-severity vulnerabilities detected).  
-**Status**: Clean on runtime + dev dependencies.
+**Last audit**: 2026-03-26 — supply-chain job green with documented ignore for transitive **pygments** advisory below.  
+**Status**: Runtime + dev tree monitored; one accepted transitive risk documented.
 
 ## Vulnerability Assessment Framework
 
@@ -22,7 +22,12 @@ When vulnerabilities are reported, we assess them based on:
 
 ## Accepted Risks
 
-*None currently documented.*
+### CVE-2026-4539 — pygments (transitive)
+
+- **Package**: `pygments` (e.g. 2.19.x pulled transitively via **replayt → typer → rich → pygments**).
+- **Issue**: ReDoS in **AdlLexer** (not used by this package’s code paths or CI beyond importing the dependency stack).
+- **Mitigation**: Track upstream **pygments** / **rich** / **replayt** releases; remove `--ignore-vuln` from `.github/workflows/ci.yml` when the resolved tree includes a fixed version.
+- **CI**: `.github/workflows/ci.yml` uses `pip-audit --ignore-vuln CVE-2026-4539 --desc` so the job matches this documented acceptance.
 
 ## History
 

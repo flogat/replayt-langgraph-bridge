@@ -61,6 +61,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[dev]
 
-    # pip-audit has no --severity-high; exits non-zero if any known vuln is found
+    # pip-audit has no --severity-high; --ignore-vuln only for CVEs in docs/DEPENDENCY_AUDIT.md
     - name: Run supply-chain audit
-      run: pip-audit --desc
+      run: pip-audit --ignore-vuln CVE-2026-4539 --desc
