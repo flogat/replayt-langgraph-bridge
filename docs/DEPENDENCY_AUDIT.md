@@ -38,12 +38,12 @@ When vulnerabilities are reported, we assess them based on:
 
 ### Phase 3 - CI Enhancement
 - Matrixed `supply-chain` job across Python 3.11/3.12
-- Confirmed no high-severity vulnerabilities
+- Confirmed clean `pip-audit --desc` runs (no reported vulnerabilities at the time)
 - Completed `CONTRIBUTING.md` dependency management docs
 
 ### Supply-Chain Gates Spec (Backlog 591f8168)
 - Retroactively documented for existing runtime deps (already clean per CI).
-- Threshold: `--severity-high` (CI fails PRs).
+- Threshold: any reported vulnerability fails CI (`pip-audit --desc`; PyPA tool has no severity filter flag).
 - Noise handling: Assessed/documented here if accepted.
 - Bump process: CONTRIBUTING.md + local/CI audits + DESIGN_PRINCIPLES.md policy.
 
