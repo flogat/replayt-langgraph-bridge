@@ -12,7 +12,7 @@
 ### Adding or updating dependencies
 
 1. Update `pyproject.toml` with the new dependency version
-2. Run the supply-chain audit: `pip-audit --desc --severity-high`
+2. Run the supply-chain audit: `pip-audit --desc`
 3. If vulnerabilities are found:
    - Check if they affect your usage
    - Consider upgrading to a patched version

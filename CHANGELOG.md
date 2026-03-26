@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added matrixed `supply-chain` CI job (`pip-audit --desc --severity-high`) that scans runtime and dev dependencies across Python 3.11/3.12, failing on high-severity vulnerabilities.
+- Added matrixed `supply-chain` CI job (`pip-audit --desc`) that scans runtime and dev dependencies across Python 3.11/3.12 (PyPA `pip-audit` has no `--severity-high` flag).
 - Secrets policy for LLM and tool integrations, covering environment-backed configuration, key rotation, safe/anti-patterns, and tracing considerations (`docs/DESIGN_PRINCIPLES.md`).
 
 ## [0.1.0] - 2026-03-25

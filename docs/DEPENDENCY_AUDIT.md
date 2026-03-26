@@ -4,7 +4,7 @@ This document tracks supply-chain vulnerabilities that have been identified and 
 
 ## Audit Process
 
-All dependencies are scanned using `pip-audit --desc --severity-high` in the CI pipeline (`supply-chain` job). Any high-severity vulnerabilities will cause the CI to fail, preventing them from entering the codebase.
+All dependencies are scanned using `pip-audit --desc` in the CI pipeline (`supply-chain` job). The PyPA tool does not support a `--severity-high` filter; any reported vulnerability fails the job.
 
 ## Current Status
 
@@ -33,7 +33,7 @@ When vulnerabilities are reported, we assess them based on:
 
 ### Runtime Dependencies Added
 - Added `replayt>=0.4.0,<0.5` and `langgraph>=1.1.0,<1.2`
-- CI `pip-audit` passed (no high-severity issues)
+- CI `pip-audit` passed (no reported vulnerabilities)
 - Matches compatibility matrix in `docs/DESIGN_PRINCIPLES.md`
 
 ### Phase 3 - CI Enhancement
