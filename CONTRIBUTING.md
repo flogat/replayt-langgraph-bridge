@@ -19,6 +19,12 @@
    - Document any accepted risks in `docs/DEPENDENCY_AUDIT.md`
 4. Update the CI workflow if needed
 
+For **how** pins, ranges, and optional extras are chosen—and what “minimum supported” vs “what CI runs” means—see **[docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy](docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy)**.
+
+### Upstream compatibility (replayt / LangGraph majors)
+
+When triaging a new **major** or a risky range change, open a **Compatibility Update** issue using **[`.github/ISSUE_TEMPLATE/compatibility_update.md`](.github/ISSUE_TEMPLATE/compatibility_update.md)** and follow the maintainer checklist in **DESIGN_PRINCIPLES.md** (same section as above).
+
 ### Running audits locally
 
 To check for vulnerabilities in dependencies, run:
