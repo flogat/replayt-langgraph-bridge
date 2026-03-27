@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Annotated, Any
 
 from langgraph.graph import END, START, StateGraph
@@ -12,8 +13,13 @@ from replayt.runner import RunContext, Runner
 from replayt.workflow import Workflow
 from typing_extensions import TypedDict
 
+from replayt_langgraph_bridge.bridge_log import emit_bridge_record, get_bridge_logger
+from replayt_langgraph_bridge.redaction import RedactorHook
 
-def _merge_context(left: dict[str, Any], right: dict[str, Any] | None) -> dict[str, Any]:
+
+def _merge_context(
+    left: dict[str, Any], right: dict[str, Any] | None
+) -> dict[str, Any]:
     if right is None:
         return left
     return {**left, **right}
@@ -42,7 +48,9 @@ def _merged_llm_defaults(workflow: Workflow) -> dict[str, Any]:
     return merged
 
 
-def initial_bridge_state(*, context: dict[str, Any] | None = None) -> ReplaytBridgeState:
+def initial_bridge_state(
+    *, context: dict[str, Any] | None = None
+) -> ReplaytBridgeState:
     """Build input state for the first :meth:`~langgraph.graph.state.CompiledStateGraph.invoke` call."""
 
     return {"context": dict(context) if context else {}, "replayt_next": ""}
@@ -54,32 +62,119 @@ def _normalize_next(handler_result: str | None) -> str:
     return str(handler_result)
 
 
-def _make_step_node(step_name: str, workflow: Workflow, merged_llm: dict[str, Any]):
-    def step_node(state: ReplaytBridgeState, *, runtime: Runtime[ReplaytBridgeContext]) -> dict[str, Any]:
+def _make_step_node(
+    step_name: str,
+    workflow: Workflow,
+    merged_llm: dict[str, Any],
+    *,
+    bridge_logger: logging.Logger,
+    redactor: RedactorHook | None,
+    redact: bool,
+    strict_redact: bool,
+):
+    def step_node(
+        state: ReplaytBridgeState, *, runtime: Runtime[ReplaytBridgeContext]
+    ) -> dict[str, Any]:
         runner = runtime.context["runner"]
+        run_id = getattr(runner, "run_id", None)
         runner._current_state = step_name
         ctx = RunContext(runner, llm_defaults=merged_llm or None)
         ctx.data.clear()
         ctx.data.update(state["context"])
         handler = workflow.get_handler(step_name)
-        nxt = handler(ctx)
+        try:
+            nxt = handler(ctx)
+        except Exception:
+            emit_bridge_record(
+                bridge_logger,
+                logging.ERROR,
+                "replayt bridge step handler raised",
+                {
+                    "event": "step_handler_error",
+                    "event_type": "step_handler_error",
+                    "step": step_name,
+                    "run_id": run_id,
+                    "context": dict(ctx.data),
+                },
+                redact=redact,
+                strict_redact=strict_redact,
+                redactor=redactor,
+            )
+            raise
         if not workflow.allows_transition(step_name, nxt):
             allowed = [dst for src, dst in workflow.edges() if src == step_name]
+            emit_bridge_record(
+                bridge_logger,
+                logging.ERROR,
+                "replayt bridge transition rejected",
+                {
+                    "event": "transition_invalid",
+                    "event_type": "transition_invalid",
+                    "step": step_name,
+                    "to_step": nxt,
+                    "run_id": run_id,
+                    "allowed": allowed,
+                    "context": dict(ctx.data),
+                },
+                redact=redact,
+                strict_redact=strict_redact,
+                redactor=redactor,
+            )
             raise RuntimeError(
                 f"Step {step_name!r} returned undeclared transition {nxt!r}; allowed={allowed}"
             )
-        return {"context": dict(ctx.data), "replayt_next": _normalize_next(nxt)}
+        normalized = _normalize_next(nxt)
+        emit_bridge_record(
+            bridge_logger,
+            logging.INFO,
+            "replayt bridge step completed",
+            {
+                "event": "step_completed",
+                "event_type": "step_completed",
+                "step": step_name,
+                "replayt_next": normalized,
+                "run_id": run_id,
+                "context": dict(ctx.data),
+            },
+            redact=redact,
+            strict_redact=strict_redact,
+            redactor=redactor,
+        )
+        return {"context": dict(ctx.data), "replayt_next": normalized}
 
     step_node.__name__ = f"replayt_step_{step_name}"
     return step_node
 
 
-def _route_from(step_name: str, workflow: Workflow, step_names: set[str]):
+def _route_from(
+    step_name: str,
+    step_names: set[str],
+    *,
+    bridge_logger: logging.Logger,
+    redactor: RedactorHook | None,
+    redact: bool,
+    strict_redact: bool,
+):
     def route(state: ReplaytBridgeState):
         nxt = state.get("replayt_next", "")
         if nxt in ("", None):
             return END
         if nxt not in step_names:
+            emit_bridge_record(
+                bridge_logger,
+                logging.ERROR,
+                "replayt bridge unknown next state",
+                {
+                    "event": "unknown_next",
+                    "event_type": "unknown_next",
+                    "from_step": step_name,
+                    "to_step": nxt,
+                    "expected": sorted(step_names),
+                },
+                redact=redact,
+                strict_redact=strict_redact,
+                redactor=redactor,
+            )
             raise RuntimeError(
                 f"After step {step_name!r}, unknown next state {nxt!r}; expected one of {sorted(step_names)!r} or end"
             )
@@ -92,15 +187,28 @@ def compile_replayt_workflow(
     workflow: Workflow,
     *,
     checkpointer: Checkpointer | None = None,
-) -> CompiledStateGraph[ReplaytBridgeState, ReplaytBridgeContext, ReplaytBridgeState, ReplaytBridgeState]:
+    redactor: RedactorHook | None = None,
+    redact: bool = True,
+    strict_redact: bool = False,
+    bridge_logger: logging.Logger | None = None,
+) -> CompiledStateGraph[
+    ReplaytBridgeState, ReplaytBridgeContext, ReplaytBridgeState, ReplaytBridgeState
+]:
     """Wire each replayt step to a LangGraph node; route by handler return value (replayt_next).
 
     Pass a configured :class:`~replayt.runner.Runner` (same ``workflow`` and ``store`` you use for replayt) via
     ``invoke(..., context={"runner": runner})``. Set ``runner.run_id`` before invoking if handlers emit events.
+
+    Bridge lifecycle events are logged on the logger named ``replayt_langgraph_bridge`` (or ``bridge_logger``)
+    with structured metadata under ``LogRecord.replayt_bridge`` after redaction per ``docs/LOG_REDACTION.md``.
+    Set ``REPLAYT_BRIDGE_STRICT_REDACT=1`` or pass ``strict_redact=True`` for stricter masking (most restrictive wins
+    when the env enables strict). ``redact=False`` disables built-in redaction and emits a runtime warning.
     """
 
     if not workflow.initial_state:
-        raise ValueError("workflow.initial_state must be set (call workflow.set_initial)")
+        raise ValueError(
+            "workflow.initial_state must be set (call workflow.set_initial)"
+        )
 
     names = workflow.step_names()
     try:
@@ -112,8 +220,11 @@ def compile_replayt_workflow(
 
     name_set = set(names)
     merged_llm = _merged_llm_defaults(workflow)
+    log = bridge_logger if bridge_logger is not None else get_bridge_logger()
 
-    graph: StateGraph[ReplaytBridgeState, ReplaytBridgeContext, ReplaytBridgeState, ReplaytBridgeState] = StateGraph(
+    graph: StateGraph[
+        ReplaytBridgeState, ReplaytBridgeContext, ReplaytBridgeState, ReplaytBridgeState
+    ] = StateGraph(
         state_schema=ReplaytBridgeState,
         context_schema=ReplaytBridgeContext,
     )
@@ -122,8 +233,30 @@ def compile_replayt_workflow(
     path_map[END] = END
 
     for name in names:
-        graph.add_node(name, _make_step_node(name, workflow, merged_llm))
-        graph.add_conditional_edges(name, _route_from(name, workflow, name_set), path_map)
+        graph.add_node(
+            name,
+            _make_step_node(
+                name,
+                workflow,
+                merged_llm,
+                bridge_logger=log,
+                redactor=redactor,
+                redact=redact,
+                strict_redact=strict_redact,
+            ),
+        )
+        graph.add_conditional_edges(
+            name,
+            _route_from(
+                name,
+                name_set,
+                bridge_logger=log,
+                redactor=redactor,
+                redact=redact,
+                strict_redact=strict_redact,
+            ),
+            path_map,
+        )
 
     graph.add_edge(START, workflow.initial_state)
 

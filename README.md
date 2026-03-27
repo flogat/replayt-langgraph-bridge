@@ -97,9 +97,14 @@ initial_state = initial_bridge_state()
 
 ## Public API
 
-- `compile_replayt_workflow(workflow, *, checkpointer=None, ...)`: Compile a replayt `Workflow` into a LangGraph `Runnable`.
+- `compile_replayt_workflow(workflow, *, checkpointer=None, redactor=None, redact=True, strict_redact=False, bridge_logger=None)`: Compile a replayt `Workflow` into a LangGraph `Runnable`. Step lifecycle and routing errors emit structured records on the logger `replayt_langgraph_bridge` (override with `bridge_logger`) under `LogRecord.replayt_bridge` after redaction per **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. Set `REPLAYT_BRIDGE_STRICT_REDACT=1` or pass `strict_redact=True` for stricter masking when the environment does not already require strict mode. `redact=False` disables built-in redaction and issues a runtime warning.
 - `initial_bridge_state(*, context=None)`: Create the initial state dictionary for the bridge graph.
+- `RedactorHook`, `get_bridge_logger`, `redact_log_attachment`: Types and helpers for custom redaction and tests (see the log redaction spec).
 - `__version__`: The package version.
+
+### Log redaction trade-offs
+
+Default deny keys include LLM-oriented names such as `messages`, `input`, and `content` when the value is a string or list, so bridge logs stay safe by default. Integrators who need raw LLM payloads in logs must supply a custom `redactor` hook (runs after built-in rules) or set `redact=False` and accept the security warning.
 
 ## Internal Modules
 

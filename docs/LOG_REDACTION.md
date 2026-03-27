@@ -2,7 +2,7 @@
 
 This document is the **normative spec** for how `replayt-langgraph-bridge` should redact sensitive data in **structured log records** the package emits. It exists so observability stays useful (correlation IDs, step names, transitions) without turning logs into a disclosure channel.
 
-**Status:** Specification for implementation. Until code lands, integrators must not assume redaction is active.
+**Status:** Implemented in `replayt_langgraph_bridge.redaction` and `replayt_langgraph_bridge.bridge_log` (wired from `compile_replayt_workflow`). Defaults below match module-level constants unless noted.
 
 ## Scope
 
@@ -128,6 +128,17 @@ The following are **done** when the feature ships:
 2. **Unit test** — At least one test constructs a structured log payload containing a representative secret (e.g. `api_key` with value `sk-test-0123456789abcdef` or a synthetic JWT-shaped string). Capture the serialized log record (or the dict passed to `logging.Logger.log` via a handler). **Assert** the secret substring does not appear in the output under **default** config.
 3. **Extension test (recommended)** — One test proves a custom hook can rewrite or drop an additional key after built-in passes.
 4. **Strict mode test (recommended)** — With `REPLAYT_BRIDGE_STRICT_REDACT=1`, assert an additional class of value (e.g. long opaque string) is masked compared to default.
+
+## Implementation map
+
+| Spec area | Code |
+| --------- | ---- |
+| Key deny lists (default + conditional + strict extras) | `replayt_langgraph_bridge.redaction`: `_DEFAULT_DENY_KEYS`, `_CONDITIONAL_DENY_KEYS`, `_STRICT_EXTRA_DENY_KEYS` |
+| Value patterns (`PAT_*`) | Same module: `_RE_JWT`, `_RE_EMAIL`, `_RE_OPENAI_SK`, `_high_entropy` (strict) |
+| Strict env + compiler flag | `strict_redaction_enabled()`, `compile_replayt_workflow(..., strict_redact=...)` — strict is on if the environment requests it **or** `strict_redact=True` (most restrictive) |
+| Integrator hook | `RedactorHook`, `compile_replayt_workflow(..., redactor=...)`; hook receives a deep copy of the structured attachment after built-in field and pattern passes |
+| Emission | `emit_bridge_record` / `compile_replayt_workflow` — `logging.Logger.log(..., extra={"replayt_bridge": ...})` |
+| Disable built-in redaction | `compile_replayt_workflow(..., redact=False)` emits `UserWarning` |
 
 ## References
 

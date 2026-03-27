@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Bridge-originated structured logging on logger `replayt_langgraph_bridge` (`LogRecord.replayt_bridge`) with default key/pattern redaction, optional `RedactorHook`, `REPLAYT_BRIDGE_STRICT_REDACT` / `strict_redact`, and `redact=False` escape hatch (warning). Wired from `compile_replayt_workflow` (`src/replayt_langgraph_bridge/redaction.py`, `bridge_log.py`, `graph.py`); tests in `tests/test_log_redaction.py`.
 - Tests that lock the **dependency policy** to **`pyproject.toml`** (runtime vs **`dev`** extra) and assert the **Compatibility Update** issue template is present (`tests/test_dependency_strategy.py`).
 - Added matrixed `supply-chain` CI job (`pip-audit --ignore-vuln CVE-2026-4539 --desc`) that scans runtime and dev dependencies across Python 3.11/3.12 (PyPA `pip-audit` has no `--severity-high` flag; ignore documented in `docs/DEPENDENCY_AUDIT.md`).
 - Secrets policy for LLM and tool integrations, covering environment-backed configuration, key rotation, safe/anti-patterns, and tracing considerations (`docs/DESIGN_PRINCIPLES.md`).
