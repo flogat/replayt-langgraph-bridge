@@ -89,8 +89,8 @@ Treat the following as **done** when the dependency story matches docs and packa
    integrator hook, strict mode via `REPLAYT_BRIDGE_STRICT_REDACT`) applies to **bridge-originated structured logs** as specified
    in **[LOG_REDACTION.md](LOG_REDACTION.md)**; it is not a substitute for checkpoint access control or integrator-side state hygiene.
 3. **Errors and logging** — Transition validation raises `RuntimeError` messages that include step names and allowed
-   targets to aid debugging. Avoid logging full graph state in production if it may contain sensitive fields. When implemented,
-   bridge logging paths must follow **[LOG_REDACTION.md](LOG_REDACTION.md)**.
+   targets to aid debugging. Avoid logging full graph state in production if it may contain sensitive fields. Bridge-originated
+   structured logs follow **[LOG_REDACTION.md](LOG_REDACTION.md)**.
 
 For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For redaction rules and extension points, see [LOG_REDACTION.md](LOG_REDACTION.md).
 

@@ -50,6 +50,14 @@ def test_patterns_mask_openai_key_in_allow_listed_message_field() -> None:
     assert "[REDACTED]" in blob
 
 
+def test_patterns_mask_email_in_attachment_string() -> None:
+    """PAT_EMAIL: representative PII must not appear in default redacted attachment JSON."""
+    redacted = redact_log_attachment({"note": "contact user@example.com ok"})
+    blob = json.dumps(redacted)
+    assert "user@example.com" not in blob
+    assert "[REDACTED]" in blob
+
+
 def test_emit_bridge_record_no_secret_in_output() -> None:
     buf: list[logging.LogRecord] = []
     log = logging.getLogger("replayt_langgraph_bridge.test_emit")

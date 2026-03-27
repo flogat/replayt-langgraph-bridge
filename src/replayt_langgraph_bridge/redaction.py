@@ -1,7 +1,8 @@
 """Default redaction for bridge-originated structured log attachments.
 
-Behavior matches ``docs/LOG_REDACTION.md``: key deny lists (shallow depth), value
-patterns, optional strict mode (``REPLAYT_BRIDGE_STRICT_REDACT``), and integrator hook.
+Behavior matches ``docs/LOG_REDACTION.md``: key deny lists (recursive dict
+branches; single-level dicts inside lists), value patterns, optional strict mode
+(``REPLAYT_BRIDGE_STRICT_REDACT``), and integrator hook.
 """
 
 from __future__ import annotations
@@ -144,7 +145,12 @@ def _redact_list(items: list[Any], *, strict: bool) -> list[Any]:
 def apply_field_redaction(
     attachment: dict[str, Any], *, strict: bool
 ) -> dict[str, Any]:
-    """Field deny list at depth 0 plus one nested level (dict values and list-of-dicts)."""
+    """Apply key-based deny/conditional rules at the root and under nested dict values.
+
+    Dict values are traversed recursively for field rules. List elements that are
+    dicts get one level of key-based rules; nested dicts inside those elements
+    are not traversed for deny matching.
+    """
 
     out: dict[str, Any] = {}
     for k, v in attachment.items():
