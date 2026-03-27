@@ -13,16 +13,17 @@ expectations, and (for showcases) **LLM** boundaries.
 
 For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**.
 
-## Dependency Strategy
+## Dependency strategy
 
-This project follows a deliberate dependency and pin policy to ensure stability for downstream teams:
+This project follows a deliberate **dependency and pin policy** so downstream installs do not pick up unexpected **major** upgrades of **replayt** or **LangGraph**.
 
-- **Runtime dependencies**: `replayt>=0.4.0,<0.5` and `langgraph>=1.1.0,<1.2`
-- **Version selection**: Minimum supported versions based on tested functionality; upper bounds prevent automatic breaking changes
-- **Testing matrix**: CI runs against specific versions to ensure compatibility
-- **Breaking changes**: Process established for monitoring, testing, and documenting upstream releases
+- **Runtime** (installed with `pip install replayt-langgraph-bridge`): `replayt>=0.4.0,<0.5` and `langgraph>=1.1.0,<1.2`, declared in **`pyproject.toml`** with short comments explaining bounds.
+- **Minimum supported** vs **upper bounds**: Lower bounds reflect features and support posture; `< next-major` caps automatic upgrades until maintainers validate a new line.
+- **What CI exercises**: **Python** 3.11 and 3.12 jobs install the package with **`[dev]`** and run **pytest**; **replayt** and **langgraph** resolve to the **latest versions allowed by those ranges** on each run (no separate lockfile today).
+- **Contributor install**: `pip install -e ".[dev]"` pulls **pytest**, **ruff**, and **pip-audit** only via the **`dev`** optional extra—never as default runtime deps.
+- **Upstream majors or risky bumps**: Use the **Compatibility Update** issue template (`.github/ISSUE_TEMPLATE/compatibility_update.md`) and follow the maintainer checklist in **[docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy](docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy)**.
 
-See **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** for the complete dependency policy.
+The full policy (selection rules, LangGraph major rollout risk, and builder-facing acceptance criteria) lives in **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)**.
 
 ## Reference documentation (optional)
 

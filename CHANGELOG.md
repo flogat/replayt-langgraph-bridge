@@ -9,8 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Tests that lock the **dependency policy** to **`pyproject.toml`** (runtime vs **`dev`** extra) and assert the **Compatibility Update** issue template is present (`tests/test_dependency_strategy.py`).
 - Added matrixed `supply-chain` CI job (`pip-audit --ignore-vuln CVE-2026-4539 --desc`) that scans runtime and dev dependencies across Python 3.11/3.12 (PyPA `pip-audit` has no `--severity-high` flag; ignore documented in `docs/DEPENDENCY_AUDIT.md`).
 - Secrets policy for LLM and tool integrations, covering environment-backed configuration, key rotation, safe/anti-patterns, and tracing considerations (`docs/DESIGN_PRINCIPLES.md`).
+
+### Documentation
+
+- Refined **dependency and pin policy**: minimum supported vs upper bounds vs CI behavior, optional **`dev`** extra, justified runtime constraints, LangGraph major rollout risk, and builder-facing acceptance criteria (`docs/DESIGN_PRINCIPLES.md`); aligned **README** dependency strategy and **CONTRIBUTING** pointers to the policy and **Compatibility Update** issue template.
 
 ## [0.1.0] - 2026-03-25
 
