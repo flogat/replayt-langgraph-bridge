@@ -63,5 +63,5 @@ The following field types should **never** be persisted in LangGraph checkpoints
 ## Links
 
 - [DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md) - Security considerations section.
-- [LOG_REDACTION.md](LOG_REDACTION.md) - Normative spec for bridge log redaction (when implemented).
+- [LOG_REDACTION.md](LOG_REDACTION.md) - Normative spec for bridge log redaction (implemented; see `replayt_langgraph_bridge.redaction` and `bridge_log`).
 - [MISSION.md](MISSION.md) - Project scope and success metrics.

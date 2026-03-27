@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 - Normative **log redaction** spec for bridge-originated structured logs: default key deny list, value patterns, strict mode (`REPLAYT_BRIDGE_STRICT_REDACT`), integrator hook contract, scope/non-goals, and builder acceptance criteria (**[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**); cross-links from **DESIGN_PRINCIPLES**, **THREAT_MODEL**, **MISSION**, and **README**.
+- **Log redaction** spec refinement (phase 2 backlog): backlog-to-spec traceability table, concrete `LogRecord` / `replayt_bridge` emission contract, field vs pattern **traversal semantics** aligned with `redaction.py`, **verification obligations** for CI, and updated **MISSION** / **THREAT_MODEL** links (**[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**).
 - Refined **dependency and pin policy**: minimum supported vs upper bounds vs CI behavior, optional **`dev`** extra, justified runtime constraints, LangGraph major rollout risk, and builder-facing acceptance criteria (`docs/DESIGN_PRINCIPLES.md`); aligned **README** dependency strategy and **CONTRIBUTING** pointers to the policy and **Compatibility Update** issue template.
 
 ## [0.1.0] - 2026-03-25

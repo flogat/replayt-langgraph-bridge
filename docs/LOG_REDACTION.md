@@ -4,12 +4,25 @@ This document is the **normative spec** for how `replayt-langgraph-bridge` shoul
 
 **Status:** Implemented in `replayt_langgraph_bridge.redaction` and `replayt_langgraph_bridge.bridge_log` (wired from `compile_replayt_workflow`). Defaults below match module-level constants unless noted.
 
+## Backlog traceability
+
+Maps the product backlog item **“Specify redaction hooks for logged graph and replayt events”** to this spec so phase **3** (Builder) and phase **4** (Tester) share a single checklist.
+
+| Backlog acceptance criterion | Where it is specified | How it is verified (today) |
+| ----------------------------- | ---------------------- | --------------------------- |
+| Documented default **allow** and **deny** lists for log **fields** | [Default field policy](#default-field-policy-deny-list) and [Keys that must not be redacted](#keys-that-must-not-be-redacted-by-default-allow-list) | Tables match `_DEFAULT_DENY_KEYS`, `_CONDITIONAL_DENY_KEYS`, `_STRICT_EXTRA_DENY_KEYS`, and `_ALLOW_VALUE_KEYS` in `replayt_langgraph_bridge.redaction` |
+| Documented default **string patterns** | [Default string pattern policy](#default-string-pattern-policy-value-masking) | Pattern behavior matches `_RE_JWT`, `_RE_EMAIL`, `_RE_OPENAI_SK`, and strict-only high-entropy / long-string rules in the same module |
+| At least one **unit test** proves a representative secret-like value does **not** appear in **emitted** log output under **default** config | [Verification obligations](#verification-obligations) | `tests/test_log_redaction.py`: minimum `redact_log_attachment` + `json.dumps` assert; **recommended** `emit_bridge_record` and/or compiled graph invoke (see obligations) |
+| **Extension point** or callback documented for stricter integrators | [Extension point](#extension-point-integrator-hook) and README / API on `RedactorHook`, `compile_replayt_workflow(..., redactor=...)` | Doc + tests `test_custom_redactor_runs_last`, `test_redactor_error_sets_flag_and_does_not_leak_secret` |
+
 ## Scope
 
 ### In scope
 
 - **Bridge-originated structured logs** — Records produced by this package when it logs workflow/graph lifecycle events (e.g. step transitions, replayt `run_id` correlation, errors that attach a bounded state snapshot).
 - **Replayt-facing event payloads** when the bridge forwards or mirrors replayt events into those same structured records (same redaction pipeline as graph state snippets attached to logs).
+
+**Graph vs replayt events:** Any structured dict the bridge passes to `emit_bridge_record` (including metadata derived from workflow steps, transitions, or replayt `run_id` correlation) is treated as one attachment shape: there is no separate “replayt-only” or “graph-only” redactor. Integrators who log outside this path are out of scope ([Out of scope](#out-of-scope-non-goals)).
 
 ### Out of scope (non-goals)
 
@@ -27,16 +40,29 @@ This document is the **normative spec** for how `replayt-langgraph-bridge` shoul
 
 ## Structured log record (contract)
 
-The implementation should define a single internal type or dict shape for “records” before they reach `logging` (exact field names are implementation details, but the **redaction pipeline** applies to this object):
+**Emission shape (implemented):** Bridge code calls `logging.Logger.log(level, msg, extra={"replayt_bridge": <dict>})`. The redaction pipeline runs on:
 
-- **Required conceptual fields:** severity, logger name, message, timestamp (or defer to logging config).
-- **Optional structured attachment:** `context` or `extra` — a JSON-serializable dict holding bridge metadata (e.g. `run_id`, `step`, `event`, and a shallow copy of relevant `ReplaytBridgeState["context"]` keys for debugging).
+1. **Structured attachment** — the dict intended for `extra["replayt_bridge"]` (JSON-serializable metadata: `run_id`, `step`, `event`, selected `ReplaytBridgeState["context"]` keys, etc.).
+2. **Log message string** — the human-readable `msg` after template expansion; **value patterns** run on this string (not the full key-based deny list).
 
-**Redaction applies to the structured attachment and to any string values in the message template expansion**, not to numeric correlation IDs that are known safe.
+**“Emitted log record” for tests:** The observable output is the `logging.LogRecord` after `emit_bridge_record` (or an equivalent path used in production). Assertions MUST cover at least `record.getMessage()` and `getattr(record, "replayt_bridge", {})` serialized together (e.g. `json.dumps`) so both the message body and structured extra are checked. Testing only `redact_log_attachment` in isolation satisfies the backlog’s **minimum** bar if the test name and docstring state that it stands in for the attachment half of the pipeline; an end-to-end test through `emit_bridge_record` or `compile_replayt_workflow` is **strongly recommended** and already present in the suite.
+
+Correlation IDs that are numeric or opaque non-secret strings (e.g. `run_id`) remain unless a pattern or strict rule masks them.
+
+## Traversal semantics (field vs pattern passes)
+
+These rules describe **current** behavior in `replayt_langgraph_bridge.redaction`; update this section if traversal changes.
+
+- **Key-based deny / conditional / strict field rules (`apply_field_redaction`):**
+  - Applied to the **root** attachment dict and, when a value is a **nested dict**, **recursively** to all dict values at any depth under that branch.
+  - When a value is a **list**, each element that is a **dict** is processed with **one level** of key-based rules on that dict’s keys; values inside those dicts that are themselves dicts are **not** further traversed for key-based redaction (they are left as-is). Non-dict list elements are unchanged by key rules.
+- **String pattern passes (`PAT_*`):** After field redaction, patterns run over **all** string values anywhere in the attachment structure (full recursive walk over dicts and lists), and over the log message string via `redact_log_message`.
+
+**Key normalization:** Matching uses `normalize_log_key`: lowercased keys with `-` folded to `_`, so `api-key` and `api_key` are equivalent for deny/allow decisions.
 
 ## Default field policy (deny list)
 
-Matching is **case-insensitive** on dict keys at the **top level** of the structured attachment and **one level deep** into nested dicts/lists (shallow walk: if the implementation recurses, document max depth; default spec is **depth 2** including list elements that are dicts).
+Matching uses [key normalization](#traversal-semantics-field-vs-pattern-passes) on dict keys as described in the traversal section above.
 
 ### Deny list (keys whose values are replaced)
 
@@ -87,7 +113,7 @@ Recommended sentinels: replace matched substring with `[REDACTED]` or a fixed to
 
 ## Strict mode
 
-- **Env var (proposed):** `REPLAYT_BRIDGE_STRICT_REDACT=1` — when set, enable strict behavior before any optional constructor flags (if both exist, document precedence: **env wins** or **most restrictive wins**).
+- **Env var (implemented):** `REPLAYT_BRIDGE_STRICT_REDACT` — truthy values (`1`, `true`, `yes`, `on`, case-insensitive) enable strict behavior. **Precedence:** strict is **on** if the environment requests it **or** the caller passes `strict_redact=True` to `redact_log_attachment` / `compile_replayt_workflow` / `emit_bridge_record` (**most restrictive wins**).
 - **Effects (minimum):**
   - Add `PAT_HIGH_ENTROPY` (or equivalent) for long opaque strings.
   - Apply long-string truncation/redaction per **Raw prompts** rules.
@@ -95,7 +121,14 @@ Recommended sentinels: replace matched substring with `[REDACTED]` or a fixed to
 
 ## Extension point (integrator hook)
 
-**Contract:** After built-in field and pattern passes, the implementation invokes an optional **callable** supplied by the integrator (e.g. `redactor` parameter on `compile_replayt_workflow` or a module-level setter — **exact surface is left to implementation** but must be documented in README and API reference).
+**Contract:** After built-in field and pattern passes, the implementation invokes an optional **callable** supplied by the integrator.
+
+**Public surfaces (implemented):**
+
+- `compile_replayt_workflow(..., redactor: RedactorHook | None = None, redact: bool = True, strict_redact: bool = False)` — propagates to every `emit_bridge_record` call for that compiled graph.
+- `redact_log_attachment(..., redactor=...)` — for integrator tests, custom loggers, or middleware that reuse the same pipeline without compiling a graph.
+
+README and package docstrings remain the integrator-facing summary; this document is normative for behavior.
 
 Suggested signature (normative for typing/docs):
 
@@ -105,38 +138,44 @@ from typing import Any, Callable
 RedactorHook = Callable[[dict[str, Any]], dict[str, Any]]
 ```
 
-- **Input:** Deep copy or read-only view of the structured attachment dict (implementation must document mutability).
-- **Output:** Dict to log; hook may add keys but should not bypass earlier redaction unless documented as “escape hatch.”
+- **Input:** Deep copy of the structured attachment after built-in field and pattern passes (`copy.deepcopy`); the hook may mutate the dict it receives.
+- **Output:** Dict attached to `LogRecord.replayt_bridge`; the hook may add keys but should not strip built-in redaction unless intentionally documented as an escape hatch (`redact=False`).
 - **Ordering:** Built-ins run first; hook runs last.
-- **Errors:** If the hook raises, implementation should log a **safe** fallback (e.g. original record with an additional `redactor_error` flag and sensitive keys stripped by emergency deny list) — document exact behavior.
+- **Errors:** If the hook raises, the implementation returns a **safe** fallback dict: built-in redaction re-run with `strict=True`, plus `redactor_error: True`, without leaking prior secret substrings.
 
-## API sketch (for Builder; not binding names)
+## API sketch (historical)
 
-The Builder phase should expose something equivalent to:
+The shipped API matches the [Extension point](#extension-point-integrator-hook) section. **`redact=False`** disables built-in redaction and emits a `UserWarning`; use only in controlled tests.
 
-- `compile_replayt_workflow(..., redactor: RedactorHook | None = None)` — optional hook.
-- Default redactor behavior active when `redactor is None` (built-in lists/patterns).
-- Document how to **disable** built-in redaction (discouraged): only if required for tests; if supported, must emit a warning or require an explicit `redact=False` with security note.
+## Verification obligations
 
-Exact parameter names may vary; **behavior must match this document**.
+**Maintainers MUST keep the following true in CI** (backlog + regression safety):
+
+1. **Documented defaults** — Default deny-list keys, conditional keys, strict extras, allow-value keys, and pattern semantics in this file stay consistent with `replayt_langgraph_bridge.redaction` (or the doc explicitly records an intentional divergence and a follow-up issue).
+2. **Minimum secret-leak test (required)** — Under **default** redaction (`redact=True`, `strict_redact=False`, `REPLAYT_BRIDGE_STRICT_REDACT` unset), at least one test uses a representative secret-like literal (e.g. `api_key` → `sk-test-0123456789abcdef` or a JWT-shaped three-segment string) and asserts that literal’s **substring does not appear** in `json.dumps` of the redacted attachment and/or in a fingerprint of the full `LogRecord` as defined in [Structured log record](#structured-log-record-contract).
+3. **Extension hook (required for backlog)** — At least one test proves a custom `RedactorHook` runs **after** built-in passes and can add or rewrite keys; at least one test proves a raising hook yields a safe fallback (`redactor_error` set, secret substrings absent).
+4. **Strict mode (recommended)** — With `REPLAYT_BRIDGE_STRICT_REDACT=1` or `strict_redact=True`, assert stricter masking (e.g. long opaque string or long non-allow-listed prose) compared to default.
+
+Reference suite: `tests/test_log_redaction.py`.
 
 ## Builder-facing acceptance criteria (from backlog)
 
-The following are **done** when the feature ships:
+The following are **done** when the feature ships (aligned with [Backlog traceability](#backlog-traceability)):
 
 1. **Documented defaults** — This file stays aligned with code: default deny-list keys and pattern IDs match implementation constants or generated docs.
-2. **Unit test** — At least one test constructs a structured log payload containing a representative secret (e.g. `api_key` with value `sk-test-0123456789abcdef` or a synthetic JWT-shaped string). Capture the serialized log record (or the dict passed to `logging.Logger.log` via a handler). **Assert** the secret substring does not appear in the output under **default** config.
-3. **Extension test (recommended)** — One test proves a custom hook can rewrite or drop an additional key after built-in passes.
-4. **Strict mode test (recommended)** — With `REPLAYT_BRIDGE_STRICT_REDACT=1`, assert an additional class of value (e.g. long opaque string) is masked compared to default.
+2. **Unit test** — Satisfies [Verification obligations](#verification-obligations) item 2.
+3. **Extension test** — Satisfies item 3.
+4. **Strict mode test** — Satisfies item 4 (recommended but already covered in the reference suite).
 
 ## Implementation map
 
 | Spec area | Code |
 | --------- | ---- |
-| Key deny lists (default + conditional + strict extras) | `replayt_langgraph_bridge.redaction`: `_DEFAULT_DENY_KEYS`, `_CONDITIONAL_DENY_KEYS`, `_STRICT_EXTRA_DENY_KEYS` |
+| Key deny lists (default + conditional + strict extras) + allow keys for strict long-string carve-out | `replayt_langgraph_bridge.redaction`: `_DEFAULT_DENY_KEYS`, `_CONDITIONAL_DENY_KEYS`, `_STRICT_EXTRA_DENY_KEYS`, `_ALLOW_VALUE_KEYS` |
+| Key normalization | `normalize_log_key()` |
 | Value patterns (`PAT_*`) | Same module: `_RE_JWT`, `_RE_EMAIL`, `_RE_OPENAI_SK`, `_high_entropy` (strict) |
 | Strict env + compiler flag | `strict_redaction_enabled()`, `compile_replayt_workflow(..., strict_redact=...)` — strict is on if the environment requests it **or** `strict_redact=True` (most restrictive) |
-| Integrator hook | `RedactorHook`, `compile_replayt_workflow(..., redactor=...)`; hook receives a deep copy of the structured attachment after built-in field and pattern passes |
+| Integrator hook | `RedactorHook`, `redact_log_attachment(..., redactor=...)`, `compile_replayt_workflow(..., redactor=...)` |
 | Emission | `emit_bridge_record` / `compile_replayt_workflow` — `logging.Logger.log(..., extra={"replayt_bridge": ...})` |
 | Disable built-in redaction | `compile_replayt_workflow(..., redact=False)` emits `UserWarning` |
 
