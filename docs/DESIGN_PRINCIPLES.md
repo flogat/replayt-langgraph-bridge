@@ -73,10 +73,10 @@ When **replayt** or **langgraph** ships a new **major**, or you intend to widen/
 
 Treat the following as **done** when the dependency story matches docs and packaging:
 
-- [ ] **Policy written** — This section and the README **Dependency strategy** describe pins, ranges, optional extras, and minimum vs CI-tested interpretation consistently.
-- [ ] **Runtime vs dev** — `[project.dependencies]` lists only what end users need; `[project.optional-dependencies] dev` lists contributor tooling; no dev-only tools in core dependencies.
-- [ ] **Justified constraints** — Each runtime requirement in **`pyproject.toml`** has a maintainer-facing comment; constraints match **Current dependency constraints** here and **`README.md`** compatibility lines.
-- [ ] **Breaking upstream path** — Triage uses the compatibility issue template and the maintainer checklist above; **`CONTRIBUTING.md`** points maintainers at this policy and the template for bumps.
+- [x] **Policy written** — This section and the README **Dependency strategy** describe pins, ranges, optional extras, and minimum vs CI-tested interpretation consistently.
+- [x] **Runtime vs dev** — `[project.dependencies]` lists only what end users need; `[project.optional-dependencies] dev` lists contributor tooling; no dev-only tools in core dependencies.
+- [x] **Justified constraints** — Each runtime requirement in **`pyproject.toml`** has a maintainer-facing comment; constraints match **Current dependency constraints** here and **`README.md`** compatibility lines.
+- [x] **Breaking upstream path** — Triage uses the compatibility issue template and the maintainer checklist above; **`CONTRIBUTING.md`** points maintainers at this policy and the template for bumps.
 
 ## Security considerations
 
