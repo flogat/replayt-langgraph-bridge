@@ -6,6 +6,27 @@ This document is the **source of truth** for which paths the repository **should
 
 ---
 
+## 0. Backlog traceability
+
+**Backlog:** Review and tighten **`.gitignore`** for local secrets and orchestrator artifacts (workflow item **`27853c00-77f0-403a-9ff2-6d45f3255a4f`**).
+
+**User story (verbatim intent):** Contributors want **`.gitignore`** to exclude common secret filenames and local orchestration directories so accidental commits of tokens or private prompts are less likely.
+
+**Constraints from product backlog:**
+
+- Do **not** ignore files required for reproducible builds; document intentional exceptions (**§3**, **G4**).
+- **Pre-commit** hooks (detect-secrets, gitleaks, etc.) are **out of scope** for this backlog unless adopted later (**traceability table** below).
+
+**Acceptance criteria (verbatim) → spec mapping:**
+
+| Backlog line | Normative mapping |
+| ------------ | ----------------- |
+| “`.gitignore` updated with justified patterns; no overlap that breaks packaging” | **G1**, **G2**, **§4** |
+| “Short note in `CONTRIBUTING.md` on what must never be committed” | **G3** — checklist at **[CONTRIBUTING.md § What must never be committed](../CONTRIBUTING.md#what-must-never-be-committed)**; bullets should stay aligned with **§2** categories **A**–**C** (and **E** where relevant). |
+| “If pre-commit is added later, criteria can reference it; not required in this item.” | Paragraph under the **§5** traceability table. |
+
+---
+
 ## 1. Goals
 
 1. Reduce accidental commits of **credentials**, **environment files**, and **private agent/orchestration** output.
@@ -90,6 +111,16 @@ Run from a clean worktree (no unintended staged deletes). After **`.gitignore`**
 4. **`git check-ignore -v`** on any **new** ignored path you introduced (and on **`uv.lock`**, **`pyproject.toml`**, **`src/`** sample paths) to confirm §3 **forbidden ignore targets** are **not** ignored.
 5. **`uv run pytest tests/test_gitignore_contract.py`** — confirms §2 examples and §3 “must not ignore” paths still match Git’s view (**G5**).
 
+### 5.2 When `.gitignore` already matches §2 (zero-diff audit path)
+
+The backlog is **still satisfied** if an audit against **`master`** (or the agreed integration branch) shows **no** further patterns are justified: packaging and CI must not regress, and the social contract (CONTRIBUTING + this doc) must stay true.
+
+**Minimum for the Builder when the `.gitignore` diff is empty:**
+
+1. Run **§5.1** on the branch and capture pass/fail (CI parity).
+2. In the PR or issue, state explicitly that **§2** categories **A**–**E** were reviewed and **no** additional globs were added **because** of collision risk (**§4**), existing coverage, or opt-in directory conventions only.
+3. If local tooling exposes a **new** recurring footgun (stable relative path under the repo root), prefer **§6** + a narrow rule + **G5** in the **same** change set next time—do not treat “empty diff” as permission to skip **§5.1** on CI.
+
 ---
 
 ## 6. Optional pattern catalog (review when tightening)
@@ -102,6 +133,10 @@ Use this list when expanding **Category A** or **B**; **do not** copy it wholesa
 | **`client_secret*.json`** / **`token.json`** (OAuth desktop) | Google / OAuth client flows | High collision risk with generic names; prefer directory scope (e.g. `local_oauth/`) ignored instead. |
 | **`.secrets.baseline`** | **detect-secrets** baseline (if adopted) | Often **tracked** intentionally; **never** ignore if the project commits it. |
 | **`handoff.md`** under **`.orchestrator/`** | Mission Control handoffs | Covered by **`.orchestrator/`**; do not add redundant root-level `handoff.md` ignore unless a documented tool writes at repo root. |
+| **`.netrc`**, **`.aws/credentials`**, **`.config/gcloud/`**-style copies | CLI / cloud credential drops next to a clone | Prefer **directory-scoped** ignores (e.g. a documented `local_secrets/` tree) over ignoring every `credentials` basename; verify **§3** with **`git check-ignore -v`**. |
+| **`*.pfx`** | Windows PKCS#12-style bundles (often password-protected) | Same hygiene as **`*.p12`**; add only if contributors hit real leaks; watch for tracked fixtures with that extension. |
+| **`secrets.yaml`**, **`secrets.yml`**, **`*.secrets.yaml`** | Ad-hoc app config | Very high **collision** risk with future fixtures—prefer **suffix** or **directory** conventions (e.g. `local/*.secrets.yaml`) documented in **§2** before merging a broad rule. |
+| **`.vscode/settings.json`** with secrets | Editor config | Usually **tracked** for shared workspace settings; **do not** ignore wholesale—use **Secrets policy** and reviews instead. |
 
 ---
 
@@ -139,8 +174,11 @@ If the diff is empty for **`.gitignore`**, the Builder **still** completes **G1*
 
 Use this list before sending work to the **Builder** (or to approve the spec without implementation):
 
-1. **§2** categories **A**–**E** are unambiguous; examples distinguish **must ignore** from **optional catalog** (§6).
-2. **§3** lists every class of artifact that must stay tracked for **`uv.lock`** CI and packaging; no proposed glob obviously shadows **`tests/`** fixtures or **`docs/`** without a negation story.
-3. **§4** overlap rules are acknowledged for any broad pattern under review.
-4. **G1**–**G5** are collectively achievable; **G5** is understood as “keep contract tests honest,” not “duplicate entire **`.gitignore`** in Python.”
-5. **Pre-commit** remains optional per the paragraph under the traceability table.
+1. **§0** backlog traceability matches the item title, constraints, and acceptance lines the Builder will sign off against.
+2. **§2** categories **A**–**E** are unambiguous; examples distinguish **must ignore** from **optional catalog** (§6).
+3. **§3** lists every class of artifact that must stay tracked for **`uv.lock`** CI and packaging; no proposed glob obviously shadows **`tests/`** fixtures or **`docs/`** without a negation story.
+4. **§4** overlap rules are acknowledged for any broad pattern under review.
+5. **G1**–**G5** are collectively achievable; **G5** is understood as “keep contract tests honest,” not “duplicate entire **`.gitignore`** in Python.”
+6. **CONTRIBUTING** “What must never be committed” mentions secrets, orchestration scratch, and local persistence experiments in line with **§2** **A**–**C** (and points here for normative detail); optional **§6**-style filenames are examples, not a second ignore list.
+7. **§5.2** is understood: an empty **`.gitignore`** diff is allowed **only** with an explicit audit note and **§5.1** green.
+8. **Pre-commit** remains optional per the paragraph under the traceability table.
