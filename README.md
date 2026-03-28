@@ -153,7 +153,7 @@ result = graph.invoke(
 # result["context"]["visit"] == 2 after both steps complete
 ```
 
-To **pause and resume** across two **`invoke`** calls, pass **`interrupt_before`** or **`interrupt_after`** (replayt step names) and call **`invoke`** again with the same **`config`**; see **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** §6 and **`test_resume_second_invoke_uses_memory_checkpointer`**.
+To **pause and resume** across two **`invoke`** calls, compile with **`interrupt_before`** or **`interrupt_after`** (replayt step names). Run the first **`invoke`** with initial state, **`config`**, and **`context`**. For the continuation **`invoke`**, pass **`None`** as the graph input, keep the same **`config`** and **`context`**, and reuse the same compiled graph and saver. See **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** §6 and **`test_resume_second_invoke_uses_memory_checkpointer`**.
 
 ## Public API
 

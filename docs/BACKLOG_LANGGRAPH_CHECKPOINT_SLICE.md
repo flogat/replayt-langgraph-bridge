@@ -15,7 +15,7 @@ Kickoff text for this backlog sometimes claims that checkpoints are promised but
 - **`compile_replayt_workflow(..., checkpointer=..., interrupt_before=..., interrupt_after=...)`** — forwards to LangGraph **`StateGraph.compile`** for **langgraph `>=1.1.0,<1.2`** (see **`pyproject.toml`**).
 - **Deterministic tests** on the default **`pip install -e ".[dev]"`** / CI path: **`tests/test_bridge_graph.py`** (including **`test_resume_second_invoke_uses_memory_checkpointer`**), **`tests/test_state_payload_validation.py`**. Tests should keep docstring traceability to **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §6 per **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
 
-Work under this backlog is therefore **primarily verification, documentation clarity, and gap closure**—not a greenfield checkpoint feature—unless scope is explicitly widened below.
+Unless scope is explicitly widened below, this backlog covers **verification, documentation clarity, and gap closure** on the existing checkpoint path, not a greenfield checkpoint feature.
 
 ---
 
