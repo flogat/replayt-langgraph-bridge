@@ -3,7 +3,7 @@
 Revise as the project matures. Defaults below are minimal—expand with rules for **your** codebase.
 
 1. **Explicit contracts** — Document supported replayt (and third-party framework) versions; test integration boundaries.
-2. **Small public surfaces** — Prefer narrow APIs and documented extension points.
+2. **Small public surfaces** — Prefer narrow APIs and documented extension points. The canonical export list, submodule layout, and stability rules for integrators are in **[API.md](API.md)** (`__all__` in `replayt_langgraph_bridge.__init__` must stay aligned with that doc and the README).
 3. **Observable automation** — Local scripts and CI produce clear logs and exit codes.
 4. **Consumer-side maintenance** — Compatibility shims and pins live **here**; upstream changes are tracked with tests
    and changelog notes.
