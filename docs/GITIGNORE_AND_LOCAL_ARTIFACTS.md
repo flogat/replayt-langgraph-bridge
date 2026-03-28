@@ -20,7 +20,7 @@ The Builder **must** ensure **`.gitignore`** covers at least the following **cat
 
 | Category | Rationale | Examples of patterns to include (illustrative; adjust for collisions) |
 | -------- | --------- | ------------------------------------------------------------------------ |
-| **A. Environment and secrets files** | API keys and tokens often land in dotenv or ad-hoc config files. | `.env`, `.env.*`, `!.env.example` (only if the repo adds a **tracked** template named exactly `.env.example`), `.envrc`, `.direnv/`, `*.pem`, `*.p12`, `id_rsa`, `id_ed25519`, `*.key` (where used for **private** key material—document if a public key filename is tracked and needs a negated rule). |
+| **A. Environment and secrets files** | API keys and tokens often land in dotenv or ad-hoc config files. | `.env`, `.env.*`, `!.env.example` (only if the repo adds a **tracked** template named exactly `.env.example`), `.envrc`, `.direnv/`, `*.pem`, `*.p12`, `id_rsa`, `id_ed25519`, `*.key` (where used for **private** key material—document if a public key filename is tracked and needs a negated rule). See **§6 Optional pattern catalog** for additional filenames to consider when contributors adopt new tooling. |
 | **B. Orchestration and local agent scratch** | Mission Control and agent tools write under fixed trees; these must not enter git history. | `.orchestrator/` (already present), **`.cursor/skills/`** (already present), **`.aider*`** (already present), alignment JSON at repo root if mis-placed (**`alignment_result.json`**, **`.alignment_result.json`**—already present). Extend only when a **new** tool writes a stable, non-portable directory name documented in this table. |
 | **C. Local durable checkpoint / store dumps (dev only)** | Contributors experimenting with **SQLite**, **JSONL stores**, or LangGraph-local persistence may create files that look like production data. | Prefer **directory-scoped** ignores (e.g. `local_checkpoints/` or `scratch/`) **or** suffixes unlikely to appear in **`tests/`** fixtures (e.g. `*.dev.sqlite3`). **Do not** add a bare `*.jsonl` if the repo might commit fixture **`.jsonl`** files later—verify with `git check-ignore -v` and the full test suite. |
 | **D. Python / packaging / tooling noise** | Standard hygiene; keep aligned with existing blocks. | `__pycache__/`, `*.py[cod]`, `.venv/`, `venv/`, `dist/`, `build/`, `*.egg-info/`, `.pytest_cache/`, `.ruff_cache/`, `.mypy_cache/`, `htmlcov/`, etc. (already largely present—merge duplicates when tightening). |
@@ -30,7 +30,7 @@ The Builder **must** ensure **`.gitignore`** covers at least the following **cat
 
 ## 3. Must remain tracked (intentional exceptions)
 
-The following **must not** be ignored. If a new **`.gitignore`** rule could match them, add a **`!` negation** or narrow the rule, and document the exception in a comment in **`.gitignore`** and (if non-obvious) a row below.
+The following **must not** be ignored (treat as **forbidden ignore targets** when reviewing new globs). If a new **`.gitignore`** rule could match them, add a **`!` negation** or narrow the rule, and document the exception in a comment in **`.gitignore`** and (if non-obvious) a row below.
 
 | Artifact / path | Why it must stay tracked |
 | ----------------- | ------------------------- |
@@ -52,6 +52,7 @@ The following **must not** be ignored. If a new **`.gitignore`** rule could matc
 2. **Order matters** for negations: place **`!` exceptions** immediately after the pattern they override.
 3. Before merging, run **`git status`** and **`git check-ignore -v <path>`** on any suspicious new local file to confirm intent.
 4. If a pattern is **overly broad** (e.g. all **`*.db`**), prefer narrowing or a dedicated **`scratch/`** directory convention documented in **CONTRIBUTING**.
+5. **Broad secret-like basenames** (e.g. a root-level **`credentials.json`**) are risky: they may collide with future **tracked** fixtures or sample names. Prefer **tool-specific paths** (see §6), **directory-scoped** ignores, or **`git check-ignore -v`** on a clone with representative local files before merging.
 
 ---
 
@@ -62,15 +63,50 @@ Treat the backlog **Review and tighten `.gitignore` for local secrets and orches
 | ID | Criterion | How to verify |
 | -- | --------- | ------------- |
 | **G1** | **`.gitignore`** includes justified patterns for **secrets / env files**, **orchestration & agent scratch**, and **local checkpoint/store dumps** per §2, with comments. | File review; categories A–C satisfied without contradicting §3. |
-| **G2** | **No packaging or CI regression**: reproducible **`[dev]`** install and full **pytest** still pass; sdist/wheel build still includes intended package data. | Commands in §3. |
-| **G3** | **`CONTRIBUTING.md`** contains a short **“What must never be committed”** section (see **[CONTRIBUTING.md](../CONTRIBUTING.md#what-must-never-be-committed)**) pointing here for full rules. | Doc review. |
-| **G4** | Intentional **exceptions** (§3) are documented in **`.gitignore`** comments and, if subtle, in this doc. | Review. |
+| **G2** | **No packaging or CI regression**: reproducible **`[dev]`** install and full **pytest** still pass; sdist/wheel build still includes intended package data. | Commands in §5.1. |
+| **G3** | **`CONTRIBUTING.md`** contains a short **“What must never be committed”** section (see **[CONTRIBUTING.md](../CONTRIBUTING.md#what-must-never-be-committed)**) pointing here for full rules and aligned with §2 categories (extend the bullet list if new ignore categories are added). | Doc review. |
+| **G4** | Intentional **exceptions** (§3) are documented in **`.gitignore`** comments and, if subtle, in this doc (§3 table or §7). | Review. |
+
+**Traceability (original backlog wording):**
+
+| Backlog acceptance line | Maps to |
+| ----------------------- | ------- |
+| “`.gitignore` updated with justified patterns; no overlap that breaks packaging” | **G1**, **G2**, §4 |
+| “Short note in `CONTRIBUTING.md` on what must never be committed” | **G3** |
+| “Do not ignore files required for reproducible builds; document intentional exceptions” | §3, **G4** |
+| “If pre-commit is added later…” | Pre-commit paragraph below |
 
 **Pre-commit hooks:** Not required for this backlog. If the project adds **pre-commit** later, hooks such as **detect-secrets** or **gitleaks** may **supplement** but **not replace** clear **`.gitignore`** hygiene; update this section with the hook names and scope when introduced.
 
+### 5.1 Builder verification commands (normative)
+
+Run from a clean worktree (no unintended staged deletes). After **`.gitignore`** edits:
+
+1. **`uv sync --frozen --extra dev`**
+2. **`uv run pytest`** — no path arguments, no marker filter (same contract as CI; see **CONTRIBUTING** / **REPLAYT_BOUNDARY_TESTS**).
+3. **`uv build`** or **`python -m build`** — wheel and sdist succeed; spot-check that **`src/replayt_langgraph_bridge/`** is still packaged as before.
+4. **`git check-ignore -v`** on any **new** ignored path you introduced (and on **`uv.lock`**, **`pyproject.toml`**, **`src/`** sample paths) to confirm §3 **forbidden ignore targets** are **not** ignored.
+
 ---
 
-## 6. Maintainer notes
+## 6. Optional pattern catalog (review when tightening)
+
+Use this list when expanding **Category A** or **B**; **do not** copy it wholesale into **`.gitignore`**. Each addition needs a comment, collision check against **`tests/`** / **`docs/`** fixtures, and (if used) a row or footnote in §2.
+
+| Pattern or path | Typical use | Risk / note |
+| --------------- | ----------- | ----------- |
+| **`application_default_credentials.json`** | Google ADC file often under `~/.config`; sometimes copied into a repo by mistake | Prefer ignoring a **stable relative path** if your workflow creates one locally; avoid ignoring every `**/credentials.json`. |
+| **`client_secret*.json`** / **`token.json`** (OAuth desktop) | Google / OAuth client flows | High collision risk with generic names; prefer directory scope (e.g. `local_oauth/`) ignored instead. |
+| **`.secrets.baseline`** | **detect-secrets** baseline (if adopted) | Often **tracked** intentionally; **never** ignore if the project commits it. |
+| **`handoff.md`** under **`.orchestrator/`** | Mission Control handoffs | Covered by **`.orchestrator/`**; do not add redundant root-level `handoff.md` ignore unless a documented tool writes at repo root. |
+
+---
+
+## 7. Maintainer notes
 
 - **`.orchestrator/`** is **gitignored by design** (ephemeral Mission Control state). Do not **`git add`** it unless an explicit workflow requires it.
 - **Secrets policy** for *runtime behavior* remains **[DESIGN_PRINCIPLES.md — Secrets policy](DESIGN_PRINCIPLES.md#secrets-policy)**; this document covers **version-control boundaries** only.
+
+### 7.1 Current baseline (spec snapshot for phase 3)
+
+As of the spec refinement for this backlog, the repository **already** carries a commented **`.gitignore`** and **CONTRIBUTING** “must never commit” text that satisfy **G1**–**G3** at a high level. The **Builder** phase should **audit** against §2–§5.1 (diff vs merge base), add patterns only where gaps exist, and extend **CONTRIBUTING** bullets if new categories land—not duplicate existing blocks without cause.

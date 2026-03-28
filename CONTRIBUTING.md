@@ -21,7 +21,7 @@ Use **`uv run pytest` with no extra paths or markers** for the integrator-releva
 
 Do **not** commit:
 
-- **Secrets** — API keys, tokens, passwords, private keys, or any file whose primary purpose is holding them (for example **`.env`**, **`.env.local`**, raw **`*.pem`** / **`id_rsa`** private key material, or ad-hoc `credentials.json`-style dumps).
+- **Secrets** — API keys, tokens, passwords, private keys, or any file whose primary purpose is holding them (for example **`.env`**, **`.env.local`**, raw **`*.pem`** / **`id_rsa`** private key material, or ad-hoc credential dumps). Cloud or OAuth tooling may use names such as **`application_default_credentials.json`**; never commit those into this tree—if your local workflow drops them next to the repo, add a **narrow** **`.gitignore`** rule per **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** (optional catalog and collision rules), not a catch-all that could hide tracked fixtures later.
 - **Orchestration / agent scratch** — Paths under **`.orchestrator/`**, local agent skill trees such as **`.cursor/skills/`**, and similar tool output meant only for your machine (see **`.gitignore`** comments).
 - **Local persistence experiments** — Checkpoint files, local SQLite DBs, or store dumps you create while developing graphs, unless the project explicitly chooses to track them as fixtures (today: keep them local or under a documented ignored directory).
 
