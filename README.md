@@ -188,8 +188,8 @@ Implementation modules under `replayt_langgraph_bridge` (for example `graph`, `s
 
 ## Changelog and releases
 
-- **[CHANGELOG.md](CHANGELOG.md)** — notable changes for upgrades (Keep a Changelog layout).
-- **[docs/RELEASE_CHANGELOG.md](docs/RELEASE_CHANGELOG.md)** — SemVer meaning for this bridge, when to edit the changelog, **`vX.Y.Z`** tags, and the manual release checklist. Contributor expectations: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+- **[CHANGELOG.md](CHANGELOG.md)** — notable changes for upgrades (Keep a Changelog layout); **Unreleased** accumulates work in flight; **dependency** and **Breaking** / **Experimental** notes should be explicit for packagers.
+- **[docs/RELEASE_CHANGELOG.md](docs/RELEASE_CHANGELOG.md)** — SemVer (including **0.x** expectations), **compatibility signaling**, contributor **Unreleased** workflow, when to edit the changelog, **`vX.Y.Z`** tags, and the manual release checklist. Contributor expectations: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 
 ## Compatibility
 

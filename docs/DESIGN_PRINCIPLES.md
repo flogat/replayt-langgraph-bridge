@@ -56,7 +56,7 @@ When the first integration (or any later change) adds or tightens **runtime** de
 1. Put a short comment next to the requirement in **`pyproject.toml`** (why the bound exists).
 2. Update **Current dependency constraints** below and the compatibility bullets in **`README.md`** if integrator-facing ranges change.
 3. Add or adjust **`CHANGELOG.md`** under **Unreleased** when the change is user-visible (new runtime dep, range change, or new extra).
-4. Follow **[RELEASE_CHANGELOG.md](RELEASE_CHANGELOG.md)** for changelog layout, dependency signaling in release notes, Git tag format (**`vX.Y.Z`**), and the high-level release checklist (version in **`pyproject.toml`**, dated changelog section, tag on the releasing commit).
+4. Follow **[RELEASE_CHANGELOG.md](RELEASE_CHANGELOG.md)** for changelog layout, **Unreleased** workflow, **Breaking** / **Experimental** lead-ins, dependency signaling in release notes, **0.x** SemVer expectations, Git tag format (**`vX.Y.Z`**), and the high-level release checklist (version in **`pyproject.toml`**, dated changelog section, tag on the releasing commit).
 
 ### Current dependency constraints
 

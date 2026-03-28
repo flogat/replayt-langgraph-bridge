@@ -45,9 +45,13 @@ Same flags as **`.github/workflows/ci.yml`** job **`supply-chain`**. Document ac
 
 Update **[CHANGELOG.md](CHANGELOG.md)** in the **same pull request** as the change whenever the work is **user-visible**: public API or runtime behavior, **dependency floor or ceiling** on **replayt** / **langgraph** / **`requires-python`**, new or renamed optional extras, **security** fixes, or notable **normative doc** updates that integrators must follow (API, checkpoint, or validation contracts).
 
+**Dependency pins** — Any change to declared runtime ranges or to which packages live in core vs an optional extra needs a changelog bullet with **before → after** (or explicit new bounds), not only a comment in **`pyproject.toml`**.
+
+**Breaking and experimental API** — Follow **[docs/API.md](docs/API.md#experimental-and-internal-normative-rules)**. Changelog bullets must lead with **`Breaking:`** or **`Experimental:`** where applicable so packagers can scan releases without diff archaeology.
+
 Purely internal refactors, test-only changes, or typo fixes that do not affect integrators **do not** require changelog entries unless they change documented behavior.
 
-Formatting, **Unreleased → versioned release** flow, SemVer interpretation, and Git tag naming: **[docs/RELEASE_CHANGELOG.md](docs/RELEASE_CHANGELOG.md)**.
+Formatting, **Unreleased** workflow (accumulate bullets, cut dated sections at release), **pre-1.0** SemVer expectations, compatibility signaling, and Git tag naming: **[docs/RELEASE_CHANGELOG.md](docs/RELEASE_CHANGELOG.md)**.
 
 ## Releases
 
