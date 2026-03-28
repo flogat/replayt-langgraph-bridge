@@ -85,11 +85,14 @@ Treat the following as **done** when the dependency story matches docs and packa
    application logic.
 2. **Durable state** — `ReplaytBridgeState["context"]` is shallow-merged across updates and may be written by LangGraph
    checkpointers you supply. Treat checkpoint backends like any persistence layer: do not put secrets or sensitive PII in
-   graph state unless your storage and retention policies allow it.
+   graph state unless your storage and retention policies allow it. **Log redaction** (deny-listed keys, value patterns, optional
+   integrator hook, strict mode via `REPLAYT_BRIDGE_STRICT_REDACT`) applies to **bridge-originated structured logs** as specified
+   in **[LOG_REDACTION.md](LOG_REDACTION.md)**; it is not a substitute for checkpoint access control or integrator-side state hygiene.
 3. **Errors and logging** — Transition validation raises `RuntimeError` messages that include step names and allowed
-   targets to aid debugging. Avoid logging full graph state in production if it may contain sensitive fields.
+   targets to aid debugging. Avoid logging full graph state in production if it may contain sensitive fields. Bridge-originated
+   structured logs follow **[LOG_REDACTION.md](LOG_REDACTION.md)**.
 
-For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md).
+For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For redaction rules and extension points, see [LOG_REDACTION.md](LOG_REDACTION.md).
 
 ## Secrets policy
 

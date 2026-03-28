@@ -31,7 +31,8 @@ This document outlines the threat model for the `replayt-langgraph-bridge` regar
 ## 5. Explicit Non-Goals
 
 - **Sandboxing**: The bridge does not isolate or sandbox integrator code.
-- **Secrets Management**: The bridge does not provide secrets injection or redaction; this is the integrator's responsibility.
+- **Secrets Management**: The bridge does not inject secrets for integrators; storage and rotation remain integrator-owned.
+- **Log redaction scope**: Optional **bridge-originated** structured log redaction is specified in **[LOG_REDACTION.md](LOG_REDACTION.md)**. It does **not** cover LangGraph internals, arbitrary application logging, or full DLP.
 - **Compliance Claims**: This model does not assert compliance with GDPR, HIPAA, or other regulations.
 - **Encryption**: The bridge does not enforce encryption at rest or in transit for checkpoints; this depends on the checkpointer implementation.
 
@@ -62,4 +63,5 @@ The following field types should **never** be persisted in LangGraph checkpoints
 ## Links
 
 - [DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md) - Security considerations section.
+- [LOG_REDACTION.md](LOG_REDACTION.md) - Normative spec for bridge log redaction (implemented; see `replayt_langgraph_bridge.redaction` and `bridge_log`).
 - [MISSION.md](MISSION.md) - Project scope and success metrics.
