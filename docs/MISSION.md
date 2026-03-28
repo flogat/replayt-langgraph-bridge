@@ -34,6 +34,14 @@ Upstream changes are tracked with tests and noted in the changelog when they aff
 
 **Runtime:** Python **3.11+** (`requires-python` in `pyproject.toml`).
 
+## LLM demos and optional samples (scope)
+
+**Normative scope for this package:** The **core bridge** and **contributor default** install (**`[dev]`**) are **not** expected to perform **outbound vendor LLM API calls**. **GitHub Actions** job **`test`** installs **`[dev]`** only (no **`[demo]`** extra) and must remain **free of live model invocations**; see **[DESIGN_PRINCIPLES.md — LLM and demos](DESIGN_PRINCIPLES.md#llm-and-demos)**.
+
+**Optional path:** Integrators may install **`replayt-langgraph-bridge[demo]`** to pull vendor LLM client libraries for **their own** or **future** first-party samples. That path is **environment-configured** (API keys in environment variables, never committed).
+
+**Shipped demos (today):** This repository **does not** yet include a committed runnable LLM sample (no `examples/` tree or equivalent that calls providers). The **`demo`** extra in **`pyproject.toml`** exists for packaging alignment and future samples. When maintainers add a sample, it must stay **opt-in**, document **env vars**, **cost**, and **logging/redaction** in the README, and must **not** change the default CI contract above.
+
 ## Security Considerations
 
 For security considerations regarding checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For **checkpoint persistence scope** (what is stored, in-memory vs durable, secret/PII expectations, corrupt and version-skew behavior, deterministic test obligations without live credentials), see **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)**. For **identity, network access, and hosted checkpoint / remote runtime** expectations (topology table, TLS, IAM-style controls, dev/stage/prod separation), see **[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**. For the **bridge-originated log redaction** contract (deny lists, patterns, strict mode, extension hook) and how it maps to tests, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. For **inbound bridge state** validation (size limits, schema version, safe failure, checkpoint non-mutation), see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)** (normative spec; enforced in `replayt_langgraph_bridge.state_validation`). For **replayt boundary** test obligations and failure-message style, see **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
