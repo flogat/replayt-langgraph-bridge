@@ -1,4 +1,4 @@
-"""Replayt boundary coverage for the LangGraph bridge.
+"""Replayt boundary (consumer contract) coverage via the LangGraph bridge.
 
 Normative expectations for scope, assertion messages, and ``pytest.raises`` usage:
 ``docs/REPLAYT_BOUNDARY_TESTS.md``. Checkpoint and ``MemorySaver`` patterns trace to
@@ -14,14 +14,13 @@ import pytest
 from langgraph.checkpoint.memory import MemorySaver
 from replayt.persistence import JSONLStore
 from replayt.runner import Runner
+from replayt.workflow import Workflow
 
 from replayt_langgraph_bridge import compile_replayt_workflow, initial_bridge_state
 
 
 def test_compile_requires_initial_state() -> None:
     """Bridge compile requires ``Workflow.set_initial`` (``workflow.initial_state`` contract)."""
-    from replayt.workflow import Workflow
-
     wf = Workflow("t")
     wf.step("a")(lambda ctx: None)
 
@@ -34,8 +33,6 @@ def test_compile_requires_initial_state() -> None:
 
 def test_linear_workflow_via_langgraph(tmp_path: Path) -> None:
     """``RunContext.data`` mirrors ``context``; ``JSONLStore``/``Runner`` + ``MemorySaver`` invoke (CHECKPOINT_PERSISTENCE §6)."""
-    from replayt.workflow import Workflow
-
     wf = Workflow("linear")
 
     @wf.step("first")
@@ -76,8 +73,6 @@ def test_linear_workflow_via_langgraph(tmp_path: Path) -> None:
 
 def test_resume_second_invoke_uses_memory_checkpointer(tmp_path: Path) -> None:
     """Second ``invoke`` continues the same ``thread_id`` from ``MemorySaver`` (CHECKPOINT_PERSISTENCE §6)."""
-    from replayt.workflow import Workflow
-
     wf = Workflow("resume_two_invoke")
 
     @wf.step("first")
@@ -109,21 +104,33 @@ def test_resume_second_invoke_uses_memory_checkpointer(tmp_path: Path) -> None:
         config=cfg,
         context={"runner": runner},
     )
-    assert out1["context"]["seed"] is True
-    assert out1["context"]["phase"] == 1
-    assert out1["replayt_next"] == "second"
-    assert len(list(saver.list(cfg))) >= 1
+    assert out1["context"]["seed"] is True, (
+        "replayt boundary: first invoke must preserve merged LangGraph context in bridge state"
+    )
+    assert out1["context"]["phase"] == 1, (
+        "replayt boundary: first step must persist RunContext.data through checkpoint boundary"
+    )
+    assert out1["replayt_next"] == "second", (
+        "replayt boundary: interrupt_before second must leave replayt_next pointing at next step"
+    )
+    assert len(list(saver.list(cfg))) >= 1, (
+        "replayt boundary: MemorySaver must persist at least one checkpoint for resume"
+    )
 
     out2 = graph.invoke(None, config=cfg, context={"runner": runner})
-    assert out2["context"]["phase"] == 11
-    assert out2["replayt_next"] == ""
-    assert out2["context"]["seed"] is True
+    assert out2["context"]["phase"] == 11, (
+        "replayt boundary: resumed invoke must run second step and accumulate RunContext.data"
+    )
+    assert out2["replayt_next"] == "", (
+        "replayt boundary: terminal step must clear replayt_next after resume"
+    )
+    assert out2["context"]["seed"] is True, (
+        "replayt boundary: resumed run must keep original context keys from first invoke"
+    )
 
 
 def test_unknown_next_state_raises(tmp_path: Path) -> None:
     """Routing rejects unknown next step; ``MemorySaver`` present (CHECKPOINT_PERSISTENCE §6 baseline)."""
-    from replayt.workflow import Workflow
-
     wf = Workflow("bad")
 
     @wf.step("a")
@@ -150,8 +157,6 @@ def test_unknown_next_state_raises(tmp_path: Path) -> None:
 
 def test_declared_edge_violation_raises(tmp_path: Path) -> None:
     """Declared-edge violation; ``MemorySaver`` present (CHECKPOINT_PERSISTENCE §6 baseline)."""
-    from replayt.workflow import Workflow
-
     wf = Workflow("edges")
 
     @wf.step("a")
