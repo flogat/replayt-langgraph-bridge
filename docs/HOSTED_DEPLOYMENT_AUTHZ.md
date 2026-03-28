@@ -4,7 +4,7 @@ Normative guidance for **deployers** when LangGraph **checkpointers**, **graph r
 
 **Scope:** Integrator-owned configuration—**replayt-langgraph-bridge** does not implement TLS, IAM, vault integration, or storage ACLs. It accepts a LangGraph `Checkpointer` you supply and forwards execution to **replayt** and **LangGraph** as documented in **[API.md](API.md)**.
 
-**Related bridge specs:** asset and adversary framing in **[THREAT_MODEL.md](THREAT_MODEL.md)**; untrusted inbound dict state in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; bridge log redaction (not a substitute for storage access control) in **[LOG_REDACTION.md](LOG_REDACTION.md)**.
+**Related bridge specs:** checkpoint persistence scope, in-memory vs durable, and skew/corruption failure modes in **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**; asset and adversary framing in **[THREAT_MODEL.md](THREAT_MODEL.md)**; untrusted inbound dict state in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; bridge log redaction (not a substitute for storage access control) in **[LOG_REDACTION.md](LOG_REDACTION.md)**.
 
 ---
 

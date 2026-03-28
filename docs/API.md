@@ -50,6 +50,7 @@ In-repo **tests** may import private helpers (e.g. functions prefixed with `_` i
 
 | Topic | Normative doc |
 | ----- | ------------- |
+| Checkpoint persistence scope, backends pattern (langgraph 1.1.x), failure modes | **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** |
 | Hosted checkpoints, remote runtimes, TLS, and access control | **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** |
 | Inbound state limits and schema version | **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** |
 | Bridge-originated logging and redaction | **[LOG_REDACTION.md](LOG_REDACTION.md)** |

@@ -65,6 +65,7 @@ The following field types should **never** be persisted in LangGraph checkpoints
 
 ## Links
 
+- [CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md) - What is stored, in-memory vs durable checkpointers, secret/PII on serialized state, corrupt and version-skew failure modes, test traceability.
 - [HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md) - Deployment topologies, TLS, IAM-style storage access, environment separation, and upstream LangGraph/replayt pointers.
 - [DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md) - Security considerations section.
 - [LOG_REDACTION.md](LOG_REDACTION.md) - Normative spec for bridge log redaction (implemented; see `replayt_langgraph_bridge.redaction` and `bridge_log`).
