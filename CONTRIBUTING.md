@@ -33,3 +33,19 @@ When triaging a new **major** or a risky range change, open a **Compatibility Up
 
 To check for vulnerabilities in dependencies, run:
 
+```bash
+pip install -e ".[dev]"
+pip-audit --ignore-vuln CVE-2026-4539 --desc
+```
+
+(Same flags as **`.github/workflows/ci.yml`**; documented CVE exceptions live in **`docs/DEPENDENCY_AUDIT.md`**.)
+
+## Releases, changelog, and security impact
+
+When preparing a release or merging user-visible work:
+
+1. Update **`CHANGELOG.md`** under **`[Unreleased]`** per [Keep a Changelog](https://keepachangelog.com/) (this project’s format is described at the top of that file).
+2. **Security fixes or material security-behavior changes** (validation, redaction, trust boundaries) **must** be called out explicitly—use a **`Security`** subsection or clearly labeled bullets so adopters and scanners can find them. See **[docs/SECURITY_REPORTING_SPEC.md](docs/SECURITY_REPORTING_SPEC.md#3-changelog-and-release-process)**.
+3. **Private vulnerability reports** must **not** be discussed in public issues before coordination; reporters should follow root **`SECURITY.md`** once it exists (specified in **SECURITY_REPORTING_SPEC**).
+
+Normative checklist for **`SECURITY.md`**, supported-version honesty, and changelog rules: **[docs/SECURITY_REPORTING_SPEC.md](docs/SECURITY_REPORTING_SPEC.md)**.
