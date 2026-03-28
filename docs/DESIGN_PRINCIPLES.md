@@ -91,8 +91,12 @@ Treat the following as **done** when the dependency story matches docs and packa
 3. **Errors and logging** — Transition validation raises `RuntimeError` messages that include step names and allowed
    targets to aid debugging. Avoid logging full graph state in production if it may contain sensitive fields. Bridge-originated
    structured logs follow **[LOG_REDACTION.md](LOG_REDACTION.md)**.
+4. **Inbound state validation** — Dict-shaped `ReplaytBridgeState` at the bridge boundary (initial input and
+   checkpoint-resumed channel state) is validated as **untrusted** per **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**:
+   documented limits and schema versions, generic caller-facing errors, and no partial durable mutation on reject
+   (enforced in `replayt_langgraph_bridge.state_validation` and `graph.py`).
 
-For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For redaction rules and extension points, see [LOG_REDACTION.md](LOG_REDACTION.md).
+For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For redaction rules and extension points, see [LOG_REDACTION.md](LOG_REDACTION.md). For inbound payload hardening, see [STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md).
 
 ## Secrets policy
 

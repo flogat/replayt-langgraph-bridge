@@ -36,4 +36,4 @@ Upstream changes are tracked with tests and noted in the changelog when they aff
 
 ## Security Considerations
 
-For security considerations regarding checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For the **bridge-originated log redaction** contract (deny lists, patterns, strict mode, extension hook) and how it maps to tests, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**.
+For security considerations regarding checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For the **bridge-originated log redaction** contract (deny lists, patterns, strict mode, extension hook) and how it maps to tests, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. For **inbound bridge state** validation (size limits, schema version, safe failure, checkpoint non-mutation), see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)** (normative spec; enforced in `replayt_langgraph_bridge.state_validation`).
