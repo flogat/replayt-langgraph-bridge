@@ -11,6 +11,20 @@ import pytest
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _PYPROJECT = _REPO_ROOT / "pyproject.toml"
 
+# PEP 503-normalized PyPI names whose primary purpose is vendor LLM HTTP/API clients.
+# Keep aligned with [project.optional-dependencies] demo and DESIGN_PRINCIPLES; never in core or dev.
+_LLM_VENDOR_CLIENT_DENYLIST: frozenset[str] = frozenset(
+    {
+        "openai",
+        "anthropic",
+        "langchain-openai",
+        "langchain-anthropic",
+    }
+)
+
+# Expected members of the demo extra (must match pyproject.toml demo list).
+_DEMO_EXTRA_EXPECTED_NAMES: frozenset[str] = frozenset(_LLM_VENDOR_CLIENT_DENYLIST)
+
 
 def _pep508_name(requirement: str) -> str:
     m = re.match(r"^\s*([A-Za-z0-9_.-]+)", requirement)
@@ -38,6 +52,40 @@ def test_pyproject_dev_extra_lists_contributor_tooling():
     dev = data["project"]["optional-dependencies"]["dev"]
     names = {_pep508_name(req) for req in dev}
     assert {"pytest", "ruff", "pip-audit"}.issubset(names)
+
+
+def test_core_dependencies_exclude_llm_vendor_clients():
+    data = tomllib.loads(_PYPROJECT.read_text(encoding="utf-8"))
+    core = {_pep508_name(req) for req in data["project"]["dependencies"]}
+    blocked = sorted(core & _LLM_VENDOR_CLIENT_DENYLIST)
+    assert not blocked, (
+        "LLM vendor client packages must not appear in [project.dependencies]; "
+        f"use [project.optional-dependencies] demo instead: {blocked}"
+    )
+
+
+def test_dev_extra_excludes_llm_vendor_clients():
+    data = tomllib.loads(_PYPROJECT.read_text(encoding="utf-8"))
+    dev = {_pep508_name(req) for req in data["project"]["optional-dependencies"]["dev"]}
+    blocked = sorted(dev & _LLM_VENDOR_CLIENT_DENYLIST)
+    assert not blocked, (
+        "LLM vendor client packages belong in the demo extra, not dev: " + ", ".join(blocked)
+    )
+
+
+def test_demo_extra_lists_only_expected_llm_vendor_clients():
+    data = tomllib.loads(_PYPROJECT.read_text(encoding="utf-8"))
+    demo = data["project"]["optional-dependencies"]["demo"]
+    names = {_pep508_name(req) for req in demo}
+    assert names == _DEMO_EXTRA_EXPECTED_NAMES, (
+        "demo extra must match _DEMO_EXTRA_EXPECTED_NAMES in test_dependency_strategy.py "
+        f"(got {sorted(names)}, expected {sorted(_DEMO_EXTRA_EXPECTED_NAMES)})"
+    )
+    unknown = names - _LLM_VENDOR_CLIENT_DENYLIST
+    assert not unknown, (
+        "Add new demo LLM packages to _LLM_VENDOR_CLIENT_DENYLIST or they bypass the denylist contract: "
+        + ", ".join(sorted(unknown))
+    )
 
 
 def test_compatibility_update_issue_template_present():

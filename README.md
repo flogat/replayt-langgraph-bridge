@@ -31,7 +31,7 @@ The full policy (selection rules, LangGraph major rollout risk, **core vs demo L
 | --- | --- | --- |
 | `pip install replayt-langgraph-bridge` | Core bridge runtime (**replayt**, **langgraph** per `pyproject.toml`) | **No** — core must not list LLM provider SDKs; see **[DESIGN_PRINCIPLES.md — Core vs demo extras](docs/DESIGN_PRINCIPLES.md#core-vs-demo-extras-llm-clients-and-supply-chain)** |
 | `pip install replayt-langgraph-bridge[dev]` | Contributor tooling (**pytest**, **ruff**, **pip-audit**) | **No** |
-| `pip install replayt-langgraph-bridge[demo]` | *(Reserved.)* Samples that call vendor LLM APIs—**not defined in `pyproject.toml` yet**; when added, list packages here and set this row to **Yes** | **N/A** today |
+| `pip install replayt-langgraph-bridge[demo]` | Optional **openai**, **anthropic**, **langchain-openai**, and **langchain-anthropic** for samples that call vendor LLM APIs (see `pyproject.toml`) | **Yes** |
 
 **Note:** **langgraph** (and its transitive dependencies) may include generic HTTP or messaging libraries used by the framework; the matrix above refers to **direct** bridge requirements that exist primarily to invoke **LLM vendor** APIs. Transitive behavior follows upstream packages you install.
 

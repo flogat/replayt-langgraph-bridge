@@ -62,6 +62,7 @@ When the first integration (or any later change) adds or tightens **runtime** de
 - **replayt**: `>=0.4.0,<0.5` (initial integration target, 0.4.x line)
 - **LangGraph** (`langgraph` on PyPI): `>=1.1.0,<1.2` (initial integration target, 1.1.x line)
 - **Python**: `>=3.11` (`requires-python`, aligned with supported stack)
+- **demo** (optional): **openai**, **anthropic**, **langchain-openai**, **langchain-anthropic** under `[project.optional-dependencies] demo` for vendor-LLM samples only; CI default path does not install this extra (see README extras matrix).
 
 ### Breaking upstream releases — triage
 
@@ -95,7 +96,7 @@ Treat the following as **done** when the dependency story matches docs and packa
 - [x] **Runtime vs dev** — `[project.dependencies]` lists only what end users need; `[project.optional-dependencies] dev` lists contributor tooling; no dev-only tools in core dependencies.
 - [x] **Justified constraints** — Each runtime requirement in **`pyproject.toml`** has a maintainer-facing comment; constraints match **Current dependency constraints** here and **`README.md`** compatibility lines.
 - [x] **Breaking upstream path** — Triage uses the compatibility issue template and the maintainer checklist above; **`CONTRIBUTING.md`** points maintainers at this policy and the template for bumps.
-- [ ] **Core vs demo LLM clients** — **[Core vs demo extras (LLM clients and supply chain)](#core-vs-demo-extras-llm-clients-and-supply-chain)** checklist is satisfied: no LLM vendor SDKs in core `[project.dependencies]`; optional **`demo`** extra and README matrix when demo deps exist; CI tests **without** that extra; contract tests updated (**backlog: Isolate optional LLM demo extras from core bridge install**).
+- [x] **Core vs demo LLM clients** — **[Core vs demo extras (LLM clients and supply chain)](#core-vs-demo-extras-llm-clients-and-supply-chain)** checklist is satisfied: no LLM vendor SDKs in core `[project.dependencies]`; optional **`demo`** extra and README matrix when demo deps exist; CI tests **without** that extra; contract tests updated (**backlog: Isolate optional LLM demo extras from core bridge install**).
 
 ## Security considerations
 

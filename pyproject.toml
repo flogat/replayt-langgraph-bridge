@@ -19,6 +19,17 @@ dev = [
   "ruff>=0.6.0",
   "pip-audit>=2.7.0",
 ]
+# Vendor LLM HTTP/API clients and thin LangChain wrappers for samples only—not required for the public bridge API.
+demo = [
+  # OpenAI official SDK (chat/completions API)
+  "openai>=1.0.0",
+  # Anthropic official SDK (Messages API)
+  "anthropic>=0.18.0",
+  # LangChain routing to OpenAI models (pulls vendor client usage paths)
+  "langchain-openai>=0.2.0",
+  # LangChain routing to Anthropic models
+  "langchain-anthropic>=0.1.0",
+]
 
 [build-system]
 requires = ["setuptools>=61"]
