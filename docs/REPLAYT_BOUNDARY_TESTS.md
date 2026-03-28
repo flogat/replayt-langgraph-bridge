@@ -2,9 +2,37 @@
 
 This document defines **what** integration-style tests must prove about the **replayt** side of the bridge, and **how** failures must read so maintainers can tell **which upstream contract moved** without digging through opaque stack traces.
 
+**Contract-style** (used in backlog titles): Tests that treat **replayt’s public API** as an external dependency the bridge consumes. They import supported **`replayt.*`** modules, exercise behaviors **`replayt_langgraph_bridge`** relies on (compile-time or run-time), and fail with messages that name **which compatibility assumption** broke—so an upstream **patch or minor** that changes those behaviors shows up as a **targeted** failure, not only a deep stack trace. They **do not** assert on private replayt internals or duplicate replayt’s own unit suite.
+
 **Audience:** Builders adding or tightening tests; reviewers judging backlog completion.
 
 **Non-goals:** LangGraph runtime internals (covered indirectly via compiled graphs where needed); exhaustive replayt API coverage beyond what the bridge uses.
+
+---
+
+## Product backlog: Add contract-style tests at the replayt boundary
+
+Normative mapping from the product backlog acceptance criteria to this repository:
+
+| Backlog criterion | Done when (normative) |
+| ----------------- | ---------------------- |
+| **At least one test module** explicitly targets replayt integration (imports **replayt**, exercises a **supported** public API). | At least one collected file under `tests/` has a **module docstring** that states the file covers **replayt boundary** / **consumer contract** behavior and points to **this document** (`docs/REPLAYT_BOUNDARY_TESTS.md`). The module **imports** `replayt` (or a documented submodule such as `replayt.workflow`, `replayt.runner`, `replayt.persistence`) in a way pytest collects—**top-level imports preferred**; lazy imports inside test functions are allowed if the docstring still makes the replayt-contract intent obvious. The module must call **supported** APIs from §1’s table (or successors documented here if the bridge’s `graph.py` dependencies change)—**not** private or undocumented replayt symbols. |
+| **Failures produce actionable messages** (what assumption broke). | Every replayt-facing **assert** and **`pytest.raises`** follows §3 (contract-named messages, `match=` where applicable). |
+| **Documented command** runs these tests **in CI alongside** unit tests. | **README** (dependency / CI bullets) and/or **CONTRIBUTING.md** state that contributors run **`uv run pytest`** with **no extra path or marker** for the integrator-relevant suite. That matches **`.github/workflows/ci.yml`** job **`test`**, which runs **`uv run pytest`** after **`uv sync --frozen --extra dev`**—boundary tests are **not** a separate undocumented job or one-off script unless this document and those files are updated together to say so. |
+
+Private replayt internals (underscore-prefixed objects, undocumented modules) are **out of scope** for contract-style coverage; if the bridge must depend on something not public, track it as a **compatibility risk** (issue / shim) rather than baking it into “contract” tests.
+
+---
+
+## Product backlog: Harden error surfaces and observability for graph construction
+
+Normative mapping from the product backlog acceptance criteria to this repository (full error taxonomy and logging rules: **`docs/GRAPH_CONSTRUCTION_ERRORS.md`**):
+
+| Backlog criterion | Done when (normative) |
+| ----------------- | ---------------------- |
+| **Documented error behavior** for invalid input, unsupported features, and version skew (as applicable) | **`docs/GRAPH_CONSTRUCTION_ERRORS.md`** + aligned docstrings on **`compile_replayt_workflow`** / **`initial_bridge_state`**; cross-links from **API.md**, **CHECKPOINT_PERSISTENCE**, **DESIGN_PRINCIPLES**. |
+| **Tests assert stable exception types or error codes** for representative failure cases | Tests cover at least: unknown next step, undeclared transition, compile without **`set_initial`**, invalid initial step; assert **public type** or documented **`code`** attribute and use **`pytest.raises(..., match=…)`** per §3.2 and **GRAPH_CONSTRUCTION_ERRORS** §3.2. |
+| **Optional logging hook or documented pattern** does not emit sensitive data by default | **LOG_REDACTION** defaults; integrator silence/verbosity pattern documented in **README** or **API.md**; representative-secret tests per **LOG_REDACTION** / **GRAPH_CONSTRUCTION_ERRORS** §4. |
 
 ---
 
@@ -23,19 +51,19 @@ Tests that only import `replayt_langgraph_bridge` and mock replayt types are **n
 
 ---
 
-## 2. Backlog acceptance criteria (builder checklist)
+## 2. Builder checklist (implementation gate)
 
-Map the product backlog to concrete deliverables:
+Concrete deliverables for contract-style replayt boundary work (aligns with the product backlog table above):
 
-1. **At least one integration-style test** — Imports **replayt** and calls **supported replayt APIs** from the table above in a scenario that reflects real bridge usage (minimal `Workflow` + `Runner` + store is sufficient). The test must exercise a path that matters to the bridge (e.g. running steps, transitions, `RunContext.data` round-trip), not merely importing replayt.
+1. **Module + scenario** — At least one `tests/` module meets the **module docstring** and **import** rules in the backlog table. Within that module, at least one test **calls** supported replayt APIs from the §1 table in a scenario that reflects real bridge usage (minimal `Workflow` + `Runner` + store is sufficient). The scenario must exercise a path that matters to the bridge (e.g. running steps, transitions, `RunContext.data` round-trip), not merely importing replayt.
 2. **Actionable failure surface** — Every **assertion** that guards a replayt contract, and every **`pytest.raises`** for expected errors, must make the **contract name** obvious:
    - Prefer `pytest.raises(..., match="...")` with a substring that names the invariant (e.g. transition graph, `RunContext.data` shape, store persistence).
    - For plain `assert` failures, use the **two-argument form** `assert actual == expected, "contract: …"` **or** a named helper that raises with a message prefix such as `replayt boundary:` followed by the broken assumption.
-   - Test **function or module docstrings** should state **which upstream obligation** is under test (one line is enough).
-3. **CI** — New or updated tests live under `tests/` and run in the existing **`pytest`** job (`.github/workflows/ci.yml`, Python 3.11 and 3.12). No separate job is required. That job installs **`[dev]`** only; it must **not** require the optional **`demo`** extra (**[DESIGN_PRINCIPLES.md — Core vs demo extras](DESIGN_PRINCIPLES.md#core-vs-demo-extras-llm-clients-and-supply-chain)**).
-4. **Demo-only tests** — If a test imports optional **LLM vendor** client packages that live under the **`demo`** extra, gate it with an **importorskip** / **`pytest.mark.skip`** when the extra is not installed, **or** isolate it in a module excluded from the default CI invocation (document which). Default CI must remain green on `pip install -e ".[dev]"` only.
+   - Each **test function** docstring should state **which upstream obligation** is under test (one line is enough); the **module** docstring ties the file to this spec (see §4).
+3. **CI / default suite** — Tests live under `tests/` and are collected by the same **`uv run pytest`** invocation documented for contributors and run in **`.github/workflows/ci.yml`** job **`test`** (Python 3.11 and 3.12). No separate CI job is **required**. That job installs **`[dev]`** only; it must **not** require the optional **`demo`** extra (**[DESIGN_PRINCIPLES.md — Core vs demo extras](DESIGN_PRINCIPLES.md#core-vs-demo-extras-llm-clients-and-supply-chain)**).
+4. **Demo-only tests** — If a test imports optional **LLM vendor** client packages that live under the **`demo`** extra, gate it with an **importorskip** / **`pytest.mark.skip`** when the extra is not installed, **or** isolate it in a module excluded from the default CI invocation (document which). Default CI must remain green on the **`[dev]`**-only frozen install (**`uv sync --frozen --extra dev`**, equivalent intent to editable **`[dev]`** without **`demo`**).
 
-**Note:** The repository already contains integration-style coverage in `tests/test_bridge_graph.py`. The backlog is **satisfied** only when **messages and docstrings** meet section 3; the Builder may **extend** that file or add a dedicated module such as `tests/test_replayt_boundary.py`—either is fine if the checklist above is met.
+**Implementation note:** `tests/test_bridge_graph.py` may already satisfy §2.1–2.2 if its module docstring, imports, and messages match this document. The Builder may **extend** that file or add a dedicated module (e.g. `tests/test_replayt_boundary_contracts.py`) when splitting **LangGraph checkpoint** scenarios from **pure replayt API** contracts improves clarity—either layout is acceptable if every checklist item and the product backlog table are satisfied.
 
 ---
 
@@ -58,10 +86,10 @@ When a replayt-facing assertion fails, a maintainer reading the pytest output sh
 
 | Contract under test | Acceptable pattern |
 | ------------------- | ------------------ |
-| Handler return names a step that is not registered on the workflow | `pytest.raises(RuntimeError, match="unknown next state")` **and** docstring mentions routing / declared step names |
-| Handler return violates `note_transition` / `allows_transition` | `pytest.raises(RuntimeError, match="undeclared transition")` **and** docstring mentions declared edges |
+| Handler return names a step that is not registered on the workflow | `pytest.raises(BridgeRoutingError, match="unknown next state")` **and** assert `exc.value.code == "unknown_next"`; docstring mentions routing / declared step names (**GRAPH_CONSTRUCTION_ERRORS** §3.2) |
+| Handler return violates `note_transition` / `allows_transition` | `pytest.raises(BridgeTransitionError, match="undeclared transition")` **and** assert `exc.value.code == "undeclared_transition"`; docstring mentions declared edges |
 | Linear workflow mutates `RunContext.data` as expected | `assert out["context"]["n"] == 2, "replayt boundary: RunContext.data carries cumulative ctx.set across steps"` |
-| `Workflow.set_initial` required before compile | `pytest.raises(ValueError, match="set_initial")` with docstring referencing `workflow.initial_state` |
+| `Workflow.set_initial` required before compile | `pytest.raises(BridgeWorkflowCompileError, match="set_initial")` (still a `ValueError` subclass) with docstring referencing `workflow.initial_state` |
 
 ### 3.3 Skips and upstream gaps
 
@@ -77,7 +105,7 @@ Tests that **require** packages from the **`demo`** optional extra must not brea
 
 When landing tests, ensure:
 
-- At least one test module or class docstring references **this document** by path (`docs/REPLAYT_BOUNDARY_TESTS.md`).
+- At least one **module** docstring references **this document** by path (`docs/REPLAYT_BOUNDARY_TESTS.md`) and identifies the file as replayt-boundary / contract-style coverage (required for the “explicitly targets replayt integration” backlog criterion).
 - Tests that focus on **LangGraph checkpoint save/load or resume** (rather than replayt API contracts) should reference **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** in a docstring so persistence backlog traceability stays clear; replayt boundary rules in **this** file still apply when the test imports **replayt**.
 - **CHANGELOG.md** under **Unreleased** notes user-visible or maintainer-visible testing improvements if the change is noteworthy (optional for pure message/docstring tightening; required if new files or new CI-visible scenarios are added—follow **`CONTRIBUTING.md`**).
 
@@ -89,3 +117,4 @@ When landing tests, ensure:
 - **[MISSION.md](MISSION.md)** — Success metrics for automated tests and clear logs.
 - **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** — LangGraph checkpoint persistence scope, failure modes, and deterministic test obligations (complements replayt-focused rules here).
 - **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** — Bridge **inbound state** contracts (separate from replayt upstream types).
+- **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** — Compile and routing exception taxonomy, logging, and test obligations for the graph mapping backlog.

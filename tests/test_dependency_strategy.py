@@ -94,6 +94,45 @@ def test_compatibility_update_issue_template_present():
     assert "Compatibility Update" in path.read_text(encoding="utf-8")
 
 
+def test_ci_workflow_installs_dev_without_demo_extra():
+    """Primary CI must mirror integrators: [dev] only from lock, never [demo] or --all-extras."""
+    ci_path = _REPO_ROOT / ".github" / "workflows" / "ci.yml"
+    assert ci_path.is_file(), "expected .github/workflows/ci.yml"
+    text = ci_path.read_text(encoding="utf-8")
+    assert "uv sync" in text
+    assert "--frozen" in text
+    assert "--extra dev" in text
+    assert "--extra demo" not in text, (
+        "CI default jobs must not install the demo extra (credential-free test path per MISSION / "
+        "DESIGN_PRINCIPLES S4)"
+    )
+    assert "--all-extras" not in text, (
+        "CI must not use uv --all-extras (that would pull the demo extra into the default path)"
+    )
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line.startswith("pip install"):
+            continue
+        assert "[demo]" not in line, (
+            "CI must not install the demo extra by default (no live LLM client deps in the "
+            f"default test path): {line!r}"
+        )
+        if "-e" in line and ".[" in line:
+            assert "[dev]" in line, (
+                "Editable project installs in CI must use the dev extra: " + line
+            )
+
+
+def test_uv_lockfile_committed_for_dev_install():
+    lock_path = _REPO_ROOT / "uv.lock"
+    assert lock_path.is_file(), "expected uv.lock at repository root for frozen CI installs"
+    text = lock_path.read_text(encoding="utf-8")
+    assert text.startswith("version = "), "uv.lock should be a uv TOML lockfile"
+    assert "requires-python" in text
+    assert "replayt-langgraph-bridge" in text
+    assert 'name = "pytest"' in text
+
+
 def test_python_version_requirement():
     """Test that Python version meets minimum requirement."""
     python_version = sys.version_info

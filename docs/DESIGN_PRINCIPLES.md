@@ -12,7 +12,7 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 
 ## Replayt boundary testing
 
-Integration-style tests that import **replayt** must fail with **messages that name the contract** under test (handler transitions, `RunContext.data`, runner/store wiring, etc.), not only deep stack traces. Normative expectations, anti-patterns, skip/issue rules, and the backlog checklist live in **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
+**Contract-style** replayt boundary tests (import **replayt**, exercise supported public APIs the bridge uses) must fail with **messages that name the contract** under test (handler transitions, `RunContext.data`, runner/store wiring, etc.), not only deep stack traces. Normative expectations, anti-patterns, skip/issue rules, CI/command parity, and the product backlog acceptance mapping live in **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
 
 ## Dependency and Pin Policy
 
@@ -24,8 +24,9 @@ This section is the **source of truth** for how pins, ranges, and extras are cho
 | -------- | -------------------- | -------------- |
 | **Minimum supported** | Lowest **replayt** / **LangGraph** / **Python** versions the maintainers commit to supporting, based on features the bridge uses and security posture | Lower bounds in `[project.dependencies]` and `requires-python`; repeated in this doc for readability |
 | **Upper bounds** | `< next major` on **replayt** and **langgraph** so `pip install` does not silently pull a new major | Upper bounds in `[project.dependencies]` |
-| **Tested matrix (today)** | **Python** 3.11 and 3.12 in GitHub Actions; each job runs `pip install -e .[dev]` and **pytest**. Runtime packages are whatever **pip** resolves **within** the declared ranges on that run (not a separate per-package pin file) | `.github/workflows/ci.yml` |
-| **Core install in CI** | At least one job path must install the bridge for tests **without** optional **demo / LLM-sample** extras (today: `pip install -e ".[dev]"` only). When a **`demo`** (or similarly named) extra exists, CI must still prove the **default + dev** surface is enough for the main test suite. | `.github/workflows/ci.yml`; README **Dependency strategy** |
+| **Tested matrix** | **Python** 3.11 and 3.12 in GitHub Actions; each job runs **`uv sync --frozen --extra dev`** then **`uv run pytest`** from the same resolved graph recorded in **`uv.lock`** (no **`demo`** extra). | `.github/workflows/ci.yml`; **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** |
+| **Locked CI resolution** | Root **`uv.lock`** freezes the **`[dev]`** install (core + dev tools, **no** **`demo`**) so CI and release branches replay the same transitive graph; **`test`** and **`supply-chain`** install with **`uv sync --frozen --extra dev`**. | **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §3–§4 |
+| **Core install in CI** | **`test`** (and **`supply-chain`**) install the bridge for checks **without** optional **demo / LLM-sample** extras—**`[dev]`** only via the lock. When a **`demo`** extra exists, CI must still prove the **default + dev** surface is enough for the main test suite. | `.github/workflows/ci.yml`; README **Dependency strategy** |
 | **Optional verification** | Before widening ranges or after upstream incidents, maintainers may install explicit versions locally or in a branch (e.g. `pip install 'replayt==x.y.z'`) and run **pytest**; document outcomes in a compatibility issue | Maintainer workflow; see template below |
 
 Optional extras must stay **out of** `[project.dependencies]` unless they are required for the published bridge API at install time.
@@ -56,6 +57,7 @@ When the first integration (or any later change) adds or tightens **runtime** de
 1. Put a short comment next to the requirement in **`pyproject.toml`** (why the bound exists).
 2. Update **Current dependency constraints** below and the compatibility bullets in **`README.md`** if integrator-facing ranges change.
 3. Add or adjust **`CHANGELOG.md`** under **Unreleased** when the change is user-visible (new runtime dep, range change, or new extra).
+4. Follow **[RELEASE_CHANGELOG.md](RELEASE_CHANGELOG.md)** for changelog layout, **Unreleased** workflow, **Breaking** / **Experimental** lead-ins, dependency signaling in release notes, **0.x** SemVer expectations, Git tag format (**`vX.Y.Z`**), and the high-level release checklist (version in **`pyproject.toml`**, dated changelog section, tag on the releasing commit).
 
 ### Current dependency constraints
 
@@ -98,6 +100,10 @@ Treat the following as **done** when the dependency story matches docs and packa
 - [x] **Breaking upstream path** — Triage uses the compatibility issue template and the maintainer checklist above; **`CONTRIBUTING.md`** points maintainers at this policy and the template for bumps.
 - [x] **Core vs demo LLM clients** — **[Core vs demo extras (LLM clients and supply chain)](#core-vs-demo-extras-llm-clients-and-supply-chain)** checklist is satisfied: no LLM vendor SDKs in core `[project.dependencies]`; optional **`demo`** extra and README matrix when demo deps exist; CI tests **without** that extra; contract tests updated (**backlog: Isolate optional LLM demo extras from core bridge install**).
 
+### Builder-facing acceptance criteria (reproducible lock backlog)
+
+Treat **Add reproducible lock or constraint strategy for release branches** as **done** when **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §8 is fully satisfied (committed artifact, CI install from lock, CONTRIBUTING regen commands, README + **DEPENDENCY_AUDIT** alignment).
+
 ## Security considerations
 
 1. **Trust boundary** — Workflow step handlers, the `Workflow` definition, and the `Runner` (and its store) are
@@ -108,9 +114,7 @@ Treat the following as **done** when the dependency story matches docs and packa
    graph state unless your storage and retention policies allow it. Normative scope, supported checkpointer pattern for **langgraph 1.1.x**, in-memory vs durable usage, and failure modes for bad or skewed checkpoint-related data are in **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**. **Log redaction** (deny-listed keys, value patterns, optional
    integrator hook, strict mode via `REPLAYT_BRIDGE_STRICT_REDACT`) applies to **bridge-originated structured logs** as specified
    in **[LOG_REDACTION.md](LOG_REDACTION.md)**; it is not a substitute for checkpoint access control or integrator-side state hygiene.
-3. **Errors and logging** — Transition validation raises `RuntimeError` messages that include step names and allowed
-   targets to aid debugging. Avoid logging full graph state in production if it may contain sensitive fields. Bridge-originated
-   structured logs follow **[LOG_REDACTION.md](LOG_REDACTION.md)**.
+3. **Errors and logging** — Compile-time and routing failures for the LangGraph mapping are specified in **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** (`BridgeWorkflowCompileError` for missing/invalid initial step; `BridgeRoutingError` / `BridgeTransitionError` with stable `code` and the same diagnostic substrings as before). Messages may include step names and declared targets; they must not include raw secrets or full `context` payloads. Avoid logging full graph state in production if it may contain sensitive fields. Bridge-originated structured logs follow **[LOG_REDACTION.md](LOG_REDACTION.md)**.
 4. **Inbound state validation** — Dict-shaped `ReplaytBridgeState` at the bridge boundary (initial input and
    checkpoint-resumed channel state) is validated as **untrusted** per **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**:
    documented limits and schema versions, generic caller-facing errors, and no partial durable mutation on reject
@@ -156,11 +160,47 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For checkpo
 - See [SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md) for coordinated disclosure, root **`SECURITY.md`** requirements, and **security-relevant** **`CHANGELOG.md`** expectations (Builder backlog).
 - See [MISSION.md](MISSION.md) for operational guidelines.
 
-## LLM / demos
+## LLM and demos
 
-**Packaging:** Optional samples that depend on **vendor LLM clients** use the **`demo`** extra and the **[Core vs demo extras](#core-vs-demo-extras-llm-clients-and-supply-chain)** rules above—not `[project.dependencies]`.
+### Package scope (normative)
 
-**Secrets and redaction:** Continue to follow **[Secrets policy](#secrets-policy)** and **[LOG_REDACTION.md](LOG_REDACTION.md)** for API keys and logged payloads. **MISSION.md** summarizes operational expectations for integrators.
+- **Core bridge** (`pip install replayt-langgraph-bridge`) and **`[dev]`** tooling: **Out of scope** for outbound calls to **vendor LLM HTTP APIs** as part of this package’s default behavior. The primary CI **`test`** job mirrors that path: **`uv sync --frozen --extra dev`** (**`[dev]`** only, **no** **`[demo]`**), **no** scripted live model invocations (see **`.github/workflows/ci.yml`**).
+- **Optional samples:** **In scope** only as **integrator-opt-in** paths: install **`replayt-langgraph-bridge[demo]`**, supply **environment-backed** API credentials, run samples locally or in your own automation. Packaging rules: **[Core vs demo extras](#core-vs-demo-extras-llm-clients-and-supply-chain)**—vendor LLM clients **never** belong in `[project.dependencies]`.
+
+### Current repository state
+
+| Artifact | Status |
+| -------- | ------ |
+| **`demo` extra** (**openai**, **anthropic**, **langchain-openai**, **langchain-anthropic**) | Declared in **`pyproject.toml`** for optional vendor-LLM samples |
+| Runnable first-party LLM demo / `examples/` in this repo | **Not shipped** — deterministic tests and integrator-owned graphs apply; see **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)** |
+| CI default **`test`** job | **`[dev]`** only from **`uv.lock`**; no keys or live provider calls required |
+
+### Builder acceptance criteria (LLM demo boundaries)
+
+Use this checklist when validating docs and (later) shipped samples against the backlogs **Document LLM boundaries for demos and optional examples** and **Document LLM and secrets posture before any live-model examples** (same normative contract):
+
+1. **Scope statement** — **`docs/MISSION.md`** states whether LLM demos are in scope (same contract as this section: optional **`demo`** path only; core + default CI remain LLM-call-free).
+2. **When a runnable first-party demo exists in-repo** — README documents **required environment variables**, **cost** expectations (vendor-metered; the bridge does not enforce quotas), and **log / redaction** policy: bridge logs follow **[LOG_REDACTION.md](LOG_REDACTION.md)**; demo code must follow **[Secrets policy](#secrets-policy)** and avoid logging raw keys or sensitive prompts. CI’s **default** **`test`** job remains **`[dev]`**-only with **no** live model calls. Tests that need the **`demo`** extra use **`importorskip`** / markers per **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
+3. **When no runnable demo exists** — README and this section **say so explicitly** and point to the **`demo`** extra, **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)**, and **[REPLAYT_ECOSYSTEM_IDEA.md](REPLAYT_ECOSYSTEM_IDEA.md#optional-vendor-llm-samples)** for future work.
+
+### Product acceptance criteria (verbatim backlog: LLM and secrets posture)
+
+Treat the product backlog **Document LLM and secrets posture before any live-model examples** as **done** when all of the following hold (spec gate / builder / tester mapping):
+
+| ID | Acceptance criterion | Where to verify |
+| --- | --- | --- |
+| **S1** | **`docs/MISSION.md`** or **`docs/DESIGN_PRINCIPLES.md`** states whether **LLM demos** are in package scope. | **[MISSION.md — LLM demos and optional samples](MISSION.md#llm-demos-and-optional-samples-scope)**; **[Package scope](#package-scope-normative)** (this section) |
+| **S2** | **If** a runnable first-party example exists: **env-based** opt-in, **cost** and **logging** expectations documented; **no secrets** in the repository. | README **LLM demos**; **[Secrets policy](#secrets-policy)**; **[LOG_REDACTION.md](LOG_REDACTION.md)**; repository tree (no committed keys or `.env`) |
+| **S3** | **If** no such example exists: explicit **“not included”** (or equivalent) and a **pointer to future work** (ecosystem ideas + **`demo`** packaging path). | **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)**; README **LLM demos**; **[REPLAYT_ECOSYSTEM_IDEA.md](REPLAYT_ECOSYSTEM_IDEA.md#optional-vendor-llm-samples)**; **`pyproject.toml`** optional **`demo`** extra |
+| **S4** | **CI** stays **credential-free by default**: primary **`test`** job uses **`[dev]`** only (no **`[demo]`**), **no** scripted live model calls. | **`.github/workflows/ci.yml`**; success metric in **[MISSION.md](MISSION.md)**; **[Dependency and Pin Policy](#minimum-supported-vs-upper-bounds-vs-what-ci-exercises)** |
+
+**Note:** Today the repository matches **S3** and **S4**; **S2** applies when a first-party sample lands. Changing that state requires updating **MISSION**, **README**, and this section in the same change set as the sample.
+
+### Packaging and operations (summary)
+
+**Packaging:** Optional samples that depend on **vendor LLM clients** use the **`demo`** extra and the **[Core vs demo extras](#core-vs-demo-extras-llm-clients-and-supply-chain)** rules—not `[project.dependencies]`.
+
+**Secrets and redaction:** Follow **[Secrets policy](#secrets-policy)** and **[LOG_REDACTION.md](LOG_REDACTION.md)** for API keys and logged payloads. **MISSION.md** summarizes operational expectations for integrators.
 
 ## Audience (extend)
 

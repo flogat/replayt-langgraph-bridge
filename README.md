@@ -9,7 +9,7 @@ This project builds on **replayt** as a **LangGraph framework bridge**. Read
 ## Design principles
 
 **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, integrator security
-expectations, and (for showcases) **LLM** boundaries.
+expectations, and optional **LLM** demo boundaries.
 
 For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For **what is persisted, in-memory vs durable checkpointers, failure modes for bad or version-skewed data**, and **builder test obligations** for checkpoint paths without live credentials, see **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)**. For **hosted LangGraph or remote checkpoint backends** (topologies, TLS, access control, environment separation, upstream links), see **[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**. For the **log redaction** contract (defaults, strict mode, integrator hook) for bridge-originated structured logs, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. For **inbound bridge state** validation (enforced limits, schema version, checkpoint safety), see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**. For **replayt boundary** tests and actionable failure messages, see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**. For the **stable public export set**, module layout, and stability rules, see **[docs/API.md](docs/API.md)**.
 
@@ -19,8 +19,8 @@ This project follows a deliberate **dependency and pin policy** so downstream in
 
 - **Runtime** (installed with `pip install replayt-langgraph-bridge`): `replayt>=0.4.0,<0.5` and `langgraph>=1.1.0,<1.2`, declared in **`pyproject.toml`** with short comments explaining bounds.
 - **Minimum supported** vs **upper bounds**: Lower bounds reflect features and support posture; `< next-major` caps automatic upgrades until maintainers validate a new line.
-- **What CI exercises**: **Python** 3.11 and 3.12 jobs install the package with **`[dev]`** and run **pytest**—**without** any optional **`demo`** extra. That proves the integrator-relevant install path stays green when demo-only LLM client dependencies are not present. **replayt** and **langgraph** resolve to the **latest versions allowed by those ranges** on each run (no separate lockfile today).
-- **Contributor install**: `pip install -e ".[dev]"` pulls **pytest**, **ruff**, and **pip-audit** only via the **`dev`** optional extra—never as default runtime deps.
+- **What CI exercises**: **Python** 3.11 and 3.12 jobs install **`[dev]`** from committed **`uv.lock`** (**`uv sync --frozen --extra dev`**) and run **`uv run pytest`** (no path or marker filter)—**without** any optional **`demo`** extra. The same command runs **unit tests and contract-style replayt boundary tests** together; normative scope and acceptance mapping are in **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**. That proves the integrator-relevant install path stays green when demo-only LLM client dependencies are not present. Regeneration and security→lock workflow: **[docs/DEPENDENCY_LOCK_STRATEGY.md](docs/DEPENDENCY_LOCK_STRATEGY.md)**.
+- **Contributor install (locked, matches CI):** **`uv sync --frozen --extra dev`** (see **[CONTRIBUTING.md](CONTRIBUTING.md)**). **`pip install -e ".[dev]"`** still resolves loosely for ad-hoc work but is not the CI graph.
 - **Upstream majors or risky bumps**: Use the **Compatibility Update** issue template (`.github/ISSUE_TEMPLATE/compatibility_update.md`) and follow the maintainer checklist in **[docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy](docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy)**.
 
 The full policy (selection rules, LangGraph major rollout risk, **core vs demo LLM extras**, and builder-facing acceptance criteria) lives in **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)**.
@@ -34,6 +34,17 @@ The full policy (selection rules, LangGraph major rollout risk, **core vs demo L
 | `pip install replayt-langgraph-bridge[demo]` | Optional **openai**, **anthropic**, **langchain-openai**, and **langchain-anthropic** for samples that call vendor LLM APIs (see `pyproject.toml`) | **Yes** |
 
 **Note:** **langgraph** (and its transitive dependencies) may include generic HTTP or messaging libraries used by the framework; the matrix above refers to **direct** bridge requirements that exist primarily to invoke **LLM vendor** APIs. Transitive behavior follows upstream packages you install.
+
+### LLM demos (optional samples)
+
+**Shipped in this repository today:** The optional **`[demo]`** extra declares vendor LLM client packages only. There is **no** committed first-party script under `examples/` (or similar) that invokes a live model. Scope and policy are normative in **[docs/MISSION.md](docs/MISSION.md#llm-demos-and-optional-samples-scope)** and **[docs/DESIGN_PRINCIPLES.md — LLM and demos](docs/DESIGN_PRINCIPLES.md#llm-and-demos)**.
+
+**If you install `[demo]`** for your own code or a future shipped sample:
+
+- **Environment variables:** Provide provider credentials via the environment (for example **`OPENAI_API_KEY`**, **`ANTHROPIC_API_KEY`**). LangChain-routed calls may need **`LANGCHAIN_API_KEY`** or other vars per upstream documentation. Do not commit **`.env`** or raw keys. See **[Secrets handling](#secrets-handling)** and **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
+- **Cost:** Usage is **metered and billed by the model vendor** (and any tracing SaaS you enable). This package does not cap spend or hide charges.
+- **Logs and redaction:** Bridge-originated structured logs follow **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. Application and sample code should not log raw API keys, prompts, or completions unless your own policy explicitly allows it and you apply equivalent controls.
+- **CI:** The default **`test`** job syncs **`[dev]`** only from **`uv.lock`** and runs **`uv run pytest`** with **no** live LLM calls (**[`.github/workflows/ci.yml`](.github/workflows/ci.yml)**).
 
 ## Reference documentation (optional)
 
@@ -159,10 +170,11 @@ To **pause and resume** across two **`invoke`** calls, compile with **`interrupt
 
 Supported names are exactly those in `replayt_langgraph_bridge.__all__` (see **[docs/API.md](docs/API.md)** for stability policy and module layout). Summary:
 
-- `compile_replayt_workflow(workflow, *, checkpointer=None, interrupt_before=None, interrupt_after=None, redactor=None, redact=True, strict_redact=False, bridge_logger=None)`: Compile a replayt `Workflow` into a LangGraph `Runnable`. Step lifecycle and routing errors emit structured records on the logger `replayt_langgraph_bridge` (override with `bridge_logger`) under `LogRecord.replayt_bridge` after redaction per **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. Set `REPLAYT_BRIDGE_STRICT_REDACT=1` or pass `strict_redact=True` for stricter masking when the environment does not already require strict mode. `redact=False` disables built-in redaction and issues a runtime warning. **Inbound state:** each step validates channel state before handlers; if you pass a durable checkpointer, it is wrapped so merged `invoke` input is validated before persistence (see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**). Supported `bridge_state_schema_version` values: `{1}` (omitted means `1`). Limits: nesting depth ≤ 32; ≤ 50_000 walk nodes; ≤ 4_194_304 UTF-8 bytes across all strings in `context`; ≤ 10_000 top-level `context` keys; `replayt_next` length ≤ 1024 after `str()`. Only top-level keys `context`, `replayt_next`, and optional `bridge_state_schema_version` are accepted on full inbound dicts. Optional `interrupt_before` / `interrupt_after` forward to LangGraph `compile` (use replayt step names) when you pause between steps or call `invoke` more than once with the same `thread_id` and a checkpointer (**[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)**). Failures raise `BridgeStateValidationError` with generic messages.
+- `compile_replayt_workflow(workflow, *, checkpointer=None, interrupt_before=None, interrupt_after=None, redactor=None, redact=True, strict_redact=False, bridge_logger=None)`: Compile a replayt `Workflow` into a LangGraph `Runnable`. Compile-time misuse raises `BridgeWorkflowCompileError` (subclass of `ValueError`). During `invoke`, undeclared handler transitions raise `BridgeTransitionError` and unknown `replayt_next` targets raise `BridgeRoutingError` (both subclass `BridgeGraphMappingError`, with stable `code` strings; they are **not** `RuntimeError`). See **[docs/GRAPH_CONSTRUCTION_ERRORS.md](docs/GRAPH_CONSTRUCTION_ERRORS.md)**. Step lifecycle and routing errors emit structured records on the logger `replayt_langgraph_bridge` (override with `bridge_logger`) under `LogRecord.replayt_bridge` after redaction per **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. To silence or tune that logger, use stdlib levels, `logging.NullHandler`, or `propagate=False` (**[docs/API.md](docs/API.md#bridge-logging-silence-and-verbosity)**). Set `REPLAYT_BRIDGE_STRICT_REDACT=1` or pass `strict_redact=True` for stricter masking when the environment does not already require strict mode. `redact=False` disables built-in redaction and issues a runtime warning. **Inbound state:** each step validates channel state before handlers; if you pass a durable checkpointer, it is wrapped so merged `invoke` input is validated before persistence (see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**). Supported `bridge_state_schema_version` values: `{1}` (omitted means `1`). Limits: nesting depth ≤ 32; ≤ 50_000 walk nodes; ≤ 4_194_304 UTF-8 bytes across all strings in `context`; ≤ 10_000 top-level `context` keys; `replayt_next` length ≤ 1024 after `str()`. Only top-level keys `context`, `replayt_next`, and optional `bridge_state_schema_version` are accepted on full inbound dicts. Optional `interrupt_before` / `interrupt_after` forward to LangGraph `compile` (use replayt step names) when you pause between steps or call `invoke` more than once with the same `thread_id` and a checkpointer (**[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)**). Inbound validation failures raise `BridgeStateValidationError` with generic messages.
 - `initial_bridge_state(*, context=None)`: Create the initial state dictionary for the bridge graph. The same inbound limits and schema rules apply to `context` before the value is returned; failures raise `BridgeStateValidationError`.
 - `ReplaytBridgeState`: `TypedDict` for the bridge channel shape; wire format and limits are normative in **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**.
 - `BridgeStateValidationError`: Subclass of `ValueError` for inbound state validation failures (stable, generic `str` values).
+- `BridgeWorkflowCompileError`, `BridgeGraphMappingError`, `BridgeTransitionError`, `BridgeRoutingError`: Compile and graph-mapping errors (**[docs/GRAPH_CONSTRUCTION_ERRORS.md](docs/GRAPH_CONSTRUCTION_ERRORS.md)**).
 - `RedactorHook`, `get_bridge_logger`, `redact_log_attachment`: Types and helpers for custom redaction and tests (see the log redaction spec).
 - `__version__`: The package version.
 
@@ -173,6 +185,11 @@ Default deny keys include LLM-oriented names such as `messages`, `input`, and `c
 ## Internal modules
 
 Implementation modules under `replayt_langgraph_bridge` (for example `graph`, `state_validation`) are not a supported import surface for applications. Import the stable names from the package root. See **[docs/API.md](docs/API.md)**.
+
+## Changelog and releases
+
+- **[CHANGELOG.md](CHANGELOG.md)** — notable changes for upgrades (Keep a Changelog layout); **Unreleased** accumulates work in flight; **dependency** and **Breaking** / **Experimental** notes should be explicit for packagers.
+- **[docs/RELEASE_CHANGELOG.md](docs/RELEASE_CHANGELOG.md)** — SemVer (including **0.x** expectations), **compatibility signaling**, contributor **Unreleased** workflow, when to edit the changelog, **`vX.Y.Z`** tags, and the manual release checklist. Contributor expectations: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 
 ## Compatibility
 

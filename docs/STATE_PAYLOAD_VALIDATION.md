@@ -96,8 +96,7 @@ Recommended **initial** constants (tune only with threat-model review and CHANGE
 - **Debug logging:** `logger.debug("...", extra={...})` may include structured fields such as
   `reason_code`, `limit_name`, `observed_depth`—**not** raw context values by default.
 
-Existing **`RuntimeError`** messages for **transition routing** (step names, allowed targets) remain
-governed by **[THREAT_MODEL.md](THREAT_MODEL.md)** and **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)**;
+**Transition routing** errors (`BridgeRoutingError`, `BridgeTransitionError`; step names, allowed targets in `str(exception)`) are specified in **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** and governed by **[THREAT_MODEL.md](THREAT_MODEL.md)** and **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)**;
 this spec adds the **validation** layer **before** those paths execute on bad inbound state.
 
 ---
