@@ -7,7 +7,9 @@
 3. Run tests: `pytest`
 4. Run linting: `ruff check src tests`
 
-Integration-style tests that call **replayt** should follow **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** (contract-named assertions, `pytest.raises` `match=` strings, skip reasons with tracking issues).
+Use **`pytest` with no extra paths or markers** for the integrator-relevant suite—the same invocation as the **`test`** job in **`.github/workflows/ci.yml`** after `pip install -e ".[dev]"`. That run includes **contract-style replayt boundary** tests alongside other unit tests; see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** for scope and the product backlog acceptance mapping.
+
+Integration-style tests that call **replayt** must follow that document (contract-named assertions, `pytest.raises` `match=` strings, skip reasons with tracking issues).
 
 When adding or renaming symbols intended for integrators, update **`replayt_langgraph_bridge.__all__`**, **[docs/API.md](docs/API.md)**, the **Public API** section of **README.md**, and **`tests/test_public_api.py`** (`_STABLE_PUBLIC_NAMES`) together (see **API.md** for the checklist).
 

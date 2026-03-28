@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`tests/test_replayt_boundary_contracts.py`**: consumer-side replayt boundary tests (``Workflow``, ``Runner``, ``RunContext.data`` via ``Runner.run``, ``JSONLStore``, ``allows_transition`` / ``step_names``) with contract-named assertion messages; collected by default **pytest** alongside **`tests/test_bridge_graph.py`** (phase **3**, backlog **Add contract-style tests at the replayt boundary**).
+
+### Documentation
+
+- Refined **replayt boundary / contract-style** testing spec for backlog **Add contract-style tests at the replayt boundary**: definition of contract-style vs private internals, verbatim product acceptance criteria table, builder checklist alignment, module-docstring traceability rule, and explicit parity between **CONTRIBUTING** / **README** (`pytest` with no filter) and **`.github/workflows/ci.yml`** job **`test`** (**[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**); **DESIGN_PRINCIPLES** replayt-boundary paragraph updated (phase **2** spec).
+
 ### Changed
 
+- **`tests/test_bridge_graph.py`**: top-level ``replayt.workflow.Workflow`` import; contract-named messages on resume/checkpoint assertions (phase **3**, backlog **Add contract-style tests at the replayt boundary**).
 - `compile_replayt_workflow` accepts optional **`interrupt_before`** and **`interrupt_after`** (forwarded to LangGraph `StateGraph.compile`; replayt step names). README and **[docs/API.md](docs/API.md)** updated; **`tests/test_bridge_graph.py`** adds **`test_resume_second_invoke_uses_memory_checkpointer`** and docstring traceability to **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** (phase 3 backlog **Define checkpoint persistence scope and failure modes**).
 - Replayt boundary tests in `tests/test_bridge_graph.py`: contract-named assertion messages, `pytest.raises` `match=` strings, and docstrings aligned with **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** (backlog: actionable failure messages).
 
