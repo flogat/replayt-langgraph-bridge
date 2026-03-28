@@ -24,8 +24,9 @@ This section is the **source of truth** for how pins, ranges, and extras are cho
 | -------- | -------------------- | -------------- |
 | **Minimum supported** | Lowest **replayt** / **LangGraph** / **Python** versions the maintainers commit to supporting, based on features the bridge uses and security posture | Lower bounds in `[project.dependencies]` and `requires-python`; repeated in this doc for readability |
 | **Upper bounds** | `< next major` on **replayt** and **langgraph** so `pip install` does not silently pull a new major | Upper bounds in `[project.dependencies]` |
-| **Tested matrix (today)** | **Python** 3.11 and 3.12 in GitHub Actions; each job runs `pip install -e .[dev]` and **pytest**. Runtime packages are whatever **pip** resolves **within** the declared ranges on that run (not a separate per-package pin file) | `.github/workflows/ci.yml` |
-| **Core install in CI** | At least one job path must install the bridge for tests **without** optional **demo / LLM-sample** extras (today: `pip install -e ".[dev]"` only). When a **`demo`** (or similarly named) extra exists, CI must still prove the **default + dev** surface is enough for the main test suite. | `.github/workflows/ci.yml`; README **Dependency strategy** |
+| **Tested matrix** | **Python** 3.11 and 3.12 in GitHub Actions; each job runs **`uv sync --frozen --extra dev`** then **`uv run pytest`** from the same resolved graph recorded in **`uv.lock`** (no **`demo`** extra). | `.github/workflows/ci.yml`; **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** |
+| **Locked CI resolution** | Root **`uv.lock`** freezes the **`[dev]`** install (core + dev tools, **no** **`demo`**) so CI and release branches replay the same transitive graph; **`test`** and **`supply-chain`** install with **`uv sync --frozen --extra dev`**. | **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §3–§4 |
+| **Core install in CI** | **`test`** (and **`supply-chain`**) install the bridge for checks **without** optional **demo / LLM-sample** extras—**`[dev]`** only via the lock. When a **`demo`** extra exists, CI must still prove the **default + dev** surface is enough for the main test suite. | `.github/workflows/ci.yml`; README **Dependency strategy** |
 | **Optional verification** | Before widening ranges or after upstream incidents, maintainers may install explicit versions locally or in a branch (e.g. `pip install 'replayt==x.y.z'`) and run **pytest**; document outcomes in a compatibility issue | Maintainer workflow; see template below |
 
 Optional extras must stay **out of** `[project.dependencies]` unless they are required for the published bridge API at install time.
@@ -99,6 +100,10 @@ Treat the following as **done** when the dependency story matches docs and packa
 - [x] **Breaking upstream path** — Triage uses the compatibility issue template and the maintainer checklist above; **`CONTRIBUTING.md`** points maintainers at this policy and the template for bumps.
 - [x] **Core vs demo LLM clients** — **[Core vs demo extras (LLM clients and supply chain)](#core-vs-demo-extras-llm-clients-and-supply-chain)** checklist is satisfied: no LLM vendor SDKs in core `[project.dependencies]`; optional **`demo`** extra and README matrix when demo deps exist; CI tests **without** that extra; contract tests updated (**backlog: Isolate optional LLM demo extras from core bridge install**).
 
+### Builder-facing acceptance criteria (reproducible lock backlog)
+
+Treat **Add reproducible lock or constraint strategy for release branches** as **done** when **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §8 is fully satisfied (committed artifact, CI install from lock, CONTRIBUTING regen commands, README + **DEPENDENCY_AUDIT** alignment).
+
 ## Security considerations
 
 1. **Trust boundary** — Workflow step handlers, the `Workflow` definition, and the `Runner` (and its store) are
@@ -158,7 +163,7 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For checkpo
 
 ### Package scope (normative)
 
-- **Core bridge** (`pip install replayt-langgraph-bridge`) and **`[dev]`** tooling: **Out of scope** for outbound calls to **vendor LLM HTTP APIs** as part of this package’s default behavior. The primary CI **`test`** job mirrors that path: **`pip install -e ".[dev]"`** only, **no** **`[demo]`** extra, **no** scripted live model invocations (see **`.github/workflows/ci.yml`**).
+- **Core bridge** (`pip install replayt-langgraph-bridge`) and **`[dev]`** tooling: **Out of scope** for outbound calls to **vendor LLM HTTP APIs** as part of this package’s default behavior. The primary CI **`test`** job mirrors that path: **`uv sync --frozen --extra dev`** (**`[dev]`** only, **no** **`[demo]`**), **no** scripted live model invocations (see **`.github/workflows/ci.yml`**).
 - **Optional samples:** **In scope** only as **integrator-opt-in** paths: install **`replayt-langgraph-bridge[demo]`**, supply **environment-backed** API credentials, run samples locally or in your own automation. Packaging rules: **[Core vs demo extras](#core-vs-demo-extras-llm-clients-and-supply-chain)**—vendor LLM clients **never** belong in `[project.dependencies]`.
 
 ### Current repository state
@@ -167,7 +172,7 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For checkpo
 | -------- | ------ |
 | **`demo` extra** (**openai**, **anthropic**, **langchain-openai**, **langchain-anthropic**) | Declared in **`pyproject.toml`** for optional vendor-LLM samples |
 | Runnable first-party LLM demo / `examples/` in this repo | **Not shipped** — deterministic tests and integrator-owned graphs apply; see **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)** |
-| CI default **`test`** job | **`[dev]`** only; no keys or live provider calls required |
+| CI default **`test`** job | **`[dev]`** only from **`uv.lock`**; no keys or live provider calls required |
 
 ### Builder acceptance criteria (LLM demo boundaries)
 

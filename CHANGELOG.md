@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **CI and contributor setup** use committed **`uv.lock`**: **`test`** and **`supply-chain`** run **`uv sync --frozen --extra dev`** then **`uv run`** (**pytest**, **ruff**, **pip-audit**); **CONTRIBUTING.md** documents **`uv sync --extra dev`** to regenerate the lock (phase **3**, backlog **Add reproducible lock or constraint strategy for release branches**).
+
 ### Added
 
 - **`tests/test_release_changelog_contract.py`**: contract tests for **`docs/RELEASE_CHANGELOG.md`** §6 backlog acceptance (**A–G**), including pin visibility (**E**), **Breaking** / **Experimental** lead-ins (**F**–**G**), and **`CHANGELOG.md`** release heading vs **`pyproject.toml`** **`[project].version`** (phase **3**, backlog **Establish CHANGELOG and compatibility signaling**).
@@ -16,10 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **README**, **CONTRIBUTING**, **MISSION**, **DESIGN_PRINCIPLES**, **REPLAYT_BOUNDARY_TESTS**, **BACKLOG_LANGGRAPH_CHECKPOINT_SLICE**, and **CHANGELOG** historical notes: default **`test`** job / contributor parity described as **`uv run pytest`** (no path or marker filter) after **`uv sync --frozen --extra dev`**, matching **`.github/workflows/ci.yml`** (phase **5** architecture review, backlog **Add reproducible lock or constraint strategy for release branches**).
+- **Dependency lock strategy (spec)** — **[docs/DEPENDENCY_LOCK_STRATEGY.md](docs/DEPENDENCY_LOCK_STRATEGY.md)** defines normative goals, preferred **`uv.lock`** (or pip-tools hashes), **`[dev]`**-only locked surface, CI and regeneration requirements, security-alert→lock workflow, and builder checklist §8 for backlog **Add reproducible lock or constraint strategy for release branches**; cross-links from **DESIGN_PRINCIPLES**, **README**, **CONTRIBUTING**, and **DEPENDENCY_AUDIT** (phase **2** spec).
 - **Compatibility signaling spec** — **[docs/RELEASE_CHANGELOG.md](docs/RELEASE_CHANGELOG.md)** now maps backlog **Establish CHANGELOG and compatibility signaling**: contributor **Unreleased** workflow, **pre-1.0** SemVer expectations, explicit **Breaking** / **Experimental** changelog lead-ins, and builder acceptance **E–G** (pin visibility). **README** / **CONTRIBUTING** aligned (phase **2** spec).
 - Normative spec for **graph compile and routing errors**, observability defaults, stable exception targets, test obligations, and backlog acceptance mapping (**[docs/GRAPH_CONSTRUCTION_ERRORS.md](docs/GRAPH_CONSTRUCTION_ERRORS.md)**); cross-links from **API.md**, **DESIGN_PRINCIPLES**, **CHECKPOINT_PERSISTENCE**, and **REPLAYT_BOUNDARY_TESTS** (phase **2**, backlog **Harden error surfaces and observability for graph construction**).
 - **CHECKPOINT_PERSISTENCE**, **DESIGN_PRINCIPLES**, **STATE_PAYLOAD_VALIDATION**, and **GRAPH_CONSTRUCTION_ERRORS** §6: describe the shipped **`BridgeWorkflowCompileError`** / **`BridgeRoutingError`** / **`BridgeTransitionError`** surface instead of legacy **`RuntimeError`** or pre-migration “today vs target” wording (architecture review doc alignment, backlog **Harden error surfaces and observability for graph construction**).
-- Refined **replayt boundary / contract-style** testing spec for backlog **Add contract-style tests at the replayt boundary**: definition of contract-style vs private internals, verbatim product acceptance criteria table, builder checklist alignment, module-docstring traceability rule, and explicit parity between **CONTRIBUTING** / **README** (`pytest` with no filter) and **`.github/workflows/ci.yml`** job **`test`** (**[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**); **DESIGN_PRINCIPLES** replayt-boundary paragraph updated (phase **2** spec).
+- Refined **replayt boundary / contract-style** testing spec for backlog **Add contract-style tests at the replayt boundary**: definition of contract-style vs private internals, verbatim product acceptance criteria table, builder checklist alignment, module-docstring traceability rule, and explicit parity between **CONTRIBUTING** / **README** (**`uv run pytest`** with no filter, after **`uv sync --frozen --extra dev`**) and **`.github/workflows/ci.yml`** job **`test`** (**[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**); **DESIGN_PRINCIPLES** replayt-boundary paragraph updated (phase **2** spec).
 
 ### Changed
 
@@ -30,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **`tests/test_dependency_strategy.py`**: assert **`.github/workflows/ci.yml`** `pip install` lines never use **`[demo]`** and editable installs use **`[dev]`** (phase 3 backlog **Document LLM boundaries for demos and optional examples**).
+- **`tests/test_dependency_strategy.py`**: assert **`.github/workflows/ci.yml`** uses **`uv sync`** with **`--frozen`** / **`--extra dev`**, forbids **`--all-extras`**, and treats any **`pip install`** lines as guarded (no **`[demo]`** on default path; editable **`[dev]`** if present) (phase 3 backlog **Document LLM boundaries for demos and optional examples**).
 - Optional **`demo`** extra in **`pyproject.toml`** (**openai**, **anthropic**, **langchain-openai**, **langchain-anthropic**) for samples that call vendor LLM APIs; core install and CI **`[dev]`** path stay unchanged. README **extras matrix** and contract tests in **`tests/test_dependency_strategy.py`** updated (phase 3 backlog **Isolate optional LLM demo extras from core bridge install**).
 - Public API regression tests: ``__all__`` matches ``docs/API.md`` stable table, each export is documented, README **Usage** imports only the package root for the bridge (`tests/test_public_api.py`; phase 3 backlog **Define the public adapter API and module layout**).
 - **Inbound bridge state validation** (backlog: harden deserialization): limits and `bridge_state_schema_version` per `docs/STATE_PAYLOAD_VALIDATION.md`, `BridgeStateValidationError`, validation in `initial_bridge_state` and before each step’s `RunContext.data` update, and a wrapping checkpointer that validates merged `invoke` input before LangGraph persists it (INPUT and loop puts that include `__start__`). Implementation in `src/replayt_langgraph_bridge/state_validation.py`; tests in `tests/test_state_payload_validation.py`.
