@@ -54,6 +54,7 @@ In-repo **tests** may import private helpers (e.g. functions prefixed with `_` i
 | Backlog: checkpoint slice acceptance criteria and in/out of scope | **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)** |
 | Hosted checkpoints, remote runtimes, TLS, and access control | **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** |
 | Inbound state limits and schema version | **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** |
+| Compile-time and routing/mapping errors (`compile_replayt_workflow`, `replayt_next`) | **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** |
 | Bridge-originated logging and redaction | **[LOG_REDACTION.md](LOG_REDACTION.md)** |
 | Replayt-facing tests and assertion style | **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** |
 | Dependency ranges and compatibility process | **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)** |

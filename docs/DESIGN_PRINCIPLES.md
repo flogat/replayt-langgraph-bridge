@@ -108,9 +108,7 @@ Treat the following as **done** when the dependency story matches docs and packa
    graph state unless your storage and retention policies allow it. Normative scope, supported checkpointer pattern for **langgraph 1.1.x**, in-memory vs durable usage, and failure modes for bad or skewed checkpoint-related data are in **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**. **Log redaction** (deny-listed keys, value patterns, optional
    integrator hook, strict mode via `REPLAYT_BRIDGE_STRICT_REDACT`) applies to **bridge-originated structured logs** as specified
    in **[LOG_REDACTION.md](LOG_REDACTION.md)**; it is not a substitute for checkpoint access control or integrator-side state hygiene.
-3. **Errors and logging** — Transition validation raises `RuntimeError` messages that include step names and allowed
-   targets to aid debugging. Avoid logging full graph state in production if it may contain sensitive fields. Bridge-originated
-   structured logs follow **[LOG_REDACTION.md](LOG_REDACTION.md)**.
+3. **Errors and logging** — Compile-time and routing failures for the LangGraph mapping are specified in **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** (today: `ValueError` for missing/invalid initial step; `RuntimeError` substrings for unknown next / undeclared transition; target: stable public exception types). Messages may include step names and declared targets; they must not include raw secrets or full `context` payloads. Avoid logging full graph state in production if it may contain sensitive fields. Bridge-originated structured logs follow **[LOG_REDACTION.md](LOG_REDACTION.md)**.
 4. **Inbound state validation** — Dict-shaped `ReplaytBridgeState` at the bridge boundary (initial input and
    checkpoint-resumed channel state) is validated as **untrusted** per **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**:
    documented limits and schema versions, generic caller-facing errors, and no partial durable mutation on reject

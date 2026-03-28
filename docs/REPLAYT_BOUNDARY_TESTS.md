@@ -24,6 +24,18 @@ Private replayt internals (underscore-prefixed objects, undocumented modules) ar
 
 ---
 
+## Product backlog: Harden error surfaces and observability for graph construction
+
+Normative mapping from the product backlog acceptance criteria to this repository (full error taxonomy and logging rules: **`docs/GRAPH_CONSTRUCTION_ERRORS.md`**):
+
+| Backlog criterion | Done when (normative) |
+| ----------------- | ---------------------- |
+| **Documented error behavior** for invalid input, unsupported features, and version skew (as applicable) | **`docs/GRAPH_CONSTRUCTION_ERRORS.md`** + aligned docstrings on **`compile_replayt_workflow`** / **`initial_bridge_state`**; cross-links from **API.md**, **CHECKPOINT_PERSISTENCE**, **DESIGN_PRINCIPLES**. |
+| **Tests assert stable exception types or error codes** for representative failure cases | Tests cover at least: unknown next step, undeclared transition, compile without **`set_initial`**, invalid initial step; assert **public type** or documented **`code`** attribute and use **`pytest.raises(..., match=…)`** per §3.2 and **GRAPH_CONSTRUCTION_ERRORS** §3.2. |
+| **Optional logging hook or documented pattern** does not emit sensitive data by default | **LOG_REDACTION** defaults; integrator silence/verbosity pattern documented in **README** or **API.md**; representative-secret tests per **LOG_REDACTION** / **GRAPH_CONSTRUCTION_ERRORS** §4. |
+
+---
+
 ## 1. Scope: “replayt boundary” in this package
 
 A **replayt boundary test** imports **replayt** and exercises **behavior that replayt owns** that the bridge relies on at compile or run time. The bridge implementation in `replayt_langgraph_bridge.graph` currently depends on these **documented replayt entry points** (see `src/replayt_langgraph_bridge/graph.py`):
@@ -74,8 +86,8 @@ When a replayt-facing assertion fails, a maintainer reading the pytest output sh
 
 | Contract under test | Acceptable pattern |
 | ------------------- | ------------------ |
-| Handler return names a step that is not registered on the workflow | `pytest.raises(RuntimeError, match="unknown next state")` **and** docstring mentions routing / declared step names |
-| Handler return violates `note_transition` / `allows_transition` | `pytest.raises(RuntimeError, match="undeclared transition")` **and** docstring mentions declared edges |
+| Handler return names a step that is not registered on the workflow | `pytest.raises(RuntimeError, match="unknown next state")` **and** docstring mentions routing / declared step names; after **`docs/GRAPH_CONSTRUCTION_ERRORS.md`** §3 is implemented, assert the **public** routing exception type (or `code`) **and** keep `match=` on a stable phrase documented there |
+| Handler return violates `note_transition` / `allows_transition` | `pytest.raises(RuntimeError, match="undeclared transition")` **and** docstring mentions declared edges; after **GRAPH_CONSTRUCTION_ERRORS** §3, assert the **public** transition exception type (or `code`) **and** keep `match=` per that doc |
 | Linear workflow mutates `RunContext.data` as expected | `assert out["context"]["n"] == 2, "replayt boundary: RunContext.data carries cumulative ctx.set across steps"` |
 | `Workflow.set_initial` required before compile | `pytest.raises(ValueError, match="set_initial")` with docstring referencing `workflow.initial_state` |
 
@@ -105,3 +117,4 @@ When landing tests, ensure:
 - **[MISSION.md](MISSION.md)** — Success metrics for automated tests and clear logs.
 - **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** — LangGraph checkpoint persistence scope, failure modes, and deterministic test obligations (complements replayt-focused rules here).
 - **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** — Bridge **inbound state** contracts (separate from replayt upstream types).
+- **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** — Compile and routing exception taxonomy, logging, and test obligations for the graph mapping backlog.
