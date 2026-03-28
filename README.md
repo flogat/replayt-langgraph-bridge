@@ -9,7 +9,7 @@ This project builds on **replayt** as a **LangGraph framework bridge**. Read
 ## Design principles
 
 **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, integrator security
-expectations, and (for showcases) **LLM** boundaries.
+expectations, and optional **LLM** demo boundaries.
 
 For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For **what is persisted, in-memory vs durable checkpointers, failure modes for bad or version-skewed data**, and **builder test obligations** for checkpoint paths without live credentials, see **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)**. For **hosted LangGraph or remote checkpoint backends** (topologies, TLS, access control, environment separation, upstream links), see **[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**. For the **log redaction** contract (defaults, strict mode, integrator hook) for bridge-originated structured logs, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. For **inbound bridge state** validation (enforced limits, schema version, checkpoint safety), see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**. For **replayt boundary** tests and actionable failure messages, see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**. For the **stable public export set**, module layout, and stability rules, see **[docs/API.md](docs/API.md)**.
 
@@ -34,6 +34,17 @@ The full policy (selection rules, LangGraph major rollout risk, **core vs demo L
 | `pip install replayt-langgraph-bridge[demo]` | Optional **openai**, **anthropic**, **langchain-openai**, and **langchain-anthropic** for samples that call vendor LLM APIs (see `pyproject.toml`) | **Yes** |
 
 **Note:** **langgraph** (and its transitive dependencies) may include generic HTTP or messaging libraries used by the framework; the matrix above refers to **direct** bridge requirements that exist primarily to invoke **LLM vendor** APIs. Transitive behavior follows upstream packages you install.
+
+### LLM demos (optional samples)
+
+**Shipped in this repository today:** The optional **`[demo]`** extra declares vendor LLM client packages only. There is **no** committed first-party script under `examples/` (or similar) that invokes a live model. Scope and policy are normative in **[docs/MISSION.md](docs/MISSION.md#llm-demos-and-optional-samples-scope)** and **[docs/DESIGN_PRINCIPLES.md — LLM and demos](docs/DESIGN_PRINCIPLES.md#llm-and-demos)**.
+
+**If you install `[demo]`** for your own code or a future shipped sample:
+
+- **Environment variables:** Provide provider credentials via the environment (for example **`OPENAI_API_KEY`**, **`ANTHROPIC_API_KEY`**). LangChain-routed calls may need **`LANGCHAIN_API_KEY`** or other vars per upstream documentation. Do not commit **`.env`** or raw keys. See **[Secrets handling](#secrets-handling)** and **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
+- **Cost:** Usage is **metered and billed by the model vendor** (and any tracing SaaS you enable). This package does not cap spend or hide charges.
+- **Logs and redaction:** Bridge-originated structured logs follow **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. Application and sample code should not log raw API keys, prompts, or completions unless your own policy explicitly allows it and you apply equivalent controls.
+- **CI:** The default **`test`** job installs **`[dev]`** only and runs **pytest** with **no** live LLM calls (**[`.github/workflows/ci.yml`](.github/workflows/ci.yml)**).
 
 ## Reference documentation (optional)
 
