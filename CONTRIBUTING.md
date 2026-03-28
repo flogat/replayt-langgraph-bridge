@@ -9,7 +9,7 @@
 
 Integration-style tests that call **replayt** should follow **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** (contract-named assertions, `pytest.raises` `match=` strings, skip reasons with tracking issues).
 
-When adding or renaming symbols intended for integrators, update **`replayt_langgraph_bridge.__all__`**, **[docs/API.md](docs/API.md)**, and the **Public API** section of **README.md** together (see **API.md** for the checklist).
+When adding or renaming symbols intended for integrators, update **`replayt_langgraph_bridge.__all__`**, **[docs/API.md](docs/API.md)**, the **Public API** section of **README.md**, and **`tests/test_public_api.py`** (`_STABLE_PUBLIC_NAMES`) together (see **API.md** for the checklist).
 
 ## Dependency management
 
