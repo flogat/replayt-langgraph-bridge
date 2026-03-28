@@ -128,6 +128,7 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For checkpo
 - **Preferred method**: Store API keys, tokens, and other secrets in environment variables.
 - **Example**: Set `OPENAI_API_KEY`, `LANGCHAIN_API_KEY`, etc., in your shell or deployment environment.
 - **Never commit secrets**: Do not commit `.env` files or any files containing raw secrets to version control.
+- **Repository boundaries**: Which paths belong in **`.gitignore`** (env files, orchestration scratch, local checkpoint dumps) and which files **must stay tracked** for packaging and CI are specified in **[GITIGNORE_AND_LOCAL_ARTIFACTS.md](GITIGNORE_AND_LOCAL_ARTIFACTS.md)**.
 
 ### Secret handling patterns
 - **Safe pattern**: Read secrets from environment variables at runtime:
