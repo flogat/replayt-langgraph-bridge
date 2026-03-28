@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 - Normative spec for **graph compile and routing errors**, observability defaults, stable exception targets, test obligations, and backlog acceptance mapping (**[docs/GRAPH_CONSTRUCTION_ERRORS.md](docs/GRAPH_CONSTRUCTION_ERRORS.md)**); cross-links from **API.md**, **DESIGN_PRINCIPLES**, **CHECKPOINT_PERSISTENCE**, and **REPLAYT_BOUNDARY_TESTS** (phase **2**, backlog **Harden error surfaces and observability for graph construction**).
+- **CHECKPOINT_PERSISTENCE**, **DESIGN_PRINCIPLES**, **STATE_PAYLOAD_VALIDATION**, and **GRAPH_CONSTRUCTION_ERRORS** §6: describe the shipped **`BridgeWorkflowCompileError`** / **`BridgeRoutingError`** / **`BridgeTransitionError`** surface instead of legacy **`RuntimeError`** or pre-migration “today vs target” wording (phase **5** architecture review, same backlog).
 - Refined **replayt boundary / contract-style** testing spec for backlog **Add contract-style tests at the replayt boundary**: definition of contract-style vs private internals, verbatim product acceptance criteria table, builder checklist alignment, module-docstring traceability rule, and explicit parity between **CONTRIBUTING** / **README** (`pytest` with no filter) and **`.github/workflows/ci.yml`** job **`test`** (**[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**); **DESIGN_PRINCIPLES** replayt-boundary paragraph updated (phase **2** spec).
 
 ### Changed

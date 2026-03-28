@@ -105,9 +105,11 @@ No hook is **required** for backlog completion if §4.1 patterns are documented.
 
 ## 6. Builder checklist (implementation gate)
 
-1. Implement §3 types (or single type + `code`); wire `graph.py` raises; update **`__all__`**, **`docs/API.md`**, **`README`** Public API if exports change.
-2. Replace bare **`RuntimeError`** for the two routing cases with the new surface; keep **`ValueError`** cases as **`BridgeWorkflowCompileError`** or strict subclasses with same messages for minimal churn.
-3. Add or adjust tests per §5; ensure **REPLAYT_BOUNDARY_TESTS** §3.2 table references this doc for post-change assertion style.
+The first graph-mapping hardening pass is merged; use the list below as a **regression gate** when editing compile or routing.
+
+1. Keep §3 types (or single type + `code`) wired from `graph.py`; **`__all__`**, **`docs/API.md`**, **`README`** Public API stay aligned when exports change.
+2. Routing cases stay on **`BridgeRoutingError`** / **`BridgeTransitionError`** (not bare **`RuntimeError`**); compile cases stay on **`BridgeWorkflowCompileError`** (still a **`ValueError`** subclass) unless **CHANGELOG** documents a deliberate break.
+3. Add or adjust tests per §5; keep **REPLAYT_BOUNDARY_TESTS** §3.2 aligned with this doc when assertion style changes.
 4. **CHANGELOG.md** under **Unreleased**: note new exception types / any message changes integrators might catch.
 5. Re-read **THREAT_MODEL** / **DESIGN_PRINCIPLES** security bullets for consistency (step names OK; secrets not in `str(exc)`).
 
