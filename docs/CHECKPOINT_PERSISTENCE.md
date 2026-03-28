@@ -100,13 +100,13 @@ If storage is corrupted, truncated, or incompatible with the **LangGraph / check
 Map the product backlog to verifiable items:
 
 - [x] **Docs (this file):** Supported checkpointer **pattern** for langgraph **1.1.x**, in-memory vs durable, limitations, secret/PII, corrupt/skew failure modes, cross-links to **STATE_PAYLOAD_VALIDATION**, **HOSTED_DEPLOYMENT_AUTHZ**, **THREAT_MODEL**.
-- [ ] **Tests:** At least **one** deterministic path using a **non-network** checkpointer (e.g. **`MemorySaver`** or a **local temp-file** SQLite saver if available in the pinned stack) with **no** optional **`demo`** extra and **no** live cloud/API credentials, demonstrating either:
+- [x] **Tests:** At least **one** deterministic path using a **non-network** checkpointer (e.g. **`MemorySaver`** or a **local temp-file** SQLite saver if available in the pinned stack) with **no** optional **`demo`** extra and **no** live cloud/API credentials, demonstrating either:
   - a full **`invoke`** that leaves the graph in an expected terminal channel state while checkpoints are enabled, **or**
   - an explicit **resume** / second interaction that depends on a **prior** checkpoint for the same `thread_id`.
 
-**Existing baseline (maintainers must keep coverage green):** `tests/test_bridge_graph.py` (`MemorySaver` + `invoke` linear workflow) and `tests/test_state_payload_validation.py` (checkpoint non-advance on bad inbound state, resume-related assertions) illustrate allowed patterns. When touching these behaviors, **reference this document** in the test module or function docstring so traceability stays obvious.
+**Existing baseline (maintainers must keep coverage green):** `tests/test_bridge_graph.py` (`MemorySaver` + `invoke` linear workflow; `test_resume_second_invoke_uses_memory_checkpointer` for two-`invoke` resume) and `tests/test_state_payload_validation.py` (checkpoint non-advance on bad inbound state, resume-related assertions) illustrate allowed patterns. When touching these behaviors, **reference this document** in the test module or function docstring so traceability stays obvious.
 
-- [ ] **README / API.md / THREAT_MODEL** — Links to this spec (see §7).
+- [x] **README / API.md / THREAT_MODEL** — Links to this spec (see §7).
 
 ---
 
