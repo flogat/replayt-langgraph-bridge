@@ -19,11 +19,21 @@ This project follows a deliberate **dependency and pin policy** so downstream in
 
 - **Runtime** (installed with `pip install replayt-langgraph-bridge`): `replayt>=0.4.0,<0.5` and `langgraph>=1.1.0,<1.2`, declared in **`pyproject.toml`** with short comments explaining bounds.
 - **Minimum supported** vs **upper bounds**: Lower bounds reflect features and support posture; `< next-major` caps automatic upgrades until maintainers validate a new line.
-- **What CI exercises**: **Python** 3.11 and 3.12 jobs install the package with **`[dev]`** and run **pytest**; **replayt** and **langgraph** resolve to the **latest versions allowed by those ranges** on each run (no separate lockfile today).
+- **What CI exercises**: **Python** 3.11 and 3.12 jobs install the package with **`[dev]`** and run **pytest**—**without** any optional **`demo`** extra. That proves the integrator-relevant install path stays green when demo-only LLM client dependencies are not present. **replayt** and **langgraph** resolve to the **latest versions allowed by those ranges** on each run (no separate lockfile today).
 - **Contributor install**: `pip install -e ".[dev]"` pulls **pytest**, **ruff**, and **pip-audit** only via the **`dev`** optional extra—never as default runtime deps.
 - **Upstream majors or risky bumps**: Use the **Compatibility Update** issue template (`.github/ISSUE_TEMPLATE/compatibility_update.md`) and follow the maintainer checklist in **[docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy](docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy)**.
 
-The full policy (selection rules, LangGraph major rollout risk, and builder-facing acceptance criteria) lives in **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)**.
+The full policy (selection rules, LangGraph major rollout risk, **core vs demo LLM extras**, and builder-facing acceptance criteria) lives in **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)**.
+
+### Optional extras matrix
+
+| Install command | Purpose | Declared outbound LLM vendor clients |
+| --- | --- | --- |
+| `pip install replayt-langgraph-bridge` | Core bridge runtime (**replayt**, **langgraph** per `pyproject.toml`) | **No** — core must not list LLM provider SDKs; see **[DESIGN_PRINCIPLES.md — Core vs demo extras](docs/DESIGN_PRINCIPLES.md#core-vs-demo-extras-llm-clients-and-supply-chain)** |
+| `pip install replayt-langgraph-bridge[dev]` | Contributor tooling (**pytest**, **ruff**, **pip-audit**) | **No** |
+| `pip install replayt-langgraph-bridge[demo]` | *(Reserved.)* Samples that call vendor LLM APIs—**not defined in `pyproject.toml` yet**; when added, list packages here and set this row to **Yes** | **N/A** today |
+
+**Note:** **langgraph** (and its transitive dependencies) may include generic HTTP or messaging libraries used by the framework; the matrix above refers to **direct** bridge requirements that exist primarily to invoke **LLM vendor** APIs. Transitive behavior follows upstream packages you install.
 
 ## Reference documentation (optional)
 

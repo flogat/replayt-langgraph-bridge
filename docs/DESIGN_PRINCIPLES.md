@@ -25,6 +25,7 @@ This section is the **source of truth** for how pins, ranges, and extras are cho
 | **Minimum supported** | Lowest **replayt** / **LangGraph** / **Python** versions the maintainers commit to supporting, based on features the bridge uses and security posture | Lower bounds in `[project.dependencies]` and `requires-python`; repeated in this doc for readability |
 | **Upper bounds** | `< next major` on **replayt** and **langgraph** so `pip install` does not silently pull a new major | Upper bounds in `[project.dependencies]` |
 | **Tested matrix (today)** | **Python** 3.11 and 3.12 in GitHub Actions; each job runs `pip install -e .[dev]` and **pytest**. Runtime packages are whatever **pip** resolves **within** the declared ranges on that run (not a separate per-package pin file) | `.github/workflows/ci.yml` |
+| **Core install in CI** | At least one job path must install the bridge for tests **without** optional **demo / LLM-sample** extras (today: `pip install -e ".[dev]"` only). When a **`demo`** (or similarly named) extra exists, CI must still prove the **default + dev** surface is enough for the main test suite. | `.github/workflows/ci.yml`; README **Dependency strategy** |
 | **Optional verification** | Before widening ranges or after upstream incidents, maintainers may install explicit versions locally or in a branch (e.g. `pip install 'replayt==x.y.z'`) and run **pytest**; document outcomes in a compatibility issue | Maintainer workflow; see template below |
 
 Optional extras must stay **out of** `[project.dependencies]` unless they are required for the published bridge API at install time.
@@ -34,6 +35,19 @@ Optional extras must stay **out of** `[project.dependencies]` unless they are re
 - **Minimum supported versions**: Set from tested bridge behavior and acceptable security posture; do not set a floor higher than necessary without cause.
 - **Upper bounds**: Prefer `< next-major` on **replayt** and **langgraph** until CI and release notes prove the next major is safe.
 - **Optional extras**: Declare under `[project.optional-dependencies]` only. **`dev`** holds tooling (**pytest**, **ruff**, **pip-audit**); it is not installed for `pip install replayt-langgraph-bridge` without an extra.
+- **Demo / LLM provider clients**: Packages needed **only** for examples or integration samples that call **vendor LLM APIs** (OpenAI, Anthropic, etc.) must **not** appear in `[project.dependencies]`. Declare them under a dedicated optional extra (recommended name: **`demo`**, or `llm-demo` if you need to disambiguate). Document in the README extras matrix that installing that extra opts into those clients and the **network / credential** expectations that come with them.
+
+### Core vs demo extras (LLM clients and supply chain)
+
+**Goal:** A default `pip install replayt-langgraph-bridge` (no extras) must not pull in **direct** dependencies whose **primary, documented purpose** is acting as a **vendor LLM HTTP/API client** (for example `openai`, `anthropic`, `langchain-openai`, `langchain-anthropic`—the exact list is maintained in **`pyproject.toml`** comments and reviewed when deps change). Generic libraries already required for the bridge (for example **langgraph** and its transitive stack) are allowed even if they are network-capable; this rule targets **optional demo** and **provider SDK** surface area the bridge does not need at runtime for its public API.
+
+**Normative acceptance criteria (builder checklist):**
+
+1. **Core dependency set** — `[project.dependencies]` lists only what is required to import and run the **documented public bridge API** without optional samples. It does **not** list LLM vendor SDKs or thin wrappers whose reason to exist is calling those APIs.
+2. **Demo extra** — Any such SDK (or demo-only stack) appears only under `[project.optional-dependencies]` in an extra named in the README matrix (e.g. **`demo`**), with a short comment per requirement in **`pyproject.toml`**.
+3. **README extras matrix** — Table covers: **no extra** (core runtime), **`dev`**, and **`demo`** (when present). Include a column stating whether that install surface is intended to add **outbound LLM vendor** client libraries (core: **no**; **`dev`**: **no**; **`demo`**: **yes** when those deps are present).
+4. **CI** — The primary **test** job (or an equivalent documented job) installs **`[dev]`** but **not** **`[demo]`**, and the full suite expected for integrators passes. Tests that require the demo extra must be **skipped** or moved behind a marker when the extra is not installed (document the pattern in **`REPLAYT_BOUNDARY_TESTS.md`** or **`CONTRIBUTING.md`** when introduced).
+5. **Contract tests** — Extend **`tests/test_dependency_strategy.py`** (or follow-on tests) so the **denylist** of direct core deps and the **presence** of demo-only packages only under the demo extra are enforced, matching **`pyproject.toml`**.
 
 ### Justifying new or changed runtime constraints
 
@@ -81,6 +95,7 @@ Treat the following as **done** when the dependency story matches docs and packa
 - [x] **Runtime vs dev** — `[project.dependencies]` lists only what end users need; `[project.optional-dependencies] dev` lists contributor tooling; no dev-only tools in core dependencies.
 - [x] **Justified constraints** — Each runtime requirement in **`pyproject.toml`** has a maintainer-facing comment; constraints match **Current dependency constraints** here and **`README.md`** compatibility lines.
 - [x] **Breaking upstream path** — Triage uses the compatibility issue template and the maintainer checklist above; **`CONTRIBUTING.md`** points maintainers at this policy and the template for bumps.
+- [ ] **Core vs demo LLM clients** — **[Core vs demo extras (LLM clients and supply chain)](#core-vs-demo-extras-llm-clients-and-supply-chain)** checklist is satisfied: no LLM vendor SDKs in core `[project.dependencies]`; optional **`demo`** extra and README matrix when demo deps exist; CI tests **without** that extra; contract tests updated (**backlog: Isolate optional LLM demo extras from core bridge install**).
 
 ## Security considerations
 
@@ -139,8 +154,11 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For hosted 
 - See [THREAT_MODEL.md](THREAT_MODEL.md) for detailed security considerations.
 - See [MISSION.md](MISSION.md) for operational guidelines.
 
-## LLM / demos (if applicable)
-Document models, secrets handling, cost and redaction expectations here or in MISSION.
+## LLM / demos
+
+**Packaging:** Optional samples that depend on **vendor LLM clients** use the **`demo`** extra and the **[Core vs demo extras](#core-vs-demo-extras-llm-clients-and-supply-chain)** rules above—not `[project.dependencies]`.
+
+**Secrets and redaction:** Continue to follow **[Secrets policy](#secrets-policy)** and **[LOG_REDACTION.md](LOG_REDACTION.md)** for API keys and logged payloads. **MISSION.md** summarizes operational expectations for integrators.
 
 ## Audience (extend)
 
