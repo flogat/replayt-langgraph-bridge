@@ -12,7 +12,7 @@ This document outlines the threat model for the `replayt-langgraph-bridge` regar
 ## 2. Adversaries
 
 - **Malicious Integrator**: Controls the workflow definition and step handlers. Can intentionally place sensitive data in state.
-- **Untrusted inbound state**: Any source that can supply or alter serialized / dict-shaped `ReplaytBridgeState` consumed by the bridge (e.g. restored checkpoints, RPC layers, or compromised middleware) may attempt **oversized**, **deeply nested**, **cyclic**, or **schema-incompatible** payloads to cause DoS or undefined behavior. Mitigations are specified in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** once implemented.
+- **Untrusted inbound state**: Any source that can supply or alter serialized / dict-shaped `ReplaytBridgeState` consumed by the bridge (e.g. restored checkpoints, RPC layers, or compromised middleware) may attempt **oversized**, **deeply nested**, **cyclic**, or **schema-incompatible** payloads to cause DoS or undefined behavior. Mitigations are specified and enforced per **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**.
 - **Compromised Checkpoint Backend**: If the LangGraph checkpointer uses a compromised storage backend (e.g., misconfigured S3 bucket), an external attacker may access checkpoint data.
 - **Insider Threat**: A user with access to the checkpoint storage who extracts data beyond their authorization.
 
@@ -21,12 +21,12 @@ This document outlines the threat model for the `replayt-langgraph-bridge` regar
 - **Integrator-Controlled Code**: The `Workflow` definition, step handlers, and `Runner` store are controlled by the integrator. The bridge does not sandbox this logic.
 - **LangGraph/Replayt Runtimes**: The bridge forwards execution to these frameworks; it does not control their internal serialization or persistence mechanisms.
 - **Checkpoint Storage**: The bridge accepts a user-supplied `Checkpointer`. The security of the storage backend is the integrator's responsibility.
-- **Inbound channel state**: Dict-shaped graph state the bridge reads before copying into replayt `RunContext.data` is treated as **untrusted** at the validation boundary described in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** (spec; implementation tracked by backlog).
+- **Inbound channel state**: Dict-shaped graph state the bridge reads before copying into replayt `RunContext.data` is treated as **untrusted** at the validation boundary in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** (see `replayt_langgraph_bridge.state_validation`).
 
 ## 4. Mitigations
 
 - **Explicit Documentation**: This threat model and the `DESIGN_PRINCIPLES.md` security section warn against storing secrets or PII in graph state.
-- **Inbound validation (planned)**: Size limits, schema version checks, and safe failure modes for `ReplaytBridgeState` are normatively specified in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; rejected input must not run step handlers or leave partial checkpoint writes (see that doc).
+- **Inbound validation**: Size limits, schema version checks, and safe failure modes for `ReplaytBridgeState` are normatively specified in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** and applied in bridge code; rejected input must not run step handlers or leave partial checkpoint writes (see that doc).
 - **Shallow Merging**: `ReplaytBridgeState["context"]` is shallow-merged across updates. This limits accidental data propagation but does not prevent intentional storage.
 - **No Default Persistence**: The bridge does not enable checkpointing by default; the integrator must supply a `Checkpointer`.
 - **Error Messages**: Transition validation errors include step names and allowed targets but avoid logging full state to reduce leakage.
@@ -67,5 +67,5 @@ The following field types should **never** be persisted in LangGraph checkpoints
 
 - [DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md) - Security considerations section.
 - [LOG_REDACTION.md](LOG_REDACTION.md) - Normative spec for bridge log redaction (implemented; see `replayt_langgraph_bridge.redaction` and `bridge_log`).
-- [STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md) - Normative spec for validating untrusted inbound bridge state (implementation backlog).
+- [STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md) - Normative spec for validating untrusted inbound bridge state (implemented; see `replayt_langgraph_bridge.state_validation` and tests).
 - [MISSION.md](MISSION.md) - Project scope and success metrics.

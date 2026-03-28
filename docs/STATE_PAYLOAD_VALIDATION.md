@@ -1,13 +1,14 @@
 # Inbound bridge state: validation and safe failure (normative spec)
 
-This document defines **what the bridge must guarantee** once the
-**“Harden deserialization of replayt state mapped into LangGraph”** backlog is implemented.
+This document defines **what the bridge guarantees** for the
+**“Harden deserialization of replayt state mapped into LangGraph”** work.
 It is the contract for **untrusted inbound** `ReplaytBridgeState`-shaped data: initial `invoke` input,
 checkpoint-resumed channel state that the bridge consumes, and any other **public** path that copies
 `state["context"]` into replayt’s `RunContext.data` (or equivalent).
 
-**Status:** Specification only. Behavior described here is **not** required to exist in the codebase until
-the Builder lands the implementation; CI should gain tests that lock the behaviors below when code exists.
+**Status:** Implemented in `replayt_langgraph_bridge.state_validation` and wired from `graph.py`
+(`validate_inbound_bridge_state`, `BridgeValidatingCheckpointSaver`). CI locks behavior in
+`tests/test_state_payload_validation.py`.
 
 ---
 
@@ -125,13 +126,13 @@ good checkpoint remains the latest usable snapshot (no corrupting overwrite).
 
 Map backlog acceptance criteria to verifiable items:
 
-- [ ] **Docs:** `initial_bridge_state`, `compile_replayt_workflow`, README **Public API** list **max limits**
+- [x] **Docs:** `initial_bridge_state`, `compile_replayt_workflow`, README **Public API** list **max limits**
       and **supported `bridge_state_schema_version`** values (link here).
-- [ ] **Tests:** **Oversize** payload rejected; **unknown schema version** rejected; **malformed nested**
+- [x] **Tests:** **Oversize** payload rejected; **unknown schema version** rejected; **malformed nested**
       (cycle, disallowed type, excessive depth) rejected.
-- [ ] **Tests:** Rejected first invoke does **not** run handlers and does **not** advance durable checkpoint
+- [x] **Tests:** Rejected first invoke does **not** run handlers and does **not** advance durable checkpoint
       state (§6).
-- [ ] **CHANGELOG:** User-visible behavior and any new public exception type documented under
+- [x] **CHANGELOG:** User-visible behavior and any new public exception type documented under
       **Unreleased**.
 
 ---
