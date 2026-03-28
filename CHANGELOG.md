@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Replayt boundary tests in `tests/test_bridge_graph.py`: contract-named assertion messages, `pytest.raises` `match=` strings, and docstrings aligned with **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** (backlog: actionable failure messages).
+
 ### Added
 
 - **Inbound bridge state validation** (backlog: harden deserialization): limits and `bridge_state_schema_version` per `docs/STATE_PAYLOAD_VALIDATION.md`, `BridgeStateValidationError`, validation in `initial_bridge_state` and before each step’s `RunContext.data` update, and a wrapping checkpointer that validates merged `invoke` input before LangGraph persists it (INPUT and loop puts that include `__start__`). Implementation in `src/replayt_langgraph_bridge/state_validation.py`; tests in `tests/test_state_payload_validation.py`.
@@ -17,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- Normative **replayt boundary testing** spec (phase 2 backlog **Add replayt boundary tests with actionable failure messages**): integration-style test scope, replayt API surface used by the bridge, actionable assertion / `pytest.raises` message rules, skip/issue requirements, and builder checklist (**[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**); cross-links from **DESIGN_PRINCIPLES**, **MISSION**, **README**, and **CONTRIBUTING**.
 - Normative **inbound bridge state** spec (phase 2 backlog **Harden deserialization of replayt state mapped into LangGraph**): size/depth limits, optional `bridge_state_schema_version`, validation error surface, checkpoint non-mutation test obligations, and README/THREAT_MODEL/DESIGN_PRINCIPLES/MISSION cross-links (**[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**). Docstrings on `initial_bridge_state` / `compile_replayt_workflow` and the package docstring point at the spec. **Builder phase 3** added the runtime validation module, public `BridgeStateValidationError`, README limits, and tests (`tests/test_state_payload_validation.py`).
 - Normative **log redaction** spec for bridge-originated structured logs: default key deny list, value patterns, strict mode (`REPLAYT_BRIDGE_STRICT_REDACT`), integrator hook contract, scope/non-goals, and builder acceptance criteria (**[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**); cross-links from **DESIGN_PRINCIPLES**, **THREAT_MODEL**, **MISSION**, and **README**.
 - **Log redaction** spec refinement (phase 2 backlog): backlog-to-spec traceability table, concrete `LogRecord` / `replayt_bridge` emission contract, field vs pattern **traversal semantics** aligned with `redaction.py`, **verification obligations** for CI, and updated **MISSION** / **THREAT_MODEL** links (**[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**).

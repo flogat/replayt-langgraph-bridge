@@ -7,6 +7,8 @@
 3. Run tests: `pytest`
 4. Run linting: `ruff check src tests`
 
+Integration-style tests that call **replayt** should follow **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** (contract-named assertions, `pytest.raises` `match=` strings, skip reasons with tracking issues).
+
 ## Dependency management
 
 ### Adding or updating dependencies
