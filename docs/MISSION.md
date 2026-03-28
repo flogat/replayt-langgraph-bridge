@@ -30,7 +30,7 @@ Upstream changes are tracked with tests and noted in the changelog when they aff
 
 1. **Documented compatibility baseline** — Initial integration targets **replayt 0.4.x** and **LangGraph 1.1.x**; declared dependency ranges live in **`pyproject.toml`** and may widen as CI proves compatibility across patch releases.
 2. **Automated tests in CI** — Unit and boundary tests for behavior we document; CI fails on regressions with clear logs (see **[DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)**). Replayt-facing integration tests and **actionable assertion messages** are specified in **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**. GitHub Actions workflow **[`.github/workflows/ci.yml`](../.github/workflows/ci.yml)** runs job **`test`** (Python **3.11** and **3.12** matrix) with **`pytest`**, matching the local command in the README.
-3. **Small, explicit public surface** — Narrow APIs and documented extension points so integrators can depend on stable contracts.
+3. **Small, explicit public surface** — Narrow APIs and documented extension points so integrators can depend on stable contracts. The normative list and layout live in **[docs/API.md](API.md)**.
 
 **Runtime:** Python **3.11+** (`requires-python` in `pyproject.toml`).
 

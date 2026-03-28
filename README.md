@@ -11,7 +11,7 @@ This project builds on **replayt** as a **LangGraph framework bridge**. Read
 **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, integrator security
 expectations, and (for showcases) **LLM** boundaries.
 
-For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For the **log redaction** contract (defaults, strict mode, integrator hook) for bridge-originated structured logs, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. For **inbound bridge state** validation (enforced limits, schema version, checkpoint safety), see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**. For **replayt boundary** tests and actionable failure messages, see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**.
+For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For the **log redaction** contract (defaults, strict mode, integrator hook) for bridge-originated structured logs, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. For **inbound bridge state** validation (enforced limits, schema version, checkpoint safety), see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**. For **replayt boundary** tests and actionable failure messages, see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**. For the **stable public export set**, module layout, and stability rules, see **[docs/API.md](docs/API.md)**.
 
 ## Dependency strategy
 
@@ -53,9 +53,9 @@ echo "LANGCHAIN_API_KEY=your-key-here" >> .env
 **In code**:
 ```python
 import os
-from replayt_langgraph_bridge import compile_replayt_workflow
 
-# Read secrets from environment
+# Read secrets from environment (keep imports limited to what you use;
+# bridge usage examples are in **Usage** below).
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     raise ValueError("OPENAI_API_KEY environment variable not set")
@@ -97,8 +97,11 @@ initial_state = initial_bridge_state()
 
 ## Public API
 
+Supported names are exactly those in `replayt_langgraph_bridge.__all__` (see **[docs/API.md](docs/API.md)** for stability policy and module layout). Summary:
+
 - `compile_replayt_workflow(workflow, *, checkpointer=None, redactor=None, redact=True, strict_redact=False, bridge_logger=None)`: Compile a replayt `Workflow` into a LangGraph `Runnable`. Step lifecycle and routing errors emit structured records on the logger `replayt_langgraph_bridge` (override with `bridge_logger`) under `LogRecord.replayt_bridge` after redaction per **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. Set `REPLAYT_BRIDGE_STRICT_REDACT=1` or pass `strict_redact=True` for stricter masking when the environment does not already require strict mode. `redact=False` disables built-in redaction and issues a runtime warning. **Inbound state:** each step validates channel state before handlers; if you pass a durable checkpointer, it is wrapped so merged `invoke` input is validated before persistence (see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**). Supported `bridge_state_schema_version` values: `{1}` (omitted means `1`). Limits: nesting depth ≤ 32; ≤ 50_000 walk nodes; ≤ 4_194_304 UTF-8 bytes across all strings in `context`; ≤ 10_000 top-level `context` keys; `replayt_next` length ≤ 1024 after `str()`. Only top-level keys `context`, `replayt_next`, and optional `bridge_state_schema_version` are accepted on full inbound dicts. Failures raise `BridgeStateValidationError` with generic messages.
 - `initial_bridge_state(*, context=None)`: Create the initial state dictionary for the bridge graph. The same inbound limits and schema rules apply to `context` before the value is returned; failures raise `BridgeStateValidationError`.
+- `ReplaytBridgeState`: `TypedDict` for the bridge channel shape; wire format and limits are normative in **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**.
 - `BridgeStateValidationError`: Subclass of `ValueError` for inbound state validation failures (stable, generic `str` values).
 - `RedactorHook`, `get_bridge_logger`, `redact_log_attachment`: Types and helpers for custom redaction and tests (see the log redaction spec).
 - `__version__`: The package version.
@@ -107,9 +110,9 @@ initial_state = initial_bridge_state()
 
 Default deny keys include LLM-oriented names such as `messages`, `input`, and `content` when the value is a string or list, so bridge logs stay safe by default. Integrators who need raw LLM payloads in logs must supply a custom `redactor` hook (runs after built-in rules) or set `redact=False` and accept the security warning.
 
-## Internal Modules
+## Internal modules
 
-The `graph` module contains internal implementation details and is not part of the public API. It may change without notice.
+Implementation modules under `replayt_langgraph_bridge` (for example `graph`, `state_validation`) are not a supported import surface for applications. Import the stable names from the package root. See **[docs/API.md](docs/API.md)**.
 
 ## Compatibility
 
