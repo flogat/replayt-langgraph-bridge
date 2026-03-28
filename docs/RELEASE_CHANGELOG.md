@@ -69,7 +69,7 @@ Later releases **do not** rewrite **`[0.1.0]`** except to fix factual errors.
 
 **Today:** There is **no** GitHub Actions workflow that publishes to **PyPI**. Maintainers perform releases **manually** (or with local tooling). The following is the **intended checklist**; automation may be added later without changing the meaning of version, tag, and changelog.
 
-1. **Confirm green mainline** — **`pytest`** and **`ruff check`** as in **CONTRIBUTING.md** / **`.github/workflows/ci.yml`** on the releasing branch.
+1. **Confirm green mainline** — **`pytest`** and **`ruff check src tests`** as in **CONTRIBUTING.md** / **`.github/workflows/ci.yml`** on the releasing branch.
 2. **Finalize notes** — Move content from **`[Unreleased]`** into a new **`## [X.Y.Z] - YYYY-MM-DD`** section (or merge into that section if partially pre-written). Leave **`[Unreleased]`** in place, empty or with a short placeholder if needed.
 3. **Bump version** — Set **`[project].version`** in **`pyproject.toml`** to **`X.Y.Z`** on the same commit as the changelog finalize (or a dedicated release commit immediately after).
 4. **Tag** — Create an annotated Git tag **`vX.Y.Z`** (leading **`v`**) on the commit that carries the released **`pyproject.toml`** version and changelog section. Example: version **0.2.0** → tag **`v0.2.0`**.
