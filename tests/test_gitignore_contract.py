@@ -41,6 +41,7 @@ def test_gitignore_blocks_env_and_secret_filenames() -> None:
         ".envrc",
         "secrets.pem",
         "bundle.p12",
+        "bundle.pfx",
         "id_rsa",
         "id_ed25519",
         "tls.key",
@@ -103,8 +104,8 @@ def test_contributing_links_gitignore_spec() -> None:
     assert "GITIGNORE_AND_LOCAL_ARTIFACTS.md" in text
 
 
-def test_spec_lists_builder_acceptance_g1_through_g4() -> None:
-    """Maps to backlog verification table."""
+def test_spec_lists_builder_acceptance_g1_through_g5() -> None:
+    """Maps to backlog verification table (G5: contract-test drift control)."""
     text = _GITIGNORE_SPEC.read_text(encoding="utf-8")
-    for marker in ("**G1**", "**G2**", "**G3**", "**G4**"):
+    for marker in ("**G1**", "**G2**", "**G3**", "**G4**", "**G5**"):
         assert marker in text, f"expected {marker} in GITIGNORE_AND_LOCAL_ARTIFACTS"

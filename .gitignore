@@ -21,6 +21,8 @@ alignment_result.json
 .direnv/
 *.pem
 *.p12
+# Windows PKCS#12-style bundles (same hygiene as *.p12; §6 optional catalog)
+*.pfx
 id_rsa
 id_ed25519
 *.key
