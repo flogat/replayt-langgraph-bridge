@@ -1,13 +1,36 @@
-# Never commit generic documentation placeholder trees (AI agents sometimes create these literally)
+# Normative categories: docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md §2–§3.
+# Do not add broad globs (e.g. *.db, *.jsonl) without narrowing or check-ignore review;
+# pyproject.toml, uv.lock, src/, tests/, docs/, .github/workflows/ must stay tracked (§3).
+
+# E. Placeholder / mistaken paths (AI agents sometimes create these literally)
 path/
 
-# Local / tooling (not for publication)
+# B. Orchestration and local agent scratch
 .orchestrator/
-
-# Cursor agent skills (local; not published)
 .cursor/skills/
+.aider*
+alignment_result.json
+.alignment_result.json
 
-# Python
+# A. Environment and secrets files
+.env
+.env.*
+# If a tracked .env.example is added, insert the next line immediately below:
+# !.env.example
+.envrc
+.direnv/
+*.pem
+*.p12
+id_rsa
+id_ed25519
+*.key
+
+# C. Local durable checkpoint / store dumps (dev-only; prefer dirs or *.dev.sqlite3 over *.db / *.jsonl)
+local_checkpoints/
+scratch/
+*.dev.sqlite3
+
+# D. Python / packaging / tooling
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -18,12 +41,7 @@ build/
 .mypy_cache/
 .ruff_cache/
 htmlcov/
+.coverage
+.coverage.*
 .venv/
 venv/
-
-# Aider (AI coding assistant artifacts)
-.aider*
-
-# Mis-placed alignment output (safety net if an agent writes at git root)
-alignment_result.json
-.alignment_result.json

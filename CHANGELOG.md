@@ -9,10 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`.gitignore`**: env files (**`.env`**, **`.env.*`**), **direnv**, common private key filenames, dev-only **`local_checkpoints/`** / **`scratch/`** / **`*.dev.sqlite3`**, and local coverage data (**`.coverage`**, **`.coverage.*`**); header and comments tie blocks to **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** §2–§3 (phase **3**, backlog **Review and tighten `.gitignore` for local secrets and orchestrator artifacts**).
 - **CI and contributor setup** use committed **`uv.lock`**: **`test`** and **`supply-chain`** run **`uv sync --frozen --extra dev`** then **`uv run`** (**pytest**, **ruff**, **pip-audit**); **CONTRIBUTING.md** documents **`uv sync --extra dev`** to regenerate the lock (phase **3**, backlog **Add reproducible lock or constraint strategy for release branches**).
 
 ### Added
 
+- **`tests/test_gitignore_contract.py`**: contract tests using **`git check-ignore`** for **§2** env/orchestration/dev-dump patterns and **§3** paths that must stay tracked, plus **CONTRIBUTING** / spec **G1**–**G4** anchors (phase **3**, backlog **Review and tighten `.gitignore` for local secrets and orchestrator artifacts**).
 - **`tests/test_security_reporting_contract.py`**: contract tests for root **`SECURITY.md`** vs **[docs/SECURITY_REPORTING_SPEC.md](docs/SECURITY_REPORTING_SPEC.md)** §2.1–§2.2 (phase **3**, backlog **Define a security changelog and vulnerability reporting channel**).
 - **`tests/test_llm_secrets_posture_contract.py`**: contract tests for documented **LLM / secrets / no-sample** posture (**S1**, **S3**); primary CI path also guarded against **`uv sync`** **`--extra demo`** in **`tests/test_dependency_strategy.py`** (**S4**) (phase **3**, backlog **Document LLM and secrets posture before any live-model examples**).
 - **`tests/test_release_changelog_contract.py`**: contract tests for **`docs/RELEASE_CHANGELOG.md`** §6 backlog acceptance (**A–G**), including pin visibility (**E**), **Breaking** / **Experimental** lead-ins (**F**–**G**), and **`CHANGELOG.md`** release heading vs **`pyproject.toml`** **`[project].version`** (phase **3**, backlog **Establish CHANGELOG and compatibility signaling**).
