@@ -43,7 +43,8 @@ This document is the **builder-facing specification** for coordinated vulnerabil
 Maintainers **must** add a **`CHANGELOG.md`** entry under **`[Unreleased]`** (or the release section when tagging) when a change:
 
 - **Fixes a vulnerability** in this package (CVE, GHSA, or internal severity), or
-- **Materially changes** documented security behavior (e.g. validation limits, redaction defaults, trust-boundary docs) in a way integrators must react to.
+- **Materially changes** documented security behavior (e.g. validation limits, redaction defaults, trust-boundary docs) in a way integrators must react to, or
+- **Adjusts declared runtime constraints** for **security-motivated** reasons (for example raising a minimum version after an upstream advisory) in a way adopters must notice when upgrading.
 
 Use a **`Security`** subsection under the release (Keep a Changelog style) or clearly labeled bullets (e.g. prefix **Security:**) so scanners and humans can find them.
 

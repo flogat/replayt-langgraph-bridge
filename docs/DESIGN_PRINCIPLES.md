@@ -157,7 +157,7 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For checkpo
 
 ### References
 - See [THREAT_MODEL.md](THREAT_MODEL.md) for detailed security considerations.
-- See [SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md) for coordinated disclosure, root **`SECURITY.md`** requirements, and **security-relevant** **`CHANGELOG.md`** expectations (Builder backlog).
+- See [SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md) for coordinated disclosure, root **`SECURITY.md`** requirements, and **security-relevant** **`CHANGELOG.md`** expectations.
 - See [MISSION.md](MISSION.md) for operational guidelines.
 
 ## LLM and demos
