@@ -176,11 +176,24 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For checkpo
 
 ### Builder acceptance criteria (LLM demo boundaries)
 
-Use this checklist when validating docs and (later) shipped samples against the backlog **Document LLM boundaries for demos and optional examples**:
+Use this checklist when validating docs and (later) shipped samples against the backlogs **Document LLM boundaries for demos and optional examples** and **Document LLM and secrets posture before any live-model examples** (same normative contract):
 
 1. **Scope statement** — **`docs/MISSION.md`** states whether LLM demos are in scope (same contract as this section: optional **`demo`** path only; core + default CI remain LLM-call-free).
 2. **When a runnable first-party demo exists in-repo** — README documents **required environment variables**, **cost** expectations (vendor-metered; the bridge does not enforce quotas), and **log / redaction** policy: bridge logs follow **[LOG_REDACTION.md](LOG_REDACTION.md)**; demo code must follow **[Secrets policy](#secrets-policy)** and avoid logging raw keys or sensitive prompts. CI’s **default** **`test`** job remains **`[dev]`**-only with **no** live model calls. Tests that need the **`demo`** extra use **`importorskip`** / markers per **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
 3. **When no runnable demo exists** — README and this section **say so explicitly** and point to the **`demo`** extra, **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)**, and **[REPLAYT_ECOSYSTEM_IDEA.md](REPLAYT_ECOSYSTEM_IDEA.md#optional-vendor-llm-samples)** for future work.
+
+### Product acceptance criteria (verbatim backlog: LLM and secrets posture)
+
+Treat the product backlog **Document LLM and secrets posture before any live-model examples** as **done** when all of the following hold (spec gate / builder / tester mapping):
+
+| ID | Acceptance criterion | Where to verify |
+| --- | --- | --- |
+| **S1** | **`docs/MISSION.md`** or **`docs/DESIGN_PRINCIPLES.md`** states whether **LLM demos** are in package scope. | **[MISSION.md — LLM demos and optional samples](MISSION.md#llm-demos-and-optional-samples-scope)**; **[Package scope](#package-scope-normative)** (this section) |
+| **S2** | **If** a runnable first-party example exists: **env-based** opt-in, **cost** and **logging** expectations documented; **no secrets** in the repository. | README **LLM demos**; **[Secrets policy](#secrets-policy)**; **[LOG_REDACTION.md](LOG_REDACTION.md)**; repository tree (no committed keys or `.env`) |
+| **S3** | **If** no such example exists: explicit **“not included”** (or equivalent) and a **pointer to future work** (ecosystem ideas + **`demo`** packaging path). | **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)**; README **LLM demos**; **[REPLAYT_ECOSYSTEM_IDEA.md](REPLAYT_ECOSYSTEM_IDEA.md#optional-vendor-llm-samples)**; **`pyproject.toml`** optional **`demo`** extra |
+| **S4** | **CI** stays **credential-free by default**: primary **`test`** job uses **`[dev]`** only (no **`[demo]`**), **no** scripted live model calls. | **`.github/workflows/ci.yml`**; success metric in **[MISSION.md](MISSION.md)**; **[Dependency and Pin Policy](#minimum-supported-vs-upper-bounds-vs-what-ci-exercises)** |
+
+**Note:** Today the repository matches **S3** and **S4**; **S2** applies when a first-party sample lands. Changing that state requires updating **MISSION**, **README**, and this section in the same change set as the sample.
 
 ### Packaging and operations (summary)
 
