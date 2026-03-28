@@ -12,6 +12,11 @@ BRIDGE_LOGGER_NAME = "replayt_langgraph_bridge"
 
 
 def get_bridge_logger() -> logging.Logger:
+    """Return the package logger used for bridge structured records (``LogRecord.replayt_bridge``).
+
+    Redaction and emission rules are in ``docs/LOG_REDACTION.md``.
+    """
+
     return logging.getLogger(BRIDGE_LOGGER_NAME)
 
 

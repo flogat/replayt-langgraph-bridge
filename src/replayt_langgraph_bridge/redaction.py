@@ -3,6 +3,10 @@
 Behavior matches ``docs/LOG_REDACTION.md``: key deny lists (recursive dict
 branches; single-level dicts inside lists), value patterns, optional strict mode
 (``REPLAYT_BRIDGE_STRICT_REDACT``), and integrator hook.
+
+``RedactorHook`` is the callable type for an optional integrator callback that
+post-processes redacted attachment dicts (signature
+``Callable[[dict[str, Any]], dict[str, Any]]``).
 """
 
 from __future__ import annotations
