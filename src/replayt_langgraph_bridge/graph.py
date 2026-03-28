@@ -206,6 +206,8 @@ def compile_replayt_workflow(
     workflow: Workflow,
     *,
     checkpointer: Checkpointer | None = None,
+    interrupt_before: list[str] | None = None,
+    interrupt_after: list[str] | None = None,
     redactor: RedactorHook | None = None,
     redact: bool = True,
     strict_redact: bool = False,
@@ -230,6 +232,10 @@ def compile_replayt_workflow(
     ``replayt_next``, and optional ``bridge_state_schema_version`` are allowed. Failures raise
     :exc:`~replayt_langgraph_bridge.BridgeStateValidationError`. Normative detail:
     ``docs/STATE_PAYLOAD_VALIDATION.md``.
+
+    When ``checkpointer`` is set, optional ``interrupt_before`` and ``interrupt_after`` are passed
+    to LangGraph ``StateGraph.compile`` (step names match the replayt ``Workflow``). Multi-``invoke``
+    runs on the same ``thread_id`` are documented under ``docs/CHECKPOINT_PERSISTENCE.md``.
     """
 
     if not workflow.initial_state:
@@ -297,4 +303,8 @@ def compile_replayt_workflow(
             effective_checkpointer, logger=log
         )
 
-    return graph.compile(checkpointer=effective_checkpointer)
+    return graph.compile(
+        checkpointer=effective_checkpointer,
+        interrupt_before=interrupt_before,
+        interrupt_after=interrupt_after,
+    )

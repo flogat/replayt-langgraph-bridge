@@ -78,6 +78,7 @@ Tests that **require** packages from the **`demo`** optional extra must not brea
 When landing tests, ensure:
 
 - At least one test module or class docstring references **this document** by path (`docs/REPLAYT_BOUNDARY_TESTS.md`).
+- Tests that focus on **LangGraph checkpoint save/load or resume** (rather than replayt API contracts) should reference **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** in a docstring so persistence backlog traceability stays clear; replayt boundary rules in **this** file still apply when the test imports **replayt**.
 - **CHANGELOG.md** under **Unreleased** notes user-visible or maintainer-visible testing improvements if the change is noteworthy (optional for pure message/docstring tightening; required if new files or new CI-visible scenarios are added—follow **`CONTRIBUTING.md`**).
 
 ---
@@ -86,4 +87,5 @@ When landing tests, ensure:
 
 - **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)** — Principle 1 (explicit contracts and integration boundaries).
 - **[MISSION.md](MISSION.md)** — Success metrics for automated tests and clear logs.
+- **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** — LangGraph checkpoint persistence scope, failure modes, and deterministic test obligations (complements replayt-focused rules here).
 - **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** — Bridge **inbound state** contracts (separate from replayt upstream types).

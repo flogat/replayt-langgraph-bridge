@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `compile_replayt_workflow` accepts optional **`interrupt_before`** and **`interrupt_after`** (forwarded to LangGraph `StateGraph.compile`; replayt step names). README and **[docs/API.md](docs/API.md)** updated; **`tests/test_bridge_graph.py`** adds **`test_resume_second_invoke_uses_memory_checkpointer`** and docstring traceability to **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** (phase 3 backlog **Define checkpoint persistence scope and failure modes**).
 - Replayt boundary tests in `tests/test_bridge_graph.py`: contract-named assertion messages, `pytest.raises` `match=` strings, and docstrings aligned with **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** (backlog: actionable failure messages).
 
 ### Added
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- Normative **checkpoint persistence** spec: what LangGraph vs bridge vs replayt own; **in-memory** vs **durable** checkpointers; **langgraph 1.1.x** checkpointer compatibility pattern and known limitations; **secret/PII** on serialized channel state; **corrupt blob** vs **`bridge_state_schema_version`** skew vs routing errors; builder checklist and pointers to existing tests (**[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)**); cross-links from **README**, **API.md**, **MISSION**, **DESIGN_PRINCIPLES**, **THREAT_MODEL**, **STATE_PAYLOAD_VALIDATION**, **HOSTED_DEPLOYMENT_AUTHZ**, and **REPLAYT_BOUNDARY_TESTS** (phase 2 backlog **Define checkpoint persistence scope and failure modes**).
 - Normative spec for **isolating optional LLM demo dependencies** from core: **`demo`** extra pattern, README **extras matrix**, CI expectation (**`[dev]`** without **`demo`**), builder checklist and contract-test pointer (**[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md#core-vs-demo-extras-llm-clients-and-supply-chain)**); README **Dependency strategy** and **MISSION** CI bullet aligned (phase 2 backlog **Isolate optional LLM demo extras from core bridge install**).
 - **API.md** cross-spec index and **STATE_PAYLOAD_VALIDATION.md** related documents now link **[HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)** (phase 5 review, backlog **Document authn/z expectations for hosted LangGraph or checkpoint backends**).
 - Normative **hosted deployment** spec for remote LangGraph runtimes and checkpoint backends: topology table (T1–T5) with required TLS, network, and IAM-style controls; dev/stage/prod separation; explicit **sample / permissive-default** warning; cross-links to LangGraph persistence and GitHub Security plus replayt PyPI (**[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**); README **Usage** and **Secrets handling** callouts; cross-links from **THREAT_MODEL**, **MISSION**, and **DESIGN_PRINCIPLES** (phase 2 backlog **Document authn/z expectations for hosted LangGraph or checkpoint backends**).

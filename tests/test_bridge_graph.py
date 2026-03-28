@@ -1,7 +1,8 @@
 """Replayt boundary coverage for the LangGraph bridge.
 
 Normative expectations for scope, assertion messages, and ``pytest.raises`` usage:
-``docs/REPLAYT_BOUNDARY_TESTS.md``.
+``docs/REPLAYT_BOUNDARY_TESTS.md``. Checkpoint and ``MemorySaver`` patterns trace to
+``docs/CHECKPOINT_PERSISTENCE.md`` §6.
 """
 
 from __future__ import annotations
@@ -32,7 +33,7 @@ def test_compile_requires_initial_state() -> None:
 
 
 def test_linear_workflow_via_langgraph(tmp_path: Path) -> None:
-    """``RunContext.data`` mirrors graph ``context`` across steps; ``JSONLStore`` + ``Runner`` durable path."""
+    """``RunContext.data`` mirrors ``context``; ``JSONLStore``/``Runner`` + ``MemorySaver`` invoke (CHECKPOINT_PERSISTENCE §6)."""
     from replayt.workflow import Workflow
 
     wf = Workflow("linear")
@@ -73,8 +74,54 @@ def test_linear_workflow_via_langgraph(tmp_path: Path) -> None:
     )
 
 
+def test_resume_second_invoke_uses_memory_checkpointer(tmp_path: Path) -> None:
+    """Second ``invoke`` continues the same ``thread_id`` from ``MemorySaver`` (CHECKPOINT_PERSISTENCE §6)."""
+    from replayt.workflow import Workflow
+
+    wf = Workflow("resume_two_invoke")
+
+    @wf.step("first")
+    def first(ctx):
+        ctx.set("phase", 1)
+        return "second"
+
+    @wf.step("second")
+    def second(ctx):
+        ctx.set("phase", ctx.get("phase", 0) + 10)
+        return None
+
+    wf.set_initial("first")
+    wf.note_transition("first", "second")
+
+    store_path = tmp_path / "resume.jsonl"
+    store = JSONLStore(store_path)
+    runner = Runner(wf, store)
+    runner.run_id = str(uuid.uuid4())
+
+    saver = MemorySaver()
+    graph = compile_replayt_workflow(
+        wf, checkpointer=saver, interrupt_before=["second"]
+    )
+    cfg = {"configurable": {"thread_id": "resume-two"}}
+
+    out1 = graph.invoke(
+        initial_bridge_state(context={"seed": True}),
+        config=cfg,
+        context={"runner": runner},
+    )
+    assert out1["context"]["seed"] is True
+    assert out1["context"]["phase"] == 1
+    assert out1["replayt_next"] == "second"
+    assert len(list(saver.list(cfg))) >= 1
+
+    out2 = graph.invoke(None, config=cfg, context={"runner": runner})
+    assert out2["context"]["phase"] == 11
+    assert out2["replayt_next"] == ""
+    assert out2["context"]["seed"] is True
+
+
 def test_unknown_next_state_raises(tmp_path: Path) -> None:
-    """Routing rejects handler return when the target is not a registered ``Workflow`` step name."""
+    """Routing rejects unknown next step; ``MemorySaver`` present (CHECKPOINT_PERSISTENCE §6 baseline)."""
     from replayt.workflow import Workflow
 
     wf = Workflow("bad")
@@ -102,7 +149,7 @@ def test_unknown_next_state_raises(tmp_path: Path) -> None:
 
 
 def test_declared_edge_violation_raises(tmp_path: Path) -> None:
-    """``Workflow.allows_transition`` / declared edges: handler return must match ``note_transition`` graph."""
+    """Declared-edge violation; ``MemorySaver`` present (CHECKPOINT_PERSISTENCE §6 baseline)."""
     from replayt.workflow import Workflow
 
     wf = Workflow("edges")
