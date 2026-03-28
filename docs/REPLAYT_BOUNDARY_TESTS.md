@@ -57,7 +57,8 @@ When a replayt-facing assertion fails, a maintainer reading the pytest output sh
 
 | Contract under test | Acceptable pattern |
 | ------------------- | ------------------ |
-| Undeclared transition rejected by bridge | `pytest.raises(RuntimeError, match="unknown next state")` **and** docstring mentions “routing / declared steps” |
+| Handler return names a step that is not registered on the workflow | `pytest.raises(RuntimeError, match="unknown next state")` **and** docstring mentions routing / declared step names |
+| Handler return violates `note_transition` / `allows_transition` | `pytest.raises(RuntimeError, match="undeclared transition")` **and** docstring mentions declared edges |
 | Linear workflow mutates `RunContext.data` as expected | `assert out["context"]["n"] == 2, "replayt boundary: RunContext.data carries cumulative ctx.set across steps"` |
 | `Workflow.set_initial` required before compile | `pytest.raises(ValueError, match="set_initial")` with docstring referencing `workflow.initial_state` |
 
