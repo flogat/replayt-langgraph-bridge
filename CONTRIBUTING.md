@@ -13,7 +13,7 @@
 4. Run tests: `uv run pytest`
 5. Run linting: `uv run ruff check src tests`
 
-Use **`pytest` with no extra paths or markers** for the integrator-relevant suite—the same invocation as the **`test`** job in **`.github/workflows/ci.yml`** after **`uv sync --frozen --extra dev`**. That run includes **contract-style replayt boundary** tests alongside other unit tests; see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** for scope and the product backlog acceptance mapping.
+Use **`uv run pytest` with no extra paths or markers** for the integrator-relevant suite—the same invocation as the **`test`** job in **`.github/workflows/ci.yml`** after **`uv sync --frozen --extra dev`**. That run includes **contract-style replayt boundary** tests alongside other unit tests; see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** for scope and the product backlog acceptance mapping.
 
 **Without uv:** `pip install -e ".[dev]"` still works for a loose local tree, but it does not match CI’s frozen **`uv.lock`** graph.
 
