@@ -23,7 +23,7 @@ When adding or renaming symbols intended for integrators, update **`replayt_lang
    - Document any accepted risks in `docs/DEPENDENCY_AUDIT.md`
 4. Update the CI workflow if needed
 
-For **how** pins, ranges, and optional extras are chosen—and what “minimum supported” vs “what CI runs” means—see **[docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy](docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy)**.
+For **how** pins, ranges, and optional extras are chosen—and what “minimum supported” vs “what CI runs” means—see **[docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy](docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy)**. For **LLM vendor SDKs** and the optional **`demo`** extra, follow **[Core vs demo extras](docs/DESIGN_PRINCIPLES.md#core-vs-demo-extras-llm-clients-and-supply-chain)**—declare those packages only under `[project.optional-dependencies] demo`, never `[project.dependencies]`.
 
 ### Upstream compatibility (replayt / LangGraph majors)
 

@@ -32,7 +32,8 @@ Map the product backlog to concrete deliverables:
    - Prefer `pytest.raises(..., match="...")` with a substring that names the invariant (e.g. transition graph, `RunContext.data` shape, store persistence).
    - For plain `assert` failures, use the **two-argument form** `assert actual == expected, "contract: …"` **or** a named helper that raises with a message prefix such as `replayt boundary:` followed by the broken assumption.
    - Test **function or module docstrings** should state **which upstream obligation** is under test (one line is enough).
-3. **CI** — New or updated tests live under `tests/` and run in the existing **`pytest`** job (`.github/workflows/ci.yml`, Python 3.11 and 3.12). No separate job is required.
+3. **CI** — New or updated tests live under `tests/` and run in the existing **`pytest`** job (`.github/workflows/ci.yml`, Python 3.11 and 3.12). No separate job is required. That job installs **`[dev]`** only; it must **not** require the optional **`demo`** extra (**[DESIGN_PRINCIPLES.md — Core vs demo extras](DESIGN_PRINCIPLES.md#core-vs-demo-extras-llm-clients-and-supply-chain)**).
+4. **Demo-only tests** — If a test imports optional **LLM vendor** client packages that live under the **`demo`** extra, gate it with an **importorskip** / **`pytest.mark.skip`** when the extra is not installed, **or** isolate it in a module excluded from the default CI invocation (document which). Default CI must remain green on `pip install -e ".[dev]"` only.
 
 **Note:** The repository already contains integration-style coverage in `tests/test_bridge_graph.py`. The backlog is **satisfied** only when **messages and docstrings** meet section 3; the Builder may **extend** that file or add a dedicated module such as `tests/test_replayt_boundary.py`—either is fine if the checklist above is met.
 
@@ -65,6 +66,10 @@ When a replayt-facing assertion fails, a maintainer reading the pytest output sh
 ### 3.3 Skips and upstream gaps
 
 If a scenario cannot run because replayt lacks a public API (or CI environment limitation), use **`@pytest.mark.skip`** or **`pytest.skip`** with a **reason** that includes a **tracking issue URL** (GitHub or other). Do not leave silent `skip` without an issue reference.
+
+### 3.4 Optional `demo` extra (LLM samples)
+
+Tests that **require** packages from the **`demo`** optional extra must not break the **core + dev** install path. Prefer **`pytest.importorskip("openai")`** (or the relevant module) with a **reason** that names the **`demo`** extra, or a dedicated marker documented in **`CONTRIBUTING.md`**.
 
 ---
 
