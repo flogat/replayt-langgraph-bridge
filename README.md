@@ -11,7 +11,7 @@ This project builds on **replayt** as a **LangGraph framework bridge**. Read
 **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, integrator security
 expectations, and (for showcases) **LLM** boundaries.
 
-For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For the **log redaction** contract (defaults, strict mode, integrator hook) for bridge-originated structured logs, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**.
+For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For the **log redaction** contract (defaults, strict mode, integrator hook) for bridge-originated structured logs, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. For **inbound bridge state** validation (planned hardening: size limits, schema version, malformed nesting), see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**.
 
 ## Dependency strategy
 
@@ -97,8 +97,8 @@ initial_state = initial_bridge_state()
 
 ## Public API
 
-- `compile_replayt_workflow(workflow, *, checkpointer=None, redactor=None, redact=True, strict_redact=False, bridge_logger=None)`: Compile a replayt `Workflow` into a LangGraph `Runnable`. Step lifecycle and routing errors emit structured records on the logger `replayt_langgraph_bridge` (override with `bridge_logger`) under `LogRecord.replayt_bridge` after redaction per **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. Set `REPLAYT_BRIDGE_STRICT_REDACT=1` or pass `strict_redact=True` for stricter masking when the environment does not already require strict mode. `redact=False` disables built-in redaction and issues a runtime warning.
-- `initial_bridge_state(*, context=None)`: Create the initial state dictionary for the bridge graph.
+- `compile_replayt_workflow(workflow, *, checkpointer=None, redactor=None, redact=True, strict_redact=False, bridge_logger=None)`: Compile a replayt `Workflow` into a LangGraph `Runnable`. Step lifecycle and routing errors emit structured records on the logger `replayt_langgraph_bridge` (override with `bridge_logger`) under `LogRecord.replayt_bridge` after redaction per **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. Set `REPLAYT_BRIDGE_STRICT_REDACT=1` or pass `strict_redact=True` for stricter masking when the environment does not already require strict mode. `redact=False` disables built-in redaction and issues a runtime warning. **Inbound state hardening** (max sizes, `bridge_state_schema_version`, safe rejection before handlers/checkpoint writes) is specified in **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)** and is implemented in a dedicated backlog—not all limits are enforced in code yet.
+- `initial_bridge_state(*, context=None)`: Create the initial state dictionary for the bridge graph. The `context` dict crosses the **untrusted-input** boundary described in **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)** (supported schema versions, numeric limits, and test obligations live there).
 - `RedactorHook`, `get_bridge_logger`, `redact_log_attachment`: Types and helpers for custom redaction and tests (see the log redaction spec).
 - `__version__`: The package version.
 

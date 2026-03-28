@@ -51,7 +51,12 @@ def _merged_llm_defaults(workflow: Workflow) -> dict[str, Any]:
 def initial_bridge_state(
     *, context: dict[str, Any] | None = None
 ) -> ReplaytBridgeState:
-    """Build input state for the first :meth:`~langgraph.graph.state.CompiledStateGraph.invoke` call."""
+    """Build input state for the first :meth:`~langgraph.graph.state.CompiledStateGraph.invoke` call.
+
+    Inbound ``context`` is treated as untrusted input at the bridge boundary; target limits, optional
+    ``bridge_state_schema_version``, and failure semantics are specified in ``docs/STATE_PAYLOAD_VALIDATION.md``
+    (enforcement is implemented per that backlog).
+    """
 
     return {"context": dict(context) if context else {}, "replayt_next": ""}
 
@@ -203,6 +208,9 @@ def compile_replayt_workflow(
     with structured metadata under ``LogRecord.replayt_bridge`` after redaction per ``docs/LOG_REDACTION.md``.
     Set ``REPLAYT_BRIDGE_STRICT_REDACT=1`` or pass ``strict_redact=True`` for stricter masking (most restrictive wins
     when the env enables strict). ``redact=False`` disables built-in redaction and emits a runtime warning.
+
+    Inbound :class:`ReplaytBridgeState` validation (size, schema version, nesting) is specified in
+    ``docs/STATE_PAYLOAD_VALIDATION.md``; enforcement is implemented per that document.
     """
 
     if not workflow.initial_state:

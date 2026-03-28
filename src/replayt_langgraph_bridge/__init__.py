@@ -6,7 +6,8 @@ handling state mapping and checkpoints.
 
 Public API:
 - `compile_replayt_workflow`: Compile a replayt Workflow into a LangGraph Runnable.
-- `initial_bridge_state`: Create the initial state for a replayt bridge graph.
+- `initial_bridge_state`: Create the initial state for a replayt bridge graph (inbound context contract:
+  see `docs/STATE_PAYLOAD_VALIDATION.md`).
 - `RedactorHook` / `get_bridge_logger` / `redact_log_attachment`: Log redaction and bridge logging helpers.
 - `__version__`: Package version.
 
