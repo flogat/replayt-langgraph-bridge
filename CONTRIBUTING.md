@@ -35,3 +35,20 @@ When triaging a new **major** or a risky range change, open a **Compatibility Up
 
 To check for vulnerabilities in dependencies, run:
 
+```bash
+pip-audit --ignore-vuln CVE-2026-4539 --desc
+```
+
+Same flags as **`.github/workflows/ci.yml`** job **`supply-chain`**. Document accepted ignores in **`docs/DEPENDENCY_AUDIT.md`**.
+
+## Changelog
+
+Update **[CHANGELOG.md](CHANGELOG.md)** in the **same pull request** as the change whenever the work is **user-visible**: public API or runtime behavior, **dependency floor or ceiling** on **replayt** / **langgraph** / **`requires-python`**, new or renamed optional extras, **security** fixes, or notable **normative doc** updates that integrators must follow (API, checkpoint, or validation contracts).
+
+Purely internal refactors, test-only changes, or typo fixes that do not affect integrators **do not** require changelog entries unless they change documented behavior.
+
+Formatting, **Unreleased → versioned release** flow, SemVer interpretation, and Git tag naming: **[docs/RELEASE_CHANGELOG.md](docs/RELEASE_CHANGELOG.md)**.
+
+## Releases
+
+Releases are **maintainer-driven** and **manual** today: there is **no** PyPI publish job in **`.github/workflows/`**. Version bump, changelog section, **`vX.Y.Z`** tag, and publish steps are specified in **[docs/RELEASE_CHANGELOG.md](docs/RELEASE_CHANGELOG.md)**.

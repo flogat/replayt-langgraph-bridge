@@ -186,6 +186,11 @@ Default deny keys include LLM-oriented names such as `messages`, `input`, and `c
 
 Implementation modules under `replayt_langgraph_bridge` (for example `graph`, `state_validation`) are not a supported import surface for applications. Import the stable names from the package root. See **[docs/API.md](docs/API.md)**.
 
+## Changelog and releases
+
+- **[CHANGELOG.md](CHANGELOG.md)** — notable changes for upgrades (Keep a Changelog layout).
+- **[docs/RELEASE_CHANGELOG.md](docs/RELEASE_CHANGELOG.md)** — SemVer meaning for this bridge, when to edit the changelog, **`vX.Y.Z`** tags, and the manual release checklist. Contributor expectations: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+
 ## Compatibility
 
 - replayt 0.4.x

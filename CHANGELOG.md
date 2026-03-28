@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`tests/test_release_changelog_contract.py`**: contract tests for **`docs/RELEASE_CHANGELOG.md`** §6 backlog acceptance (A–D) and **`CHANGELOG.md`** release heading vs **`pyproject.toml`** **`[project].version`** (phase **3**, backlog **Establish CHANGELOG and release versioning practice**).
+- Normative **release and changelog** spec (**[docs/RELEASE_CHANGELOG.md](docs/RELEASE_CHANGELOG.md)**): backlog acceptance table §6, **Keep a Changelog** structure, SemVer interpretation for the bridge, **Git** tag **`vX.Y.Z`**, dependency-bound signaling, manual PyPI checklist; **CONTRIBUTING** changelog guidance and completed **pip-audit** local instructions matching **CI**; **README** **Changelog and releases**; **DESIGN_PRINCIPLES** step linking the spec (phase **3**, same backlog).
 - Public exceptions for graph compilation and routing: ``BridgeWorkflowCompileError`` (``ValueError`` subclass), ``BridgeGraphMappingError``, ``BridgeTransitionError`` (``code="undeclared_transition"``), ``BridgeRoutingError`` (``code="unknown_next"``); documented in **[docs/GRAPH_CONSTRUCTION_ERRORS.md](docs/GRAPH_CONSTRUCTION_ERRORS.md)**, **[docs/API.md](docs/API.md)**, and README. Integrator pattern for silencing or tuning the bridge logger in **[docs/API.md](docs/API.md#bridge-logging-silence-and-verbosity)** (phase **3**, backlog **Harden error surfaces and observability for graph construction**).
 - **`tests/test_replayt_boundary_contracts.py`**: consumer-side replayt boundary tests (``Workflow``, ``Runner``, ``RunContext.data`` via ``Runner.run``, ``JSONLStore``, ``allows_transition`` / ``step_names``) with contract-named assertion messages; collected by default **pytest** alongside **`tests/test_bridge_graph.py`** (phase **3**, backlog **Add contract-style tests at the replayt boundary**).
 
@@ -58,4 +60,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial scaffold and package layout.
+- Initial **0.1.0** release: LangGraph bridge package and public compile/state API; runtime pins **replayt** `>=0.4.0,<0.5` and **langgraph** `>=1.1.0,<1.2`, **Python** `>=3.11`, and optional **`[dev]`** / **`[demo]`** extras as declared in **`pyproject.toml`** at release time.
