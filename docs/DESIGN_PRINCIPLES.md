@@ -10,6 +10,10 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 5. **Not a lever on core** — This repo does not exist to steer replayt core; propose upstream changes through normal
    channels.
 
+## Replayt boundary testing
+
+Integration-style tests that import **replayt** must fail with **messages that name the contract** under test (handler transitions, `RunContext.data`, runner/store wiring, etc.), not only deep stack traces. Normative expectations, anti-patterns, skip/issue rules, and the backlog checklist live in **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
+
 ## Dependency and Pin Policy
 
 This section is the **source of truth** for how pins, ranges, and extras are chosen. The README summarizes it for integrators; **`pyproject.toml`** is the machine-readable contract.
