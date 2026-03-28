@@ -17,6 +17,16 @@ Use **`uv run pytest` with no extra paths or markers** for the integrator-releva
 
 **Without uv:** `pip install -e ".[dev]"` still works for a loose local tree, but it does not match CI’s frozen **`uv.lock`** graph.
 
+## What must never be committed
+
+Do **not** commit:
+
+- **Secrets** — API keys, tokens, passwords, private keys, or any file whose primary purpose is holding them (for example **`.env`**, **`.env.local`**, raw **`*.pem`** / **`id_rsa`** private key material, or ad-hoc credential dumps). Cloud or OAuth tooling may use names such as **`application_default_credentials.json`**; never commit those into this tree—if your local workflow drops them next to the repo, add a **narrow** **`.gitignore`** rule per **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** (optional catalog and collision rules), not a catch-all that could hide tracked fixtures later. The same applies to copied **CLI or vendor credential files** (for example **`.netrc`**, **`.aws/credentials`**, or a **`gcloud`**-style application-default path) if they appear **under the repository tree**—prefer a documented subdirectory and a scoped ignore rule over broad `credentials` globs (**§6** in that doc).
+- **Orchestration / agent scratch** — Paths under **`.orchestrator/`**, local agent skill trees such as **`.cursor/skills/`**, and similar tool output meant only for your machine (see **`.gitignore`** comments).
+- **Local persistence experiments** — Checkpoint files, local SQLite DBs, or store dumps you create while developing graphs, unless the project explicitly chooses to track them as fixtures (today: keep them local or under a documented ignored directory).
+
+Normative **`.gitignore`** categories, required exceptions for reproducible builds (**`uv.lock`**, **`pyproject.toml`**, **`src/`**, **`tests/`**, etc.), and verification commands: **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)**. Representative ignore behavior is also checked by **`tests/test_gitignore_contract.py`** (**`git check-ignore`**); when you change **`.gitignore`** for a recurring footgun, update that test in the same change set per the spec (**G5**). For runtime secret handling and logging, see **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
+
 Integration-style tests that call **replayt** must follow that document (contract-named assertions, `pytest.raises` `match=` strings, skip reasons with tracking issues).
 
 When adding or renaming symbols intended for integrators, update **`replayt_langgraph_bridge.__all__`**, **[docs/API.md](docs/API.md)**, the **Public API** section of **README.md**, and **`tests/test_public_api.py`** (`_STABLE_PUBLIC_NAMES`) together (see **API.md** for the checklist).

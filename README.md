@@ -87,7 +87,7 @@ if not api_key:
 # ... (your workflow code here)
 ```
 
-For the complete secrets policy, see **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
+For the complete secrets policy, see **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**. Contributor-focused **`.gitignore`** rules and a “must never commit” checklist live in **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** and **[CONTRIBUTING.md](CONTRIBUTING.md#what-must-never-be-committed)**.
 
 ## Usage
 
