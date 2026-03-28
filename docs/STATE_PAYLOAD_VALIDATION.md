@@ -140,5 +140,6 @@ Map backlog acceptance criteria to verifiable items:
 ## 8. Related documents
 
 - **[THREAT_MODEL.md](THREAT_MODEL.md)** — Assets, trust boundaries, checkpoint storage.
+- **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** — Deployment topologies and controls when checkpoints or graph APIs leave a single trusted process.
 - **[LOG_REDACTION.md](LOG_REDACTION.md)** — Bridge-originated log redaction (orthogonal to payload validation).
 - **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)** — Security considerations summary.

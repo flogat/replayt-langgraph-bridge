@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **API.md** cross-spec index and **STATE_PAYLOAD_VALIDATION.md** related documents now link **[HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)** (phase 5 review, backlog **Document authn/z expectations for hosted LangGraph or checkpoint backends**).
 - Normative **hosted deployment** spec for remote LangGraph runtimes and checkpoint backends: topology table (T1–T5) with required TLS, network, and IAM-style controls; dev/stage/prod separation; explicit **sample / permissive-default** warning; cross-links to LangGraph persistence and GitHub Security plus replayt PyPI (**[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**); README **Usage** and **Secrets handling** callouts; cross-links from **THREAT_MODEL**, **MISSION**, and **DESIGN_PRINCIPLES** (phase 2 backlog **Document authn/z expectations for hosted LangGraph or checkpoint backends**).
 - ``get_bridge_logger`` docstring and ``replayt_langgraph_bridge.redaction`` module doc naming ``RedactorHook`` (phase 3 backlog **Define the public adapter API and module layout**).
 - Normative **public adapter API** spec (phase 2 backlog **Define the public adapter API and module layout**): export set tied to ``__all__``, stable vs experimental rules, submodule layout for maintainers, cross-links from README, **DESIGN_PRINCIPLES**, **MISSION**, **CONTRIBUTING**, and package docstring (**[docs/API.md](docs/API.md)**).
