@@ -94,6 +94,25 @@ def test_compatibility_update_issue_template_present():
     assert "Compatibility Update" in path.read_text(encoding="utf-8")
 
 
+def test_ci_workflow_installs_dev_without_demo_extra():
+    """Primary CI must mirror integrators: editable install uses [dev] only, never [demo]."""
+    ci_path = _REPO_ROOT / ".github" / "workflows" / "ci.yml"
+    assert ci_path.is_file(), "expected .github/workflows/ci.yml"
+    text = ci_path.read_text(encoding="utf-8")
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line.startswith("pip install"):
+            continue
+        assert "[demo]" not in line, (
+            "CI must not install the demo extra by default (no live LLM client deps in the "
+            f"default test path): {line!r}"
+        )
+        if "-e" in line and ".[" in line:
+            assert "[dev]" in line, (
+                "Editable project installs in CI must use the dev extra: " + line
+            )
+
+
 def test_python_version_requirement():
     """Test that Python version meets minimum requirement."""
     python_version = sys.version_info

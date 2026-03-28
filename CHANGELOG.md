@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`tests/test_dependency_strategy.py`**: assert **`.github/workflows/ci.yml`** `pip install` lines never use **`[demo]`** and editable installs use **`[dev]`** (phase 3 backlog **Document LLM boundaries for demos and optional examples**).
 - Optional **`demo`** extra in **`pyproject.toml`** (**openai**, **anthropic**, **langchain-openai**, **langchain-anthropic**) for samples that call vendor LLM APIs; core install and CI **`[dev]`** path stay unchanged. README **extras matrix** and contract tests in **`tests/test_dependency_strategy.py`** updated (phase 3 backlog **Isolate optional LLM demo extras from core bridge install**).
 - Public API regression tests: ``__all__`` matches ``docs/API.md`` stable table, each export is documented, README **Usage** imports only the package root for the bridge (`tests/test_public_api.py`; phase 3 backlog **Define the public adapter API and module layout**).
 - **Inbound bridge state validation** (backlog: harden deserialization): limits and `bridge_state_schema_version` per `docs/STATE_PAYLOAD_VALIDATION.md`, `BridgeStateValidationError`, validation in `initial_bridge_state` and before each step’s `RunContext.data` update, and a wrapping checkpointer that validates merged `invoke` input before LangGraph persists it (INPUT and loop puts that include `__start__`). Implementation in `src/replayt_langgraph_bridge/state_validation.py`; tests in `tests/test_state_payload_validation.py`.
