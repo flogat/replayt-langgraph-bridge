@@ -14,6 +14,11 @@ from replayt.workflow import Workflow
 from typing_extensions import NotRequired, TypedDict
 
 from replayt_langgraph_bridge.bridge_log import emit_bridge_record, get_bridge_logger
+from replayt_langgraph_bridge.errors import (
+    BridgeRoutingError,
+    BridgeTransitionError,
+    BridgeWorkflowCompileError,
+)
 from replayt_langgraph_bridge.redaction import RedactorHook
 from replayt_langgraph_bridge.state_validation import (
     BridgeValidatingCheckpointSaver,
@@ -139,7 +144,7 @@ def _make_step_node(
                 strict_redact=strict_redact,
                 redactor=redactor,
             )
-            raise RuntimeError(
+            raise BridgeTransitionError(
                 f"Step {step_name!r} returned undeclared transition {nxt!r}; allowed={allowed}"
             )
         normalized = _normalize_next(nxt)
@@ -194,7 +199,7 @@ def _route_from(
                 strict_redact=strict_redact,
                 redactor=redactor,
             )
-            raise RuntimeError(
+            raise BridgeRoutingError(
                 f"After step {step_name!r}, unknown next state {nxt!r}; expected one of {sorted(step_names)!r} or end"
             )
         return nxt
@@ -222,8 +227,18 @@ def compile_replayt_workflow(
 
     Bridge lifecycle events are logged on the logger named ``replayt_langgraph_bridge`` (or ``bridge_logger``)
     with structured metadata under ``LogRecord.replayt_bridge`` after redaction per ``docs/LOG_REDACTION.md``.
-    Set ``REPLAYT_BRIDGE_STRICT_REDACT=1`` or pass ``strict_redact=True`` for stricter masking (most restrictive wins
-    when the env enables strict). ``redact=False`` disables built-in redaction and emits a runtime warning.
+    With no handlers configured for that logger, stdlib logging emits nothing by default; to force silence or
+    tune verbosity, set levels, attach ``logging.NullHandler``, or pass a no-op ``bridge_logger``. See
+    ``docs/API.md`` (bridge logging). Set ``REPLAYT_BRIDGE_STRICT_REDACT=1`` or pass ``strict_redact=True`` for
+    stricter masking (most restrictive wins when the env enables strict). ``redact=False`` disables built-in
+    redaction and emits a runtime warning.
+
+    **Raises:** :exc:`~replayt_langgraph_bridge.BridgeWorkflowCompileError` if ``workflow.initial_state`` is unset
+    or not a registered step; :exc:`~replayt_langgraph_bridge.BridgeTransitionError` if a handler return violates
+    declared edges; :exc:`~replayt_langgraph_bridge.BridgeRoutingError` if ``replayt_next`` targets an unknown
+    step during routing. Normative detail: ``docs/GRAPH_CONSTRUCTION_ERRORS.md``. Inbound validation failures
+    raise :exc:`~replayt_langgraph_bridge.BridgeStateValidationError`. LangGraph or replayt may raise their own
+    exceptions when the bridge does not translate the failure.
 
     Inbound :class:`ReplaytBridgeState` is validated on every bridge step before handlers run: schema
     version ``{1}`` (``bridge_state_schema_version`` omitted means ``1``), nesting depth ≤ 32, walk
@@ -239,7 +254,7 @@ def compile_replayt_workflow(
     """
 
     if not workflow.initial_state:
-        raise ValueError(
+        raise BridgeWorkflowCompileError(
             "workflow.initial_state must be set (call workflow.set_initial)"
         )
 
@@ -247,7 +262,7 @@ def compile_replayt_workflow(
     try:
         workflow.get_handler(workflow.initial_state)
     except KeyError as e:
-        raise ValueError(
+        raise BridgeWorkflowCompileError(
             f"initial_state {workflow.initial_state!r} is not a registered @workflow.step"
         ) from e
 

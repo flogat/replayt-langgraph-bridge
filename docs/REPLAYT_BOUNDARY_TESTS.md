@@ -86,10 +86,10 @@ When a replayt-facing assertion fails, a maintainer reading the pytest output sh
 
 | Contract under test | Acceptable pattern |
 | ------------------- | ------------------ |
-| Handler return names a step that is not registered on the workflow | `pytest.raises(RuntimeError, match="unknown next state")` **and** docstring mentions routing / declared step names; after **`docs/GRAPH_CONSTRUCTION_ERRORS.md`** §3 is implemented, assert the **public** routing exception type (or `code`) **and** keep `match=` on a stable phrase documented there |
-| Handler return violates `note_transition` / `allows_transition` | `pytest.raises(RuntimeError, match="undeclared transition")` **and** docstring mentions declared edges; after **GRAPH_CONSTRUCTION_ERRORS** §3, assert the **public** transition exception type (or `code`) **and** keep `match=` per that doc |
+| Handler return names a step that is not registered on the workflow | `pytest.raises(BridgeRoutingError, match="unknown next state")` **and** assert `exc.value.code == "unknown_next"`; docstring mentions routing / declared step names (**GRAPH_CONSTRUCTION_ERRORS** §3.2) |
+| Handler return violates `note_transition` / `allows_transition` | `pytest.raises(BridgeTransitionError, match="undeclared transition")` **and** assert `exc.value.code == "undeclared_transition"`; docstring mentions declared edges |
 | Linear workflow mutates `RunContext.data` as expected | `assert out["context"]["n"] == 2, "replayt boundary: RunContext.data carries cumulative ctx.set across steps"` |
-| `Workflow.set_initial` required before compile | `pytest.raises(ValueError, match="set_initial")` with docstring referencing `workflow.initial_state` |
+| `Workflow.set_initial` required before compile | `pytest.raises(BridgeWorkflowCompileError, match="set_initial")` (still a `ValueError` subclass) with docstring referencing `workflow.initial_state` |
 
 ### 3.3 Skips and upstream gaps
 

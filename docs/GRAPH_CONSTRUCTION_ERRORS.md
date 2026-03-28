@@ -24,20 +24,18 @@ This document specifies **bridge-owned** error behavior and observability when a
 
 ---
 
-## 2. Current behavior (baseline — today)
+## 2. Implemented behavior (post §3)
 
-Use this table when comparing diffs during implementation. **Exception types in the “Raises (today)” column are targets for replacement** per §3.
-
-| Situation | Raises (today) | Message / notes (today) | Structured log event (today) |
-| --------- | -------------- | ------------------------ | ------------------------------ |
-| `workflow.initial_state` falsy | `ValueError` | `workflow.initial_state must be set (call workflow.set_initial)` | None at bridge (pre-graph) |
-| `initial_state` not a `@workflow.step` | `ValueError` | `initial_state … is not a registered @workflow.step` | None at bridge |
-| Handler return names unknown step | `RuntimeError` | Substring **`unknown next state`**; includes `from_step`, declared step names | `unknown_next` via `emit_bridge_record` |
-| Handler return violates declared edges | `RuntimeError` | Substring **`undeclared transition`**; includes step name and `allowed=` targets | `transition_invalid` |
+| Situation | Raises | Message / notes | Structured log event |
+| --------- | ------ | ---------------- | --------------------- |
+| `workflow.initial_state` falsy | `BridgeWorkflowCompileError` (`ValueError` subclass) | Same message as former `ValueError` | None at bridge (pre-graph) |
+| `initial_state` not a `@workflow.step` | `BridgeWorkflowCompileError` | Same message as former `ValueError` | None at bridge |
+| Handler return names unknown step | `BridgeRoutingError` (`code` **`unknown_next`**) | Substring **`unknown next state`**; includes step names and expected set | `unknown_next` via `emit_bridge_record` |
+| Handler return violates declared edges | `BridgeTransitionError` (`code` **`undeclared_transition`**) | Substring **`undeclared transition`**; includes step name and `allowed=` targets | `transition_invalid` |
 | Inbound `ReplaytBridgeState` invalid | `BridgeStateValidationError` | Generic stable string per STATE_PAYLOAD_VALIDATION | May attach validation context per that spec |
 | LangGraph `StateGraph.compile` / runtime | LangGraph / stdlib | Upstream message | Not bridge-originated |
 
-**Secrets and messages:** Routing and transition **`RuntimeError`** messages include **step names** and **allowed targets** (non-secret workflow structure). They **must not** include raw `context` values, secrets, or unredacted attachments. (Structured logs that include `context` use the redaction pipeline — **[LOG_REDACTION.md](LOG_REDACTION.md)**.)
+**Secrets and messages:** Routing and transition errors (`BridgeRoutingError`, `BridgeTransitionError`) include **step names** and **allowed targets** in `str(exc)` (non-secret workflow structure). They **must not** include raw `context` values, secrets, or unredacted attachments. (Structured logs that include `context` use the redaction pipeline — **[LOG_REDACTION.md](LOG_REDACTION.md)**.)
 
 ---
 
@@ -67,9 +65,7 @@ Integrators must be able to distinguish **compile-time workflow misuse**, **tran
 
 ### 3.2 Substrings for tests
 
-Until types land, **`pytest.raises(..., match=…)`** uses the substrings **`unknown next state`** and **`undeclared transition`** (see **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** §3.2).
-
-**After** types land, tests **must** assert **`type(exc)`** (or `code` if using the single-type alternative) **and** keep a **`match=`** on a **short, documented** phrase that remains stable (either the same substrings if preserved in `str(exc)`, or new documented phrases listed in this doc and in test docstrings).
+Tests **must** assert **`type(exc)`** (or `code` if using the single-type alternative) **and** keep **`pytest.raises(..., match=…)`** on a **short, stable** phrase. Implemented messages retain **`unknown next state`** and **`undeclared transition`** (see **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** §3.2).
 
 ### 3.3 Upstream exceptions
 

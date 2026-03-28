@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Public exceptions for graph compilation and routing: ``BridgeWorkflowCompileError`` (``ValueError`` subclass), ``BridgeGraphMappingError``, ``BridgeTransitionError`` (``code="undeclared_transition"``), ``BridgeRoutingError`` (``code="unknown_next"``); documented in **[docs/GRAPH_CONSTRUCTION_ERRORS.md](docs/GRAPH_CONSTRUCTION_ERRORS.md)**, **[docs/API.md](docs/API.md)**, and README. Integrator pattern for silencing or tuning the bridge logger in **[docs/API.md](docs/API.md#bridge-logging-silence-and-verbosity)** (phase **3**, backlog **Harden error surfaces and observability for graph construction**).
 - **`tests/test_replayt_boundary_contracts.py`**: consumer-side replayt boundary tests (``Workflow``, ``Runner``, ``RunContext.data`` via ``Runner.run``, ``JSONLStore``, ``allows_transition`` / ``step_names``) with contract-named assertion messages; collected by default **pytest** alongside **`tests/test_bridge_graph.py`** (phase **3**, backlog **Add contract-style tests at the replayt boundary**).
 
 ### Documentation
@@ -18,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking for broad ``except RuntimeError``:** Unknown ``replayt_next`` and undeclared transitions now raise ``BridgeRoutingError`` / ``BridgeTransitionError`` instead of ``RuntimeError`` (messages still contain ``unknown next state`` and ``undeclared transition``). Missing ``set_initial`` and invalid ``initial_state`` now raise ``BridgeWorkflowCompileError`` instead of bare ``ValueError`` (still a ``ValueError`` subclass). Tests in **`tests/test_bridge_graph.py`** assert types, ``code``, and ``match=`` (phase **3**, backlog **Harden error surfaces and observability for graph construction**).
 - **`tests/test_bridge_graph.py`**: top-level ``replayt.workflow.Workflow`` import; contract-named messages on resume/checkpoint assertions (phase **3**, backlog **Add contract-style tests at the replayt boundary**).
 - `compile_replayt_workflow` accepts optional **`interrupt_before`** and **`interrupt_after`** (forwarded to LangGraph `StateGraph.compile`; replayt step names). README and **[docs/API.md](docs/API.md)** updated; **`tests/test_bridge_graph.py`** adds **`test_resume_second_invoke_uses_memory_checkpointer`** and docstring traceability to **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** (phase 3 backlog **Define checkpoint persistence scope and failure modes**).
 - Replayt boundary tests in `tests/test_bridge_graph.py`: contract-named assertion messages, `pytest.raises` `match=` strings, and docstrings aligned with **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** (backlog: actionable failure messages).

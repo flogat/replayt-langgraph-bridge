@@ -22,10 +22,18 @@ These names are **stable** under semantic versioning for this package: breaking 
 | `initial_bridge_state` | Construct validated initial channel state for the first `invoke`. |
 | `ReplaytBridgeState` | `TypedDict` describing the bridge channel shape (`context`, `replayt_next`, optional `bridge_state_schema_version`). Wire format and limits are normative in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**. |
 | `BridgeStateValidationError` | Raised for rejected inbound state (subclass of `ValueError`; stable, generic `str` messages). |
+| `BridgeWorkflowCompileError` | Subclass of `ValueError` for compile-time workflow misuse (unset `initial_state` or initial step not registered). See **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)**. |
+| `BridgeGraphMappingError` | Base for handler return / routing failures during `invoke` (subclass of `Exception`, not `RuntimeError`). Subclasses set a stable string `code`. |
+| `BridgeTransitionError` | Subclass of `BridgeGraphMappingError` with `code == "undeclared_transition"` when a handler return violates declared edges. |
+| `BridgeRoutingError` | Subclass of `BridgeGraphMappingError` with `code == "unknown_next"` when `replayt_next` names an unknown step. |
 | `RedactorHook` | Type alias (`Callable[[dict[str, Any]], dict[str, Any]]`) for custom log attachment redaction; behavior in **[LOG_REDACTION.md](LOG_REDACTION.md)**. |
 | `get_bridge_logger` | Return the bridge logger used for structured records (`LogRecord.replayt_bridge`). |
 | `redact_log_attachment` | Redact a single attachment dict (tests and advanced callers); same rules as **[LOG_REDACTION.md](LOG_REDACTION.md)**. |
 | `__version__` | Package version string. |
+
+### Bridge logging (silence and verbosity)
+
+The bridge uses the stdlib logger named `replayt_langgraph_bridge` (or the `bridge_logger` you pass to `compile_replayt_workflow`). Records propagate to ancestor loggers by default; with a typical root configuration, **ERROR** bridge events can still appear even if you never attached a handler to the bridge logger. To drop bridge output entirely, attach `logging.NullHandler` to `replayt_langgraph_bridge`, set `logger.propagate = False`, or pass a logger you control. For more detail, adjust levels and handlers on that logger or its parents. Emitted attachments follow **[LOG_REDACTION.md](LOG_REDACTION.md)** when `redact=True` (default).
 
 ### Experimental and internal (normative rules)
 
@@ -40,6 +48,7 @@ These files exist under `src/replayt_langgraph_bridge/`. Integrators should **no
 | Module | Purpose |
 | ------ | ------- |
 | `graph.py` | Graph compilation, node wiring, `ReplaytBridgeState` / `ReplaytBridgeContext` runtime typing for LangGraph. `ReplaytBridgeContext` is **not** exported in `__all__`; integrators only need to pass `context={"runner": runner}` as documented on `compile_replayt_workflow`. |
+| `errors.py` | Public exception types for compile and mapping failures (re-exported from the package root). |
 | `state_validation.py` | Inbound payload validation, checkpointer wrapper. |
 | `redaction.py` | Default redaction and `RedactorHook` implementation helpers. |
 | `bridge_log.py` | Structured log emission helpers. |
