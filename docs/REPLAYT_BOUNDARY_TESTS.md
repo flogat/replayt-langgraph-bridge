@@ -36,6 +36,21 @@ Normative mapping from the product backlog acceptance criteria to this repositor
 
 ---
 
+## Product backlog: THREAT_MODEL drift guard and README/MISSION linkage contract
+
+Normative mapping for keeping **[THREAT_MODEL.md](THREAT_MODEL.md)** discoverable from primary entry docs and structurally stable enough for security reviewers to trust cross-links.
+
+| Backlog criterion | Done when (normative) |
+| ----------------- | ---------------------- |
+| **Lightweight contract test** (`tests/test_*_contract.py` pattern) | New module (recommended name: **`tests/test_threat_model_doc_linkage_contract.py`**) collected by default **`pytest`**. Module docstring names the **THREAT_MODEL documentation linkage** obligation and points to **this document** §6. Tests use **filesystem reads** only (no **`replayt`** import required). |
+| **`docs/THREAT_MODEL.md` exists and carries agreed anchors** | File exists at repo-relative path **`docs/THREAT_MODEL.md`**. UTF-8 text contains **exactly** these Markdown level-2 heading lines (verbatim substrings; order-preserving when asserted as a sequence): **`## 1. Assets`**, **`## 2. Adversaries`**, **`## 3. Trust Boundaries`**, **`## 4. Mitigations`**, **`## 5. Explicit Non-Goals`**, **`## 6. Unsafe Fields`**, **`## 7. Recommendations for Integrators`**, **`## Links`**. First heading line of the file must remain **`# Threat Model: Checkpoint and State Data`**. |
+| **`README.md` and `docs/MISSION.md` reference the threat model** | Each file’s UTF-8 text contains the case-sensitive substring **`THREAT_MODEL.md`** at least once (matches how **`tests/test_security_reporting_contract.py`** pins reporting text). |
+| **Actionable failures** | Assertions (or helper raises) include message prefix **`THREAT_MODEL doc linkage contract:`** followed by which invariant broke (missing file, missing heading, missing README/MISSION substring). |
+| **Contributor doc refresh rule** | Documented in §6.3 below; **no separate CONTRIBUTING.md convention** is required unless maintainers want a short pointer mirroring **`test_gitignore_contract.py`** (optional). |
+| **`CHANGELOG.md`** | Per backlog: add an **Unreleased** bullet only when this work (or a follow-on edit) changes **integrator-facing** security narrative in **README** / **MISSION** / normative security docs—not for adding the contract test alone. |
+
+---
+
 ## 1. Scope: “replayt boundary” in this package
 
 A **replayt boundary test** imports **replayt** and exercises **behavior that replayt owns** that the bridge relies on at compile or run time. The bridge implementation in `replayt_langgraph_bridge.graph` currently depends on these **documented replayt entry points** (see `src/replayt_langgraph_bridge/graph.py`):
@@ -115,6 +130,40 @@ When landing tests, ensure:
 
 - **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)** — Principle 1 (explicit contracts and integration boundaries).
 - **[MISSION.md](MISSION.md)** — Success metrics for automated tests and clear logs.
+- **[THREAT_MODEL.md](THREAT_MODEL.md)** — Checkpoint/state threat model; **documentation linkage** contract in §6 of this file.
 - **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** — LangGraph checkpoint persistence scope, failure modes, and deterministic test obligations (complements replayt-focused rules here).
 - **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** — Bridge **inbound state** contracts (separate from replayt upstream types).
 - **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** — Compile and routing exception taxonomy, logging, and test obligations for the graph mapping backlog.
+
+---
+
+## 6. THREAT_MODEL documentation linkage contract (normative)
+
+This section is the **source of truth** for the backlog **THREAT_MODEL drift guard and README/MISSION linkage contract**. It is intentionally **doc-structure** coverage (paths, title, section headings, entry-point pointers)—not a duplicate of threat content, which remains authoritative in **[THREAT_MODEL.md](THREAT_MODEL.md)**.
+
+### 6.1 Contract name
+
+Use **`THREAT_MODEL doc linkage contract`** in test docstrings, assertion messages, and failure output so CI logs identify the obligation without reading stack frames.
+
+### 6.2 Required markers (summary)
+
+| Artifact | Requirement |
+| -------- | ------------- |
+| **`docs/THREAT_MODEL.md`** | Exists; first line **`# Threat Model: Checkpoint and State Data`**; contains the eight **`## …`** headings listed in the product backlog table above in **document order** (Builder: assert sequential occurrence so reordering or deletion fails). |
+| **`README.md`** | Contains **`THREAT_MODEL.md`**. |
+| **`docs/MISSION.md`** | Contains **`THREAT_MODEL.md`**. |
+
+### 6.3 Refresh / drift-control rule
+
+When maintainers **rename or move** **`docs/THREAT_MODEL.md`**, **change the document title line**, **renumber or drop** any of the eight section headings, or **remove** **`THREAT_MODEL.md`** mentions from **README** or **MISSION**:
+
+1. Update **§6 and the product backlog table** in this file if the canonical markers change.
+2. Update **`tests/test_threat_model_doc_linkage_contract.py`** (or the chosen module name) in the **same change set**.
+3. If integrators or security reviewers would see a **materially different** security story (not just a path fix), add **`CHANGELOG.md` Unreleased** per **[CONTRIBUTING.md](CONTRIBUTING.md)** and **[docs/SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md)** as applicable.
+
+**Anti-pattern:** Relaxing assertions to only “some markdown file exists” or dropping **MISSION** coverage—both entry points are **required** by the backlog.
+
+### 6.4 Relationship to other contract tests
+
+- **`tests/test_security_reporting_contract.py`** already requires **`THREAT_MODEL.md`** in root **`SECURITY.md`**; this backlog adds **README** / **MISSION** wiring and **THREAT_MODEL** structural anchors. Keep both modules **consistent** if the path to the threat model ever changes.
+- This contract **does not** replace **replayt boundary** rules in §1–§3; it is **documentation integrity** only.
