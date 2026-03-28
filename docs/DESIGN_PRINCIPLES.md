@@ -100,7 +100,7 @@ Treat the following as **done** when the dependency story matches docs and packa
    documented limits and schema versions, generic caller-facing errors, and no partial durable mutation on reject
    (enforced in `replayt_langgraph_bridge.state_validation` and `graph.py`).
 
-For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For redaction rules and extension points, see [LOG_REDACTION.md](LOG_REDACTION.md). For inbound payload hardening, see [STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md).
+For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For hosted or networked checkpoint stores and remote graph runtimes (topology table, TLS, IAM-style controls, dev/stage/prod separation, upstream LangGraph/replayt links), see [HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md). For redaction rules and extension points, see [LOG_REDACTION.md](LOG_REDACTION.md). For inbound payload hardening, see [STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md).
 
 ## Secrets policy
 
