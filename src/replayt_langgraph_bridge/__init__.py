@@ -11,14 +11,23 @@ Public API (see ``docs/API.md`` for stability policy and full layout; ``__all__`
   ``replayt_next`` ≤ 1024 after ``str()``; see ``docs/STATE_PAYLOAD_VALIDATION.md``).
 - ``ReplaytBridgeState``: TypedDict for LangGraph channel state mirrored with replayt ``RunContext.data``.
 - ``BridgeStateValidationError``: Raised when inbound bridge state fails validation (generic message strings).
+- ``BridgeWorkflowCompileError``: Subclass of ``ValueError`` for missing ``set_initial`` or invalid initial step.
+- ``BridgeGraphMappingError`` / ``BridgeTransitionError`` / ``BridgeRoutingError``: Mapping and routing failures during
+  ``invoke`` (see ``docs/GRAPH_CONSTRUCTION_ERRORS.md``); mapping subclasses expose a stable ``code`` string.
 - ``RedactorHook`` / ``get_bridge_logger`` / ``redact_log_attachment``: Log redaction and bridge logging helpers.
 - ``__version__``: Package version.
 
 Internal modules (not part of the supported import surface for applications):
-- ``graph``, ``state_validation``, ``redaction``, ``bridge_log``: implementation details; may change without notice.
+- ``graph``, ``errors``, ``state_validation``, ``redaction``, ``bridge_log``: implementation details; may change without notice.
 """
 
 from .bridge_log import get_bridge_logger
+from .errors import (
+    BridgeGraphMappingError,
+    BridgeRoutingError,
+    BridgeTransitionError,
+    BridgeWorkflowCompileError,
+)
 from .graph import (
     ReplaytBridgeState,
     compile_replayt_workflow,
@@ -30,7 +39,11 @@ from .redaction import RedactorHook, redact_log_attachment
 __version__ = "0.1.0"
 
 __all__ = [
+    "BridgeGraphMappingError",
+    "BridgeRoutingError",
     "BridgeStateValidationError",
+    "BridgeTransitionError",
+    "BridgeWorkflowCompileError",
     "ReplaytBridgeState",
     "RedactorHook",
     "compile_replayt_workflow",

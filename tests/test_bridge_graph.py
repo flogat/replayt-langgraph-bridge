@@ -16,7 +16,13 @@ from replayt.persistence import JSONLStore
 from replayt.runner import Runner
 from replayt.workflow import Workflow
 
-from replayt_langgraph_bridge import compile_replayt_workflow, initial_bridge_state
+from replayt_langgraph_bridge import (
+    BridgeRoutingError,
+    BridgeTransitionError,
+    BridgeWorkflowCompileError,
+    compile_replayt_workflow,
+    initial_bridge_state,
+)
 
 
 def test_compile_requires_initial_state() -> None:
@@ -24,11 +30,24 @@ def test_compile_requires_initial_state() -> None:
     wf = Workflow("t")
     wf.step("a")(lambda ctx: None)
 
-    with pytest.raises(
-        ValueError,
-        match=r"set_initial",
-    ):
+    with pytest.raises(BridgeWorkflowCompileError, match=r"set_initial") as exc_info:
         compile_replayt_workflow(wf)
+    assert isinstance(exc_info.value, ValueError)
+    assert type(exc_info.value) is BridgeWorkflowCompileError
+
+
+def test_compile_rejects_unregistered_initial_step() -> None:
+    """``initial_state`` must name a ``@workflow.step`` (GRAPH_CONSTRUCTION_ERRORS / compile contract)."""
+    wf = Workflow("init_bad")
+    wf.step("a")(lambda ctx: None)
+    wf.set_initial("ghost")
+
+    with pytest.raises(
+        BridgeWorkflowCompileError,
+        match=r"not a registered",
+    ) as exc_info:
+        compile_replayt_workflow(wf)
+    assert exc_info.value.__cause__ is not None
 
 
 def test_linear_workflow_via_langgraph(tmp_path: Path) -> None:
@@ -144,15 +163,14 @@ def test_unknown_next_state_raises(tmp_path: Path) -> None:
     runner.run_id = str(uuid.uuid4())
 
     graph = compile_replayt_workflow(wf, checkpointer=MemorySaver())
-    with pytest.raises(
-        RuntimeError,
-        match=r"unknown next state",
-    ):
+    with pytest.raises(BridgeRoutingError, match=r"unknown next state") as exc_info:
         graph.invoke(
             initial_bridge_state(),
             config={"configurable": {"thread_id": "t2"}},
             context={"runner": runner},
         )
+    assert exc_info.value.code == "unknown_next"
+    assert type(exc_info.value) is BridgeRoutingError
 
 
 def test_declared_edge_violation_raises(tmp_path: Path) -> None:
@@ -175,12 +193,11 @@ def test_declared_edge_violation_raises(tmp_path: Path) -> None:
     runner.run_id = str(uuid.uuid4())
 
     graph = compile_replayt_workflow(wf, checkpointer=MemorySaver())
-    with pytest.raises(
-        RuntimeError,
-        match=r"undeclared transition",
-    ):
+    with pytest.raises(BridgeTransitionError, match=r"undeclared transition") as exc_info:
         graph.invoke(
             initial_bridge_state(),
             config={"configurable": {"thread_id": "t3"}},
             context={"runner": runner},
         )
+    assert exc_info.value.code == "undeclared_transition"
+    assert type(exc_info.value) is BridgeTransitionError

@@ -93,7 +93,7 @@ If storage is corrupted, truncated, or incompatible with the **LangGraph / check
 
 ### 5.4 Routing and transition errors
 
-**`RuntimeError`** (or related) from **declared transition / routing** validation may include **step names** and allowed targets to aid debugging (**[THREAT_MODEL.md](THREAT_MODEL.md)**). These are separate from **inbound state validation** errors.
+**Routing / transition** failures from the bridge raise **`BridgeRoutingError`** / **`BridgeTransitionError`** (see **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)**). Their `str(exception)` values may include **step names** and allowed targets to aid debugging (**[THREAT_MODEL.md](THREAT_MODEL.md)**). These are separate from **inbound state validation** errors.
 
 ---
 

@@ -10,7 +10,11 @@ from langgraph.checkpoint.memory import MemorySaver
 from replayt.persistence import JSONLStore
 from replayt.runner import Runner
 
-from replayt_langgraph_bridge import compile_replayt_workflow, initial_bridge_state
+from replayt_langgraph_bridge import (
+    BridgeRoutingError,
+    compile_replayt_workflow,
+    initial_bridge_state,
+)
 
 
 def test_sensitive_data_not_logged_in_errors(tmp_path: Path) -> None:
@@ -34,7 +38,7 @@ def test_sensitive_data_not_logged_in_errors(tmp_path: Path) -> None:
 
     graph = compile_replayt_workflow(wf, checkpointer=MemorySaver())
 
-    with pytest.raises(RuntimeError) as exc_info:
+    with pytest.raises(BridgeRoutingError) as exc_info:
         graph.invoke(
             initial_bridge_state(
                 context={

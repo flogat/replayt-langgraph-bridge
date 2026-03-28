@@ -15,7 +15,11 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 # Stable table in docs/API.md (integrator-facing); keep sets equal on change.
 _STABLE_PUBLIC_NAMES: frozenset[str] = frozenset(
     {
+        "BridgeGraphMappingError",
+        "BridgeRoutingError",
         "BridgeStateValidationError",
+        "BridgeTransitionError",
+        "BridgeWorkflowCompileError",
         "RedactorHook",
         "ReplaytBridgeState",
         "__version__",
