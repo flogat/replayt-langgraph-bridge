@@ -1,4 +1,4 @@
-"""Contract tests for `.gitignore` vs **docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md** (G1, G3, G4).
+"""Contract tests for `.gitignore` vs **docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md** (G1–G5, §2–§3).
 
 Uses `git check-ignore` so behavior matches Git, not a second parser.
 """
