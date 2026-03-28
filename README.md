@@ -11,7 +11,7 @@ This project builds on **replayt** as a **LangGraph framework bridge**. Read
 **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, integrator security
 expectations, and (for showcases) **LLM** boundaries.
 
-For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For the **log redaction** contract (defaults, strict mode, integrator hook) for bridge-originated structured logs, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. For **inbound bridge state** validation (enforced limits, schema version, checkpoint safety), see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**. For **replayt boundary** tests and actionable failure messages, see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**. For the **stable public export set**, module layout, and stability rules, see **[docs/API.md](docs/API.md)**.
+For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For **hosted LangGraph or remote checkpoint backends** (topologies, TLS, access control, environment separation, upstream links), see **[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**. For the **log redaction** contract (defaults, strict mode, integrator hook) for bridge-originated structured logs, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. For **inbound bridge state** validation (enforced limits, schema version, checkpoint safety), see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**. For **replayt boundary** tests and actionable failure messages, see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**. For the **stable public export set**, module layout, and stability rules, see **[docs/API.md](docs/API.md)**.
 
 ## Dependency strategy
 
@@ -38,6 +38,8 @@ pip install replayt-langgraph-bridge
 
 ### Secrets handling
 **Important**: Never commit secrets to version control. Store API keys and tokens in environment variables.
+
+**Note:** The `.env` examples below are **developer convenience** only. Production should use a secret manager and the network and access controls in **[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**.
 
 **Example setup**:
 ```bash
@@ -67,6 +69,8 @@ if not api_key:
 For the complete secrets policy, see **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
 
 ## Usage
+
+**Warning:** This snippet uses **no** LangGraph `Checkpointer` and is only a minimal API example—not a production topology (no durable checkpoint isolation, TLS, or IAM). See **[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)** before exposing graphs or checkpoints beyond a trusted local process.
 
 ```python
 from replayt.workflow import Workflow

@@ -59,12 +59,13 @@ The following field types should **never** be persisted in LangGraph checkpoints
 ## 7. Recommendations for Integrators
 
 - **Avoid Storing Secrets**: Do not place API keys, passwords, or tokens in `ReplaytBridgeState["context"]`.
-- **Use Secure Checkpoint Backends**: Configure LangGraph checkpointers with encrypted, access-controlled storage.
+- **Use Secure Checkpoint Backends**: Configure LangGraph checkpointers with encrypted, access-controlled storage, TLS to remote stores, and least-privilege IAM as described in **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**.
 - **Redact Sensitive Data**: If PII or secrets must be in state, apply redaction before persistence.
 - **Audit Checkpoint Storage**: Regularly review checkpoint storage permissions and access logs.
 
 ## Links
 
+- [HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md) - Deployment topologies, TLS, IAM-style storage access, environment separation, and upstream LangGraph/replayt pointers.
 - [DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md) - Security considerations section.
 - [LOG_REDACTION.md](LOG_REDACTION.md) - Normative spec for bridge log redaction (implemented; see `replayt_langgraph_bridge.redaction` and `bridge_log`).
 - [STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md) - Normative spec for validating untrusted inbound bridge state (implemented; see `replayt_langgraph_bridge.state_validation` and tests).
