@@ -40,6 +40,7 @@ def test_gitignore_blocks_env_and_secret_filenames() -> None:
         ".env.local",
         ".envrc",
         "secrets.pem",
+        "bundle.p12",
         "id_rsa",
         "id_ed25519",
         "tls.key",
@@ -62,9 +63,21 @@ def test_gitignore_blocks_dev_sqlite_suffix() -> None:
 
 def test_gitignore_blocks_orchestration_and_agent_scratch() -> None:
     """§2.B."""
-    for rel in (".orchestrator/handoff.md", ".cursor/skills/foo/SKILL.md", ".aider.conf.yml"):
+    for rel in (
+        ".orchestrator/handoff.md",
+        ".cursor/skills/foo/SKILL.md",
+        ".aider.conf.yml",
+        "alignment_result.json",
+        ".alignment_result.json",
+    ):
         ignored, detail = _check_ignore(rel)
         assert ignored, f"expected {rel!r} ignored, got {detail!r}"
+
+
+def test_gitignore_blocks_placeholder_path_tree() -> None:
+    """§2.E: literal ``path/`` trees from documentation examples."""
+    ignored, detail = _check_ignore("path/to/mistaken_file.txt")
+    assert ignored, f"expected placeholder path ignored, got {detail!r}"
 
 
 def test_gitignore_does_not_hide_packaging_and_ci_paths() -> None:
