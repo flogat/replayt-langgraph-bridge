@@ -109,6 +109,52 @@ initial_state = initial_bridge_state()
 # result = graph.invoke(initial_state)
 ```
 
+### Checkpoint-enabled usage (LangGraph 1.1.x)
+
+**Ephemeral, in-process only:** `MemorySaver` fits tests and local debugging; state is lost when the process exits and this is not a production topology. For durable or hosted stores, see **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** and **[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**. The **`invoke`** / **`config`** shape matches **`tests/test_bridge_graph.py`**.
+
+```python
+from uuid import uuid4
+
+from langgraph.checkpoint.memory import MemorySaver
+from replayt.persistence import JSONLStore
+from replayt.runner import Runner
+from replayt.workflow import Workflow
+
+from replayt_langgraph_bridge import compile_replayt_workflow, initial_bridge_state
+
+wf = Workflow("checkpoint_demo")
+
+@wf.step("start")
+def start(ctx):
+    ctx.set("visit", 1)
+    return "next_step"
+
+@wf.step("next_step")
+def next_step(ctx):
+    ctx.set("visit", ctx.get("visit", 0) + 1)
+    return None
+
+wf.set_initial("start")
+wf.note_transition("start", "next_step")
+
+store = JSONLStore("events.jsonl")  # use a temp path in real tests
+runner = Runner(wf, store)
+runner.run_id = str(uuid4())
+
+graph = compile_replayt_workflow(wf, checkpointer=MemorySaver())
+config = {"configurable": {"thread_id": "example-thread"}}
+
+result = graph.invoke(
+    initial_bridge_state(),
+    config=config,
+    context={"runner": runner},
+)
+# result["context"]["visit"] == 2 after both steps complete
+```
+
+To **pause and resume** across two **`invoke`** calls, compile with **`interrupt_before`** or **`interrupt_after`** (replayt step names). Run the first **`invoke`** with initial state, **`config`**, and **`context`**. For the continuation **`invoke`**, pass **`None`** as the graph input, keep the same **`config`** and **`context`**, and reuse the same compiled graph and saver. See **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** §6 and **`test_resume_second_invoke_uses_memory_checkpointer`**.
+
 ## Public API
 
 Supported names are exactly those in `replayt_langgraph_bridge.__all__` (see **[docs/API.md](docs/API.md)** for stability policy and module layout). Summary:
