@@ -4,9 +4,9 @@ This document tracks supply-chain vulnerabilities that have been identified and 
 
 ## Audit Process
 
-All dependencies are scanned using `pip-audit --ignore-vuln CVE-2026-4539 --desc` in the CI pipeline (`supply-chain` job). The PyPA tool does not support a `--severity-high` filter; any reported vulnerability fails the job except CVEs explicitly ignored here and mirrored in the workflow.
+All dependencies are scanned using `pip-audit --ignore-vuln CVE-2026-4539 --desc` in the CI pipeline (`supply-chain` job), after the same **`uv sync --frozen --extra dev`** step as the **`test`** job. The PyPA tool does not support a `--severity-high` filter; any reported vulnerability fails the job except CVEs explicitly ignored here and mirrored in the workflow.
 
-**Locked resolution (target):** When **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** is implemented, `pip-audit` **must** run against the **same frozen environment** CI uses for the locked install (same job or an identical install step), so reported CVEs match the committed graph. Security alert handling and lock regeneration are mapped in that spec §6.
+**Locked resolution:** `pip-audit` runs in the **same frozen `[dev]` environment** as **`test`** (**`uv run`** after **`uv sync --frozen --extra dev`**), so reported CVEs match the committed **`uv.lock`** graph. Security alert handling and lock regeneration are mapped in **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §6.
 
 ## Current Status
 
@@ -47,6 +47,11 @@ When vulnerabilities are reported, we assess them based on:
 - Matrixed `supply-chain` job across Python 3.11/3.12
 - Confirmed clean `pip-audit --desc` runs (no reported vulnerabilities at the time)
 - Completed `CONTRIBUTING.md` dependency management docs
+
+### Reproducible lock (Backlog e41a2c55)
+
+- Committed root **`uv.lock`** for the **`[dev]`** surface (**no** **`demo`**).
+- **`test`** and **`supply-chain`** use **`uv sync --frozen --extra dev`** then **`uv run`**; **`pip-audit`** scans that same environment.
 
 ### Supply-Chain Gates Spec (Backlog 591f8168)
 - Retroactively documented for existing runtime deps (already clean per CI).

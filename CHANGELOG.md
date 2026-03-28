@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **CI and contributor setup** use committed **`uv.lock`**: **`test`** and **`supply-chain`** run **`uv sync --frozen --extra dev`** then **`uv run`** (**pytest**, **ruff**, **pip-audit**); **CONTRIBUTING.md** documents **`uv sync --extra dev`** to regenerate the lock (phase **3**, backlog **Add reproducible lock or constraint strategy for release branches**).
+
 ### Added
 
 - **`tests/test_release_changelog_contract.py`**: contract tests for **`docs/RELEASE_CHANGELOG.md`** §6 backlog acceptance (**A–G**), including pin visibility (**E**), **Breaking** / **Experimental** lead-ins (**F**–**G**), and **`CHANGELOG.md`** release heading vs **`pyproject.toml`** **`[project].version`** (phase **3**, backlog **Establish CHANGELOG and compatibility signaling**).

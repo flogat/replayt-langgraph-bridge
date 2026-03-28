@@ -3,11 +3,19 @@
 ## Development setup
 
 1. Clone the repository
-2. Install dependencies: `pip install -e .[dev]`
-3. Run tests: `pytest`
-4. Run linting: `ruff check src tests`
+2. Install **[uv](https://docs.astral.sh/uv/getting-started/installation/)** (CI pins **0.11.2** in **`.github/workflows/ci.yml`** via **`astral-sh/setup-uv`**).
+3. Install dependencies from the lockfile (same graph as CI):
 
-Use **`pytest` with no extra paths or markers** for the integrator-relevant suite—the same invocation as the **`test`** job in **`.github/workflows/ci.yml`** after `pip install -e ".[dev]"`. That run includes **contract-style replayt boundary** tests alongside other unit tests; see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** for scope and the product backlog acceptance mapping.
+   ```bash
+   uv sync --frozen --extra dev
+   ```
+
+4. Run tests: `uv run pytest`
+5. Run linting: `uv run ruff check src tests`
+
+Use **`pytest` with no extra paths or markers** for the integrator-relevant suite—the same invocation as the **`test`** job in **`.github/workflows/ci.yml`** after **`uv sync --frozen --extra dev`**. That run includes **contract-style replayt boundary** tests alongside other unit tests; see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** for scope and the product backlog acceptance mapping.
+
+**Without uv:** `pip install -e ".[dev]"` still works for a loose local tree, but it does not match CI’s frozen **`uv.lock`** graph.
 
 Integration-style tests that call **replayt** must follow that document (contract-named assertions, `pytest.raises` `match=` strings, skip reasons with tracking issues).
 
@@ -15,12 +23,22 @@ When adding or renaming symbols intended for integrators, update **`replayt_lang
 
 ## Dependency management
 
-**Reproducible locks (backlog in progress):** Normative spec for committing **`uv.lock`** (or hashed **`requirements-ci.txt`**) and installing from it in CI is **[docs/DEPENDENCY_LOCK_STRATEGY.md](docs/DEPENDENCY_LOCK_STRATEGY.md)**. Until that checklist is implemented, keep using **`pip install -e ".[dev]"`** as today.
+Normative policy and security→lock workflow: **[docs/DEPENDENCY_LOCK_STRATEGY.md](docs/DEPENDENCY_LOCK_STRATEGY.md)**. CI installs **`[dev]`** only from committed **`uv.lock`** (**`uv sync --frozen --extra dev`**); the optional **`demo`** extra is not part of that lock-driven install.
+
+### Regenerating `uv.lock`
+
+Run whenever **`pyproject.toml`** changes **`[project.dependencies]`**, **`[project.optional-dependencies]`**, or **`requires-python`** in a way that affects the **`[dev]`** install CI uses:
+
+```bash
+uv sync --extra dev
+```
+
+Omit **`--frozen`** so **`uv.lock`** updates. Commit **`pyproject.toml`** and **`uv.lock`** in the same change set. Use the same **uv** major/minor as CI when possible (**0.11.2** today).
 
 ### Adding or updating dependencies
 
 1. Update `pyproject.toml` with the new dependency version
-2. Run the supply-chain audit (same flags as CI): `pip-audit --ignore-vuln CVE-2026-4539 --desc`
+2. Regenerate the lock (commands above), then run the supply-chain audit (same flags as CI): `uv run pip-audit --ignore-vuln CVE-2026-4539 --desc`
 3. If vulnerabilities are found:
    - Check if they affect your usage
    - Consider upgrading to a patched version
@@ -35,10 +53,10 @@ When triaging a new **major** or a risky range change, open a **Compatibility Up
 
 ### Running audits locally
 
-To check for vulnerabilities in dependencies, run:
+After **`uv sync --frozen --extra dev`** (or **`uv sync --extra dev`** if you are refreshing the lock), run:
 
 ```bash
-pip-audit --ignore-vuln CVE-2026-4539 --desc
+uv run pip-audit --ignore-vuln CVE-2026-4539 --desc
 ```
 
 Same flags as **`.github/workflows/ci.yml`** job **`supply-chain`**. Document accepted ignores in **`docs/DEPENDENCY_AUDIT.md`**.

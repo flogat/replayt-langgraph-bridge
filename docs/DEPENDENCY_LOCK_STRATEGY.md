@@ -2,7 +2,7 @@
 
 This document is the **normative specification** for backlog **Add reproducible lock or constraint strategy for release branches**. It defines what the **Builder** must implement so dependency resolution for automated checks is **repeatable**, **diffable**, and aligned with **[docs/DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)** and **[README.md](../README.md)**.
 
-**Status (today):** `pyproject.toml` declares **ranges** only; CI resolves **latest compatible** versions inside those ranges on each run. **No lockfile is committed yet.** The checklist at the end is **not** satisfied until the Builder lands the artifacts and workflow changes described here.
+**Status:** Root **`uv.lock`** freezes the **`[dev]`** install (core + **pytest** / **ruff** / **pip-audit**, **no** **`demo`**). CI jobs **`test`** and **`supply-chain`** use **`uv sync --frozen --extra dev`**; regeneration commands live in **CONTRIBUTING.md**.
 
 ## 1. Goals
 
@@ -81,12 +81,12 @@ Published **PyPI** installs remain governed by **`pyproject.toml`** ranges; inte
 
 Treat backlog **Add reproducible lock or constraint strategy for release branches** as **done** when **all** are true:
 
-- [ ] A **committed** lock or **hashed** constraints file (or documented set of files) lives in the repo and matches §3–§4.
-- [ ] **CONTRIBUTING.md** explains **when** and **how** to regenerate the artifact(s) (commands verbatim).
-- [ ] **At least one** CI job installs from that artifact with **frozen / hash-verified** semantics.
-- [ ] **README** **Dependency strategy** (or a single sentence there) points to this doc and states that CI uses the lock/constraints (once merged).
-- [ ] **DESIGN_PRINCIPLES.md** table or subsection for “what CI exercises” references the lock and stays consistent with **README**.
-- [ ] **DEPENDENCY_AUDIT.md** states that supply-chain audit runs against the **same resolved graph** as the locked CI install when applicable.
-- [ ] §6 **Security alerts → lock updates** is satisfied in process docs (this file + **CONTRIBUTING** / **DEPENDENCY_AUDIT** cross-links as implemented by the Builder).
+- [x] A **committed** lock or **hashed** constraints file (or documented set of files) lives in the repo and matches §3–§4.
+- [x] **CONTRIBUTING.md** explains **when** and **how** to regenerate the artifact(s) (commands verbatim).
+- [x] **At least one** CI job installs from that artifact with **frozen / hash-verified** semantics.
+- [x] **README** **Dependency strategy** (or a single sentence there) points to this doc and states that CI uses the lock/constraints (once merged).
+- [x] **DESIGN_PRINCIPLES.md** table or subsection for “what CI exercises” references the lock and stays consistent with **README**.
+- [x] **DEPENDENCY_AUDIT.md** states that supply-chain audit runs against the **same resolved graph** as the locked CI install when applicable.
+- [x] §6 **Security alerts → lock updates** is satisfied in process docs (this file + **CONTRIBUTING** / **DEPENDENCY_AUDIT** cross-links as implemented by the Builder).
 
 Optional follow-up (not required for this backlog): second lock for **`[demo]`**, or pinning **`uv`** / **`pip-tools`** in CI for extra hermeticity.
