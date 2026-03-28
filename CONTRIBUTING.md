@@ -25,7 +25,7 @@ Do **not** commit:
 - **Orchestration / agent scratch** — Paths under **`.orchestrator/`**, local agent skill trees such as **`.cursor/skills/`**, and similar tool output meant only for your machine (see **`.gitignore`** comments).
 - **Local persistence experiments** — Checkpoint files, local SQLite DBs, or store dumps you create while developing graphs, unless the project explicitly chooses to track them as fixtures (today: keep them local or under a documented ignored directory).
 
-Normative **`.gitignore`** categories, required exceptions for reproducible builds (**`uv.lock`**, **`pyproject.toml`**, **`src/`**, **`tests/`**, etc.), and verification commands: **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)**. For runtime secret handling and logging, see **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
+Normative **`.gitignore`** categories, required exceptions for reproducible builds (**`uv.lock`**, **`pyproject.toml`**, **`src/`**, **`tests/`**, etc.), and verification commands: **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)**. Representative ignore behavior is also checked by **`tests/test_gitignore_contract.py`** (**`git check-ignore`**); when you change **`.gitignore`** for a recurring footgun, update that test in the same change set per the spec (**G5**). For runtime secret handling and logging, see **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
 
 Integration-style tests that call **replayt** must follow that document (contract-named assertions, `pytest.raises` `match=` strings, skip reasons with tracking issues).
 

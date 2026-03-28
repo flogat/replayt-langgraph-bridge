@@ -66,6 +66,7 @@ Treat the backlog **Review and tighten `.gitignore` for local secrets and orches
 | **G2** | **No packaging or CI regression**: reproducible **`[dev]`** install and full **pytest** still pass; sdist/wheel build still includes intended package data. | Commands in §5.1. |
 | **G3** | **`CONTRIBUTING.md`** contains a short **“What must never be committed”** section (see **[CONTRIBUTING.md](../CONTRIBUTING.md#what-must-never-be-committed)**) pointing here for full rules and aligned with §2 categories (extend the bullet list if new ignore categories are added). | Doc review. |
 | **G4** | Intentional **exceptions** (§3) are documented in **`.gitignore`** comments and, if subtle, in this doc (§3 table or §7). | Review. |
+| **G5** | Representative **§2** paths stay enforced by **`tests/test_gitignore_contract.py`** (via **`git check-ignore`**). When you add or remove ignore rules that change expected behavior for common local filenames, extend or adjust that test in the **same** change set so CI catches spec drift. | **`uv run pytest tests/test_gitignore_contract.py`**; full suite per §5.1. |
 
 **Traceability (original backlog wording):**
 
@@ -75,6 +76,7 @@ Treat the backlog **Review and tighten `.gitignore` for local secrets and orches
 | “Short note in `CONTRIBUTING.md` on what must never be committed” | **G3** |
 | “Do not ignore files required for reproducible builds; document intentional exceptions” | §3, **G4** |
 | “If pre-commit is added later…” | Pre-commit paragraph below |
+| “Contract tests” / CI enforcement | **G5**, §8 |
 
 **Pre-commit hooks:** Not required for this backlog. If the project adds **pre-commit** later, hooks such as **detect-secrets** or **gitleaks** may **supplement** but **not replace** clear **`.gitignore`** hygiene; update this section with the hook names and scope when introduced.
 
@@ -86,6 +88,7 @@ Run from a clean worktree (no unintended staged deletes). After **`.gitignore`**
 2. **`uv run pytest`** — no path arguments, no marker filter (same contract as CI; see **CONTRIBUTING** / **REPLAYT_BOUNDARY_TESTS**).
 3. **`uv build`** or **`python -m build`** — wheel and sdist succeed; spot-check that **`src/replayt_langgraph_bridge/`** is still packaged as before.
 4. **`git check-ignore -v`** on any **new** ignored path you introduced (and on **`uv.lock`**, **`pyproject.toml`**, **`src/`** sample paths) to confirm §3 **forbidden ignore targets** are **not** ignored.
+5. **`uv run pytest tests/test_gitignore_contract.py`** — confirms §2 examples and §3 “must not ignore” paths still match Git’s view (**G5**).
 
 ---
 
@@ -110,3 +113,34 @@ Use this list when expanding **Category A** or **B**; **do not** copy it wholesa
 ### 7.1 Current baseline (spec snapshot for phase 3)
 
 As of the spec refinement for this backlog, the repository **already** carries a commented **`.gitignore`** and **CONTRIBUTING** “must never commit” text that satisfy **G1**–**G3** at a high level. The **Builder** phase should **audit** against §2–§5.1 (diff vs merge base), add patterns only where gaps exist, and extend **CONTRIBUTING** bullets if new categories land—not duplicate existing blocks without cause.
+
+**Merge-base review (normative for Builder):** From the git root, compare the feature branch to the integration branch (today **`master`**) with:
+
+```bash
+git diff master -- .gitignore CONTRIBUTING.md docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md
+```
+
+If the diff is empty for **`.gitignore`**, the Builder **still** completes **G1**–**G5** by recording in the PR description (or issue) that the audit found no additional patterns needed, and by confirming **§5.1** / **`test_gitignore_contract`** pass on CI. If the diff is non-empty, cite **§2** categories in the PR.
+
+**`.env.example` (tracked template):** The repo does **not** ship a committed **`.env.example`** today. The commented **`!.env.example`** hint in **`.gitignore`** is forward-looking. When maintainers add a **tracked** **`.env.example`**, they **must** uncomment or add **`!.env.example`** immediately under **`.env.*`** so Category **A** does not hide the template (**§3**).
+
+---
+
+## 8. Contract tests vs this spec (drift control)
+
+**`tests/test_gitignore_contract.py`** encodes a **small, representative** subset of §2 (env files, direnv, dev dirs, orchestration paths, placeholder **`path/`** trees) and §3 (paths that **must not** be ignored). It is **not** an exhaustive parser of **`.gitignore`**.
+
+- When you add a **new** ignore rule for a **recurring** contributor footgun (new Category **A**–**C** glob that should hold on every clone), add a matching **`rel`** assertion in **`test_gitignore_contract.py`** in the **same** pull request (**G5**).
+- When you add a **narrow, tool-specific** rule (§6), you **may** omit a new test case if this doc explains why (collision risk, opt-in directory only)—but you **must** still run **`git check-ignore -v`** as in §4–§5.1.
+
+---
+
+## 9. Spec gate checklist (reviewer / phase 2b)
+
+Use this list before sending work to the **Builder** (or to approve the spec without implementation):
+
+1. **§2** categories **A**–**E** are unambiguous; examples distinguish **must ignore** from **optional catalog** (§6).
+2. **§3** lists every class of artifact that must stay tracked for **`uv.lock`** CI and packaging; no proposed glob obviously shadows **`tests/`** fixtures or **`docs/`** without a negation story.
+3. **§4** overlap rules are acknowledged for any broad pattern under review.
+4. **G1**–**G5** are collectively achievable; **G5** is understood as “keep contract tests honest,” not “duplicate entire **`.gitignore`** in Python.”
+5. **Pre-commit** remains optional per the paragraph under the traceability table.
