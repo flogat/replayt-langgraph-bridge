@@ -1,4 +1,4 @@
-"""Contract tests for release and changelog docs (docs/RELEASE_CHANGELOG.md §6, backlog acceptance)."""
+"""Contract tests for release and changelog docs (docs/RELEASE_CHANGELOG.md §6 A–G, backlog acceptance)."""
 
 from __future__ import annotations
 
@@ -81,3 +81,35 @@ def test_release_spec_stays_linked_with_design_principles() -> None:
     des = _DESIGN_PRINCIPLES.read_text(encoding="utf-8")
     assert "DESIGN_PRINCIPLES" in rel
     assert "RELEASE_CHANGELOG" in des
+
+
+def test_release_spec_and_contributing_encode_pin_changelog_visibility() -> None:
+    """§6(E): runtime constraint edits require Unreleased bullets; CONTRIBUTING repeats before → after."""
+    rel = _RELEASE_SPEC.read_text(encoding="utf-8")
+    con = _CONTRIBUTING.read_text(encoding="utf-8")
+    assert "| E |" in rel
+    assert "Pin drift" in rel
+    assert "pyproject.toml" in rel
+    assert "Unreleased" in rel
+    assert "replayt" in rel
+    assert "langgraph" in rel.lower()
+    assert "requires-python" in rel
+    assert "before → after" in rel
+    assert "before → after" in con
+    assert "**Dependency pins**" in con
+
+
+def test_release_spec_encodes_breaking_changelog_lead_in() -> None:
+    """§6(F): documented breaks use a Breaking lead-in (§2) for release review."""
+    rel = _RELEASE_SPEC.read_text(encoding="utf-8")
+    assert "| F |" in rel
+    assert "**Breaking:**" in rel
+    assert "Breaking" in rel
+
+
+def test_release_spec_encodes_experimental_changelog_lead_in() -> None:
+    """§6(G): experimental surface uses an Experimental lead-in; points at API.md."""
+    rel = _RELEASE_SPEC.read_text(encoding="utf-8")
+    assert "| G |" in rel
+    assert "Experimental" in rel
+    assert "API.md" in rel
