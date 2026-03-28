@@ -155,11 +155,34 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For checkpo
 - See [THREAT_MODEL.md](THREAT_MODEL.md) for detailed security considerations.
 - See [MISSION.md](MISSION.md) for operational guidelines.
 
-## LLM / demos
+## LLM and demos
 
-**Packaging:** Optional samples that depend on **vendor LLM clients** use the **`demo`** extra and the **[Core vs demo extras](#core-vs-demo-extras-llm-clients-and-supply-chain)** rules above—not `[project.dependencies]`.
+### Package scope (normative)
 
-**Secrets and redaction:** Continue to follow **[Secrets policy](#secrets-policy)** and **[LOG_REDACTION.md](LOG_REDACTION.md)** for API keys and logged payloads. **MISSION.md** summarizes operational expectations for integrators.
+- **Core bridge** (`pip install replayt-langgraph-bridge`) and **`[dev]`** tooling: **Out of scope** for outbound calls to **vendor LLM HTTP APIs** as part of this package’s default behavior. The primary CI **`test`** job mirrors that path: **`pip install -e ".[dev]"`** only, **no** **`[demo]`** extra, **no** scripted live model invocations (see **`.github/workflows/ci.yml`**).
+- **Optional samples:** **In scope** only as **integrator-opt-in** paths: install **`replayt-langgraph-bridge[demo]`**, supply **environment-backed** API credentials, run samples locally or in your own automation. Packaging rules: **[Core vs demo extras](#core-vs-demo-extras-llm-clients-and-supply-chain)**—vendor LLM clients **never** belong in `[project.dependencies]`.
+
+### Current repository state
+
+| Artifact | Status |
+| -------- | ------ |
+| **`demo` extra** (**openai**, **anthropic**, **langchain-openai**, **langchain-anthropic**) | Declared in **`pyproject.toml`** for optional vendor-LLM samples |
+| Runnable first-party LLM demo / `examples/` in this repo | **Not shipped** — deterministic tests and integrator-owned graphs apply; see **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)** |
+| CI default **`test`** job | **`[dev]`** only; no keys or live provider calls required |
+
+### Builder acceptance criteria (LLM demo boundaries)
+
+Use this checklist when validating docs and (later) shipped samples against the backlog **Document LLM boundaries for demos and optional examples**:
+
+1. **Scope statement** — **`docs/MISSION.md`** states whether LLM demos are in scope (aligned with this section: optional **`demo`** path only; core + default CI remain LLM-call-free).
+2. **When a runnable first-party demo exists in-repo** — README documents **required environment variables**, **cost** expectations (vendor-metered; the bridge does not enforce quotas), and **log / redaction** policy: bridge logs follow **[LOG_REDACTION.md](LOG_REDACTION.md)**; demo code must follow **[Secrets policy](#secrets-policy)** and avoid logging raw keys or sensitive prompts. CI’s **default** **`test`** job remains **`[dev]`**-only with **no** live model calls. Tests that need the **`demo`** extra use **`importorskip`** / markers per **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
+3. **When no runnable demo exists** — README and this section **say so explicitly** and point to the **`demo`** extra, **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)**, and **[REPLAYT_ECOSYSTEM_IDEA.md](REPLAYT_ECOSYSTEM_IDEA.md#optional-vendor-llm-samples)** for future work.
+
+### Packaging and operations (summary)
+
+**Packaging:** Optional samples that depend on **vendor LLM clients** use the **`demo`** extra and the **[Core vs demo extras](#core-vs-demo-extras-llm-clients-and-supply-chain)** rules—not `[project.dependencies]`.
+
+**Secrets and redaction:** Follow **[Secrets policy](#secrets-policy)** and **[LOG_REDACTION.md](LOG_REDACTION.md)** for API keys and logged payloads. **MISSION.md** summarizes operational expectations for integrators.
 
 ## Audience (extend)
 
