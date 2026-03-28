@@ -11,10 +11,14 @@ from langgraph.runtime import Runtime
 from langgraph.types import Checkpointer
 from replayt.runner import RunContext, Runner
 from replayt.workflow import Workflow
-from typing_extensions import TypedDict
+from typing_extensions import NotRequired, TypedDict
 
 from replayt_langgraph_bridge.bridge_log import emit_bridge_record, get_bridge_logger
 from replayt_langgraph_bridge.redaction import RedactorHook
+from replayt_langgraph_bridge.state_validation import (
+    BridgeValidatingCheckpointSaver,
+    validate_inbound_bridge_state,
+)
 
 
 def _merge_context(
@@ -30,6 +34,7 @@ class ReplaytBridgeState(TypedDict):
 
     context: Annotated[dict[str, Any], _merge_context]
     replayt_next: str
+    bridge_state_schema_version: NotRequired[int]
 
 
 class ReplaytBridgeContext(TypedDict):
@@ -53,12 +58,20 @@ def initial_bridge_state(
 ) -> ReplaytBridgeState:
     """Build input state for the first :meth:`~langgraph.graph.state.CompiledStateGraph.invoke` call.
 
-    Inbound ``context`` is treated as untrusted input at the bridge boundary; target limits, optional
-    ``bridge_state_schema_version``, and failure semantics are specified in ``docs/STATE_PAYLOAD_VALIDATION.md``
-    (enforcement is implemented per that backlog).
+    Inbound ``context`` is validated as untrusted input before returning. Supported wire schema
+    versions: ``{1}`` (``bridge_state_schema_version``; omitted means ``1``). Limits: nesting depth
+    ≤ 32; ≤ 50_000 walk nodes (dict keys, list/tuple/set items); ≤ 4_194_304 UTF-8 bytes across all
+    strings in ``context``; ≤ 10_000 top-level ``context`` keys; ``replayt_next`` length ≤ 1024 after
+    ``str()`` (here always ``\"\"``). On failure, raises :exc:`~replayt_langgraph_bridge.BridgeStateValidationError`
+    with a generic message; see ``docs/STATE_PAYLOAD_VALIDATION.md``.
     """
 
-    return {"context": dict(context) if context else {}, "replayt_next": ""}
+    state: ReplaytBridgeState = {
+        "context": dict(context) if context else {},
+        "replayt_next": "",
+    }
+    validate_inbound_bridge_state(state)
+    return state
 
 
 def _normalize_next(handler_result: str | None) -> str:
@@ -80,6 +93,7 @@ def _make_step_node(
     def step_node(
         state: ReplaytBridgeState, *, runtime: Runtime[ReplaytBridgeContext]
     ) -> dict[str, Any]:
+        validate_inbound_bridge_state(state, logger=bridge_logger)
         runner = runtime.context["runner"]
         run_id = getattr(runner, "run_id", None)
         runner._current_state = step_name
@@ -209,8 +223,13 @@ def compile_replayt_workflow(
     Set ``REPLAYT_BRIDGE_STRICT_REDACT=1`` or pass ``strict_redact=True`` for stricter masking (most restrictive wins
     when the env enables strict). ``redact=False`` disables built-in redaction and emits a runtime warning.
 
-    Inbound :class:`ReplaytBridgeState` validation (size, schema version, nesting) is specified in
-    ``docs/STATE_PAYLOAD_VALIDATION.md``; enforcement is implemented per that document.
+    Inbound :class:`ReplaytBridgeState` is validated on every bridge step before handlers run: schema
+    version ``{1}`` (``bridge_state_schema_version`` omitted means ``1``), nesting depth ≤ 32, walk
+    nodes ≤ 50_000, total UTF-8 string bytes in ``context`` ≤ 4_194_304, top-level ``context`` keys
+    ≤ 10_000, ``replayt_next`` length ≤ 1024 after ``str()``; only top-level keys ``context``,
+    ``replayt_next``, and optional ``bridge_state_schema_version`` are allowed. Failures raise
+    :exc:`~replayt_langgraph_bridge.BridgeStateValidationError`. Normative detail:
+    ``docs/STATE_PAYLOAD_VALIDATION.md``.
     """
 
     if not workflow.initial_state:
@@ -268,4 +287,14 @@ def compile_replayt_workflow(
 
     graph.add_edge(START, workflow.initial_state)
 
-    return graph.compile(checkpointer=checkpointer)
+    effective_checkpointer = checkpointer
+    if (
+        effective_checkpointer is not None
+        and effective_checkpointer not in (True, False)
+        and not isinstance(effective_checkpointer, BridgeValidatingCheckpointSaver)
+    ):
+        effective_checkpointer = BridgeValidatingCheckpointSaver(
+            effective_checkpointer, logger=log
+        )
+
+    return graph.compile(checkpointer=effective_checkpointer)
