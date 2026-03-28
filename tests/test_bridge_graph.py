@@ -1,3 +1,9 @@
+"""Replayt boundary coverage for the LangGraph bridge.
+
+Normative expectations for scope, assertion messages, and ``pytest.raises`` usage:
+``docs/REPLAYT_BOUNDARY_TESTS.md``.
+"""
+
 from __future__ import annotations
 
 import uuid
@@ -12,16 +18,21 @@ from replayt_langgraph_bridge import compile_replayt_workflow, initial_bridge_st
 
 
 def test_compile_requires_initial_state() -> None:
+    """Bridge compile requires ``Workflow.set_initial`` (``workflow.initial_state`` contract)."""
     from replayt.workflow import Workflow
 
     wf = Workflow("t")
     wf.step("a")(lambda ctx: None)
 
-    with pytest.raises(ValueError, match="set_initial"):
+    with pytest.raises(
+        ValueError,
+        match=r"set_initial",
+    ):
         compile_replayt_workflow(wf)
 
 
 def test_linear_workflow_via_langgraph(tmp_path: Path) -> None:
+    """``RunContext.data`` mirrors graph ``context`` across steps; ``JSONLStore`` + ``Runner`` durable path."""
     from replayt.workflow import Workflow
 
     wf = Workflow("linear")
@@ -51,12 +62,19 @@ def test_linear_workflow_via_langgraph(tmp_path: Path) -> None:
         context={"runner": runner},
     )
 
-    assert out["context"]["seed"] is True
-    assert out["context"]["n"] == 2
-    assert out["replayt_next"] == ""
+    assert out["context"]["seed"] is True, (
+        "replayt boundary: initial LangGraph context must shallow-merge into RunContext.data"
+    )
+    assert out["context"]["n"] == 2, (
+        "replayt boundary: RunContext.data carries cumulative ctx.set across linear steps"
+    )
+    assert out["replayt_next"] == "", (
+        "replayt boundary: terminal handler return must normalize to empty replayt_next (graph end)"
+    )
 
 
 def test_unknown_next_state_raises(tmp_path: Path) -> None:
+    """Routing rejects handler return when the target is not a registered ``Workflow`` step name."""
     from replayt.workflow import Workflow
 
     wf = Workflow("bad")
@@ -72,7 +90,10 @@ def test_unknown_next_state_raises(tmp_path: Path) -> None:
     runner.run_id = str(uuid.uuid4())
 
     graph = compile_replayt_workflow(wf, checkpointer=MemorySaver())
-    with pytest.raises(RuntimeError, match="unknown next state"):
+    with pytest.raises(
+        RuntimeError,
+        match=r"unknown next state",
+    ):
         graph.invoke(
             initial_bridge_state(),
             config={"configurable": {"thread_id": "t2"}},
@@ -81,6 +102,7 @@ def test_unknown_next_state_raises(tmp_path: Path) -> None:
 
 
 def test_declared_edge_violation_raises(tmp_path: Path) -> None:
+    """``Workflow.allows_transition`` / declared edges: handler return must match ``note_transition`` graph."""
     from replayt.workflow import Workflow
 
     wf = Workflow("edges")
@@ -101,7 +123,10 @@ def test_declared_edge_violation_raises(tmp_path: Path) -> None:
     runner.run_id = str(uuid.uuid4())
 
     graph = compile_replayt_workflow(wf, checkpointer=MemorySaver())
-    with pytest.raises(RuntimeError, match="undeclared transition"):
+    with pytest.raises(
+        RuntimeError,
+        match=r"undeclared transition",
+    ):
         graph.invoke(
             initial_bridge_state(),
             config={"configurable": {"thread_id": "t3"}},

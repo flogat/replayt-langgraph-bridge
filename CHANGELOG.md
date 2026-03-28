@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Replayt boundary tests in `tests/test_bridge_graph.py`: contract-named assertion messages, `pytest.raises` `match=` strings, and docstrings aligned with **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)** (backlog: actionable failure messages).
+
 ### Added
 
 - **Inbound bridge state validation** (backlog: harden deserialization): limits and `bridge_state_schema_version` per `docs/STATE_PAYLOAD_VALIDATION.md`, `BridgeStateValidationError`, validation in `initial_bridge_state` and before each step’s `RunContext.data` update, and a wrapping checkpointer that validates merged `invoke` input before LangGraph persists it (INPUT and loop puts that include `__start__`). Implementation in `src/replayt_langgraph_bridge/state_validation.py`; tests in `tests/test_state_payload_validation.py`.
