@@ -174,7 +174,7 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For checkpo
 
 Use this checklist when validating docs and (later) shipped samples against the backlog **Document LLM boundaries for demos and optional examples**:
 
-1. **Scope statement** — **`docs/MISSION.md`** states whether LLM demos are in scope (aligned with this section: optional **`demo`** path only; core + default CI remain LLM-call-free).
+1. **Scope statement** — **`docs/MISSION.md`** states whether LLM demos are in scope (same contract as this section: optional **`demo`** path only; core + default CI remain LLM-call-free).
 2. **When a runnable first-party demo exists in-repo** — README documents **required environment variables**, **cost** expectations (vendor-metered; the bridge does not enforce quotas), and **log / redaction** policy: bridge logs follow **[LOG_REDACTION.md](LOG_REDACTION.md)**; demo code must follow **[Secrets policy](#secrets-policy)** and avoid logging raw keys or sensitive prompts. CI’s **default** **`test`** job remains **`[dev]`**-only with **no** live model calls. Tests that need the **`demo`** extra use **`importorskip`** / markers per **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
 3. **When no runnable demo exists** — README and this section **say so explicitly** and point to the **`demo`** extra, **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)**, and **[REPLAYT_ECOSYSTEM_IDEA.md](REPLAYT_ECOSYSTEM_IDEA.md#optional-vendor-llm-samples)** for future work.
 

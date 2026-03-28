@@ -9,7 +9,7 @@ This project builds on **replayt** as a **LangGraph framework bridge**. Read
 ## Design principles
 
 **[docs/DESIGN_PRINCIPLES.md](docs/DESIGN_PRINCIPLES.md)** covers **replayt** compatibility, versioning, integrator security
-expectations, and (for showcases) **LLM** boundaries.
+expectations, and optional **LLM** demo boundaries.
 
 For a detailed threat model on checkpoint and state data, see **[docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)**. For **what is persisted, in-memory vs durable checkpointers, failure modes for bad or version-skewed data**, and **builder test obligations** for checkpoint paths without live credentials, see **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)**. For **hosted LangGraph or remote checkpoint backends** (topologies, TLS, access control, environment separation, upstream links), see **[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**. For the **log redaction** contract (defaults, strict mode, integrator hook) for bridge-originated structured logs, see **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. For **inbound bridge state** validation (enforced limits, schema version, checkpoint safety), see **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**. For **replayt boundary** tests and actionable failure messages, see **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**. For the **stable public export set**, module layout, and stability rules, see **[docs/API.md](docs/API.md)**.
 
