@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Refined **replayt boundary / contract-style** testing spec for backlog **Add contract-style tests at the replayt boundary**: definition of contract-style vs private internals, verbatim product acceptance criteria table, builder checklist alignment, module-docstring traceability rule, and explicit parity between **CONTRIBUTING** / **README** (`pytest` with no filter) and **`.github/workflows/ci.yml`** job **`test`** (**[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**); **DESIGN_PRINCIPLES** replayt-boundary paragraph updated (phase **2** spec).
+
 ### Changed
 
 - `compile_replayt_workflow` accepts optional **`interrupt_before`** and **`interrupt_after`** (forwarded to LangGraph `StateGraph.compile`; replayt step names). README and **[docs/API.md](docs/API.md)** updated; **`tests/test_bridge_graph.py`** adds **`test_resume_second_invoke_uses_memory_checkpointer`** and docstring traceability to **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** (phase 3 backlog **Define checkpoint persistence scope and failure modes**).

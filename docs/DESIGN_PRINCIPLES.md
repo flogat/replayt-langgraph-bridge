@@ -12,7 +12,7 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 
 ## Replayt boundary testing
 
-Integration-style tests that import **replayt** must fail with **messages that name the contract** under test (handler transitions, `RunContext.data`, runner/store wiring, etc.), not only deep stack traces. Normative expectations, anti-patterns, skip/issue rules, and the backlog checklist live in **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
+**Contract-style** replayt boundary tests (import **replayt**, exercise supported public APIs the bridge uses) must fail with **messages that name the contract** under test (handler transitions, `RunContext.data`, runner/store wiring, etc.), not only deep stack traces. Normative expectations, anti-patterns, skip/issue rules, CI/command parity, and the product backlog acceptance mapping live in **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
 
 ## Dependency and Pin Policy
 
