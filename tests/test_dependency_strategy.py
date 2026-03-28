@@ -102,6 +102,10 @@ def test_ci_workflow_installs_dev_without_demo_extra():
     assert "uv sync" in text
     assert "--frozen" in text
     assert "--extra dev" in text
+    assert "--extra demo" not in text, (
+        "CI default jobs must not install the demo extra (credential-free test path per MISSION / "
+        "DESIGN_PRINCIPLES S4)"
+    )
     assert "--all-extras" not in text, (
         "CI must not use uv --all-extras (that would pull the demo extra into the default path)"
     )
