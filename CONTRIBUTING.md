@@ -15,6 +15,8 @@ When adding or renaming symbols intended for integrators, update **`replayt_lang
 
 ## Dependency management
 
+**Reproducible locks (backlog in progress):** Normative spec for committing **`uv.lock`** (or hashed **`requirements-ci.txt`**) and installing from it in CI is **[docs/DEPENDENCY_LOCK_STRATEGY.md](docs/DEPENDENCY_LOCK_STRATEGY.md)**. Until that checklist is implemented, keep using **`pip install -e ".[dev]"`** as today.
+
 ### Adding or updating dependencies
 
 1. Update `pyproject.toml` with the new dependency version

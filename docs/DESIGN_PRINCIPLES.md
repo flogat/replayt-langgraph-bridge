@@ -24,7 +24,8 @@ This section is the **source of truth** for how pins, ranges, and extras are cho
 | -------- | -------------------- | -------------- |
 | **Minimum supported** | Lowest **replayt** / **LangGraph** / **Python** versions the maintainers commit to supporting, based on features the bridge uses and security posture | Lower bounds in `[project.dependencies]` and `requires-python`; repeated in this doc for readability |
 | **Upper bounds** | `< next major` on **replayt** and **langgraph** so `pip install` does not silently pull a new major | Upper bounds in `[project.dependencies]` |
-| **Tested matrix (today)** | **Python** 3.11 and 3.12 in GitHub Actions; each job runs `pip install -e .[dev]` and **pytest**. Runtime packages are whatever **pip** resolves **within** the declared ranges on that run (not a separate per-package pin file) | `.github/workflows/ci.yml` |
+| **Tested matrix (today)** | **Python** 3.11 and 3.12 in GitHub Actions; each job runs `pip install -e .[dev]` and **pytest**. Until the reproducible-lock backlog ships, runtime packages are whatever **pip** resolves **within** the declared ranges on each run. **Target:** frozen install from a committed lock or hashed constraints file per **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)**. | `.github/workflows/ci.yml`; **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** |
+| **Locked CI resolution (target)** | Committed **`uv.lock`** (recommended) or **hashed** `requirements-ci.txt`—freezing the **`[dev]`** install (core + dev tools, **no** **`demo`**) so CI and release branches replay the same transitive graph; at least one workflow job installs with **frozen / hash-verified** semantics | **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §3–§4 |
 | **Core install in CI** | At least one job path must install the bridge for tests **without** optional **demo / LLM-sample** extras (today: `pip install -e ".[dev]"` only). When a **`demo`** (or similarly named) extra exists, CI must still prove the **default + dev** surface is enough for the main test suite. | `.github/workflows/ci.yml`; README **Dependency strategy** |
 | **Optional verification** | Before widening ranges or after upstream incidents, maintainers may install explicit versions locally or in a branch (e.g. `pip install 'replayt==x.y.z'`) and run **pytest**; document outcomes in a compatibility issue | Maintainer workflow; see template below |
 
@@ -98,6 +99,10 @@ Treat the following as **done** when the dependency story matches docs and packa
 - [x] **Justified constraints** — Each runtime requirement in **`pyproject.toml`** has a maintainer-facing comment; constraints match **Current dependency constraints** here and **`README.md`** compatibility lines.
 - [x] **Breaking upstream path** — Triage uses the compatibility issue template and the maintainer checklist above; **`CONTRIBUTING.md`** points maintainers at this policy and the template for bumps.
 - [x] **Core vs demo LLM clients** — **[Core vs demo extras (LLM clients and supply chain)](#core-vs-demo-extras-llm-clients-and-supply-chain)** checklist is satisfied: no LLM vendor SDKs in core `[project.dependencies]`; optional **`demo`** extra and README matrix when demo deps exist; CI tests **without** that extra; contract tests updated (**backlog: Isolate optional LLM demo extras from core bridge install**).
+
+### Builder-facing acceptance criteria (reproducible lock backlog)
+
+Treat **Add reproducible lock or constraint strategy for release branches** as **done** when **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §8 is fully satisfied (committed artifact, CI install from lock, CONTRIBUTING regen commands, README + **DEPENDENCY_AUDIT** alignment).
 
 ## Security considerations
 

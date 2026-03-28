@@ -6,6 +6,8 @@ This document tracks supply-chain vulnerabilities that have been identified and 
 
 All dependencies are scanned using `pip-audit --ignore-vuln CVE-2026-4539 --desc` in the CI pipeline (`supply-chain` job). The PyPA tool does not support a `--severity-high` filter; any reported vulnerability fails the job except CVEs explicitly ignored here and mirrored in the workflow.
 
+**Locked resolution (target):** When **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** is implemented, `pip-audit` **must** run against the **same frozen environment** CI uses for the locked install (same job or an identical install step), so reported CVEs match the committed graph. Security alert handling and lock regeneration are mapped in that spec §6.
+
 ## Current Status
 
 **Last audit**: 2026-03-26 — supply-chain job green with documented ignore for transitive **pygments** advisory below.  
