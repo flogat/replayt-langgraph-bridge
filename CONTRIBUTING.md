@@ -63,6 +63,14 @@ Same flags as **`.github/workflows/ci.yml`** job **`supply-chain`**. Document ac
 
 ## Changelog
 
+When preparing a release or merging user-visible work:
+
+1. Update **`CHANGELOG.md`** under **`[Unreleased]`** per [Keep a Changelog](https://keepachangelog.com/) (this project’s format is described at the top of that file).
+2. **Security fixes or material security-behavior changes** (validation, redaction, trust boundaries) **must** be called out explicitly—use a **`Security`** subsection or clearly labeled bullets so adopters and scanners can find them. See **[docs/SECURITY_REPORTING_SPEC.md](docs/SECURITY_REPORTING_SPEC.md#3-changelog-and-release-process)**.
+3. **Private vulnerability reports** must **not** be discussed in public issues before coordination; reporters should use root **[SECURITY.md](SECURITY.md)** (see **SECURITY_REPORTING_SPEC**).
+
+Normative checklist for **`SECURITY.md`**, supported-version honesty, and changelog rules: **[docs/SECURITY_REPORTING_SPEC.md](docs/SECURITY_REPORTING_SPEC.md)**.
+
 Update **[CHANGELOG.md](CHANGELOG.md)** in the **same pull request** as the change whenever the work is **user-visible**: public API or runtime behavior, **dependency floor or ceiling** on **replayt** / **langgraph** / **`requires-python`**, new or renamed optional extras, **security** fixes, or notable **normative doc** updates that integrators must follow (API, checkpoint, or validation contracts).
 
 **Dependency pins** — Any change to declared runtime ranges or to which packages live in core vs an optional extra needs a changelog bullet with **before → after** (or explicit new bounds), not only a comment in **`pyproject.toml`**.

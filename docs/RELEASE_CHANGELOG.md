@@ -2,7 +2,7 @@
 
 This document is the **maintainer-facing specification** for **`CHANGELOG.md`**, **compatibility signaling** (pins and public API), **Semantic Versioning** usage, and **how releases are cut** in this repository. It satisfies the product backlog **Establish CHANGELOG and compatibility signaling** and subsumes the earlier wording **Establish CHANGELOG and release versioning practice** (same artifacts and process).
 
-**Related:** integrator-facing dependency rules are in **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)**; contributor commands are in **[CONTRIBUTING.md](../CONTRIBUTING.md)**.
+**Related:** integrator-facing dependency rules are in **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)**; contributor commands are in **[CONTRIBUTING.md](../CONTRIBUTING.md)**; coordinated disclosure, root **`SECURITY.md`**, and security-labeled changelog rules are in **[SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md)**.
 
 ---
 
@@ -86,9 +86,10 @@ Later releases **do not** rewrite **`[0.1.0]`** except to fix factual errors.
 
 1. **Confirm green mainline** — **`pytest`** and **`ruff check src tests`** as in **CONTRIBUTING.md** / **`.github/workflows/ci.yml`** on the releasing branch.
 2. **Finalize notes** — Move content from **`[Unreleased]`** into a new **`## [X.Y.Z] - YYYY-MM-DD`** section (or merge into that section if partially pre-written). Leave **`[Unreleased]`** in place, empty or with a short placeholder if needed.
-3. **Bump version** — Set **`[project].version`** in **`pyproject.toml`** to **`X.Y.Z`** on the same commit as the changelog finalize (or a dedicated release commit immediately after).
-4. **Tag** — Create an annotated Git tag **`vX.Y.Z`** (leading **`v`**) on the commit that carries the released **`pyproject.toml`** version and changelog section. Example: version **0.2.0** → tag **`v0.2.0`**.
-5. **Publish** — Build and upload the distribution (e.g. **`python -m build`** then **`twine upload`**) per project maintainer credentials and PyPI project settings. **Out of scope for CI in this spec** until a workflow exists.
+3. **Security-labeled entries** — If the release ships **security fixes** or **material security-behavior changes**, confirm **`CHANGELOG.md`** uses a **`### Security`** block or clearly labeled bullets per **[SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md#31-when-to-add-security-impact-notes)** and **[CONTRIBUTING.md](../CONTRIBUTING.md#changelog)**.
+4. **Bump version** — Set **`[project].version`** in **`pyproject.toml`** to **`X.Y.Z`** on the same commit as the changelog finalize (or a dedicated release commit immediately after).
+5. **Tag** — Create an annotated Git tag **`vX.Y.Z`** (leading **`v`**) on the commit that carries the released **`pyproject.toml`** version and changelog section. Example: version **0.2.0** → tag **`v0.2.0`**.
+6. **Publish** — Build and upload the distribution (e.g. **`python -m build`** then **`twine upload`**) per project maintainer credentials and PyPI project settings. **Out of scope for CI in this spec** until a workflow exists.
 
 **Tag vs. PyPI:** The **tag** marks the **exact source revision**; **PyPI** (or another index) is the **artifact** integrators install. Both should correspond to the same **`X.Y.Z`**.
 
