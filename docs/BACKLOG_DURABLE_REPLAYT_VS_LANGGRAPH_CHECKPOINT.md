@@ -34,7 +34,7 @@ Readers should **not** need to read **`src/`** to get this mental model.
 
 ### 3.1 Normative home: `docs/CHECKPOINT_PERSISTENCE.md`
 
-Add a **new major section** (recommended placement: **after §1** *Persistence scope: who owns what*, renumber following sections **or** insert as **§1a** / sibling — builder chooses minimal diff, but **§7 Related documents** must stay coherent).
+Add a **new major section** (recommended placement: **after §1** *Persistence scope: who owns what*, renumber following sections **or** insert as **§1a** / sibling — builder chooses minimal diff, but **§8 Related documents** must stay coherent after renumber).
 
 **Required section heading (stable anchor for links):**
 
@@ -52,7 +52,7 @@ Integrators and README will link to **`docs/CHECKPOINT_PERSISTENCE.md#two-persis
 
 2. **Short prose** (a few sentences) stating the **non-equivalence** deferred in **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md) §2**: durable graph checkpoints **do not** subsume replayt store durability, and a healthy replayt store **does not** imply LangGraph resume without a compatible checkpointer and `thread_id` story.
 
-3. **Failure modes — bullet lists per layer** (minimum coverage below). Bullets may **summarize** existing §5 text but must be **grouped by layer** here so operators scan one section:
+3. **Failure modes — bullet lists per layer** (minimum coverage below). Bullets may **summarize** existing §6 (*Failure modes: corrupt data and version skew*) text but must be **grouped by layer** here so operators scan one section:
 
    | Layer | Minimum failure / risk themes to mention (by name or paraphrase) |
    | ----- | ------------------------------------------------------------------ |
@@ -60,7 +60,7 @@ Integrators and README will link to **`docs/CHECKPOINT_PERSISTENCE.md#two-persis
    | **Bridge inbound validation** (when `checkpointer=` is set) | **`BridgeStateValidationError`** on bad inbound dict-shaped state; **no** new checkpoint from rejected invoke (align with **STATE_PAYLOAD_VALIDATION**). |
    | **Replayt Runner / store (e.g. JSONLStore)** | Store loss or corruption; **workflow definition** change vs old run data; replayt-level errors on resume unrelated to LangGraph checkpoint bytes; integrator responsibility for store path permissions and backup (no bridge guarantee of unified migration). |
 
-4. **Cross-links** in the new section to existing normative sections so the doc does not fork: at minimum **STATE_PAYLOAD_VALIDATION.md**, **HOSTED_DEPLOYMENT_AUTHZ.md** (for hosted checkpoint stores), and **§5** of this file for expanded failure-mode detail.
+4. **Cross-links** in the new section to existing normative sections so the doc does not fork: at minimum **STATE_PAYLOAD_VALIDATION.md**, **HOSTED_DEPLOYMENT_AUTHZ.md** (for hosted checkpoint stores), and **§6** of this file for expanded failure-mode detail.
 
 ### 3.2 README (published path, not `src/`)
 
