@@ -116,6 +116,55 @@ def test_ci_workflow_matrix_includes_python_3_11_through_3_13():
             )
 
 
+def _assert_substrings_in_order(text: str, needles: tuple[str, ...]) -> None:
+    pos = 0
+    for needle in needles:
+        idx = text.find(needle, pos)
+        assert idx != -1, f"expected {needle!r} after offset {pos}"
+        pos = idx + len(needle)
+
+
+def test_uv_lock_refresh_workflow_matches_ci_uv_pin_and_pip_audit():
+    """BACKLOG_UV_LOCK_REFRESH_WORKFLOW L3/L5: same uv version and pip-audit invocation as ci.yml."""
+    ci_path = _REPO_ROOT / ".github" / "workflows" / "ci.yml"
+    refresh_path = _REPO_ROOT / ".github" / "workflows" / "uv-lock-refresh.yml"
+    assert refresh_path.is_file(), "expected .github/workflows/uv-lock-refresh.yml"
+    ci_text = ci_path.read_text(encoding="utf-8")
+    refresh_text = refresh_path.read_text(encoding="utf-8")
+    uv_pin = 'version: "0.11.2"'
+    assert uv_pin in ci_text
+    assert uv_pin in refresh_text
+    audit = "uv run pip-audit --ignore-vuln CVE-2026-4539 --desc"
+    assert f"run: {audit}" in ci_text
+    assert f"run: {audit}" in refresh_text
+
+
+def test_uv_lock_refresh_workflow_validation_order_and_scope():
+    """L1–L4, L7, L10: regen → frozen → audit → test trio; schedule + dispatch; no demo extra."""
+    refresh_path = _REPO_ROOT / ".github" / "workflows" / "uv-lock-refresh.yml"
+    text = refresh_path.read_text(encoding="utf-8")
+    assert "schedule:" in text
+    assert "cron:" in text
+    assert "workflow_dispatch:" in text
+    assert "--extra demo" not in text
+    assert "--all-extras" not in text
+    _assert_substrings_in_order(
+        text,
+        (
+            "uv sync --extra dev",
+            "uv sync --frozen --extra dev",
+            "uv run pip-audit --ignore-vuln CVE-2026-4539 --desc",
+            "uv run pytest",
+            "uv run ruff check src tests",
+            "uv run mypy -p replayt_langgraph_bridge",
+        ),
+    )
+    assert "permissions:" in text
+    assert "pull-requests: write" in text
+    assert "contents: write" in text
+    assert "add-paths: uv.lock" in text
+
+
 def test_ci_workflow_installs_dev_without_demo_extra():
     """Primary CI must mirror integrators: [dev] only from lock, never [demo] or --all-extras."""
     ci_path = _REPO_ROOT / ".github" / "workflows" / "ci.yml"

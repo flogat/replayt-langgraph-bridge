@@ -61,7 +61,7 @@ If maintainers later want a **second** locked file for **`[demo]`** verification
 
 1. **When to regenerate** — Any PR that changes **`[project.dependencies]`**, **`[project.optional-dependencies]`**, or **`requires-python`** in a way that affects the locked surface **must** include an updated lock/constraints file in the same change set (or a clearly linked commit).
 2. **How to document** — **CONTRIBUTING.md** **must** list the exact commands (copy-paste ready) for regenerating the artifact(s), including any required tool install (e.g. `uv` version pin or `pip install pip-tools`).
-3. **Routine cadence (maintainer expectation)** — At minimum, refresh the lock when cutting releases, after security advisories, or when CI failures indicate resolver drift; optional periodic refresh (e.g. monthly) is team discretion—record the chosen habit in **CONTRIBUTING** or this doc in one sentence once decided.
+3. **Routine cadence (maintainer expectation)** — At minimum, refresh the lock when cutting releases, after security advisories, or when CI failures indicate resolver drift. **Scheduled lock refresh** is **implemented** in **`.github/workflows/uv-lock-refresh.yml`** (weekly cron plus **`workflow_dispatch`**): regenerates **`uv.lock`** for **`[dev]`**, runs the same **`pip-audit`** flags as job **`supply-chain`**, then **pytest** / **ruff** / **mypy** matching job **`test`**, and opens or updates a PR when **`uv.lock`** changes. Normative detail and acceptance IDs **L1–L10**: **[BACKLOG_UV_LOCK_REFRESH_WORKFLOW.md](BACKLOG_UV_LOCK_REFRESH_WORKFLOW.md)** (Mission Control **`9c1ba44c-3880-4cb7-a1ac-4a585e2e12d6`**).
 
 ## 6. Security alerts → lock updates (normative mapping)
 
@@ -70,7 +70,7 @@ This ties the lock to **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** and ex
 | Signal | Action |
 | ------ | ------ |
 | **GitHub Dependabot / advisory** on a direct or transitive dependency | Regenerate the lock inside current **`pyproject.toml`** ranges if a fixed version exists; run **pytest** and **`pip-audit`** (same flags as CI). If the fix requires **widening** or changing declared ranges, follow the **Compatibility Update** template and **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#breaking-upstream-releases--triage)**; update **CHANGELOG.md** when bounds change. |
-| **`pip-audit` failure** in CI | Treat as **blocking** unless documented under **Accepted risks** in **DEPENDENCY_AUDIT.md** with matching **`--ignore-vuln`** in **`.github/workflows/ci.yml`**. Prefer **lock regen** and version bumps over ignores. |
+| **`pip-audit` failure** in CI | Treat as **blocking** unless documented under **Accepted risks** in **DEPENDENCY_AUDIT.md** with matching **`--ignore-vuln`** in **`.github/workflows/ci.yml`** and **`.github/workflows/uv-lock-refresh.yml`** (same flags). Prefer **lock regen** and version bumps over ignores. |
 | **Accepted transitive risk** | Document in **DEPENDENCY_AUDIT.md**; ensure the **locked** graph is what **pip-audit** scans when CI uses the lock. |
 
 **Diff discipline:** Security or release review should use version control **diffs on the lock file** (and changelog notes for range changes) to see exactly what entered the tree.

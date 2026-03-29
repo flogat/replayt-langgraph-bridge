@@ -1,0 +1,70 @@
+# Periodic regeneration of root uv.lock for [dev] only (no demo extra).
+# Cadence: weekly Monday 06:15 UTC. Manual: Actions -> "UV lock refresh" -> Run workflow.
+# Normative acceptance: docs/BACKLOG_UV_LOCK_REFRESH_WORKFLOW.md (Mission Control 9c1ba44c-3880-4cb7-a1ac-4a585e2e12d6).
+# Python 3.12 here is a single interpreter for resolver + checks; CI matrix still covers 3.11–3.13 on PRs.
+
+name: UV lock refresh
+
+on:
+  schedule:
+    - cron: "15 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: uv-lock-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.11.2"
+
+      - name: Regenerate uv.lock
+        run: uv sync --extra dev
+
+      - name: Frozen install sanity
+        run: uv sync --frozen --extra dev
+
+      - name: Run supply-chain audit
+        run: uv run pip-audit --ignore-vuln CVE-2026-4539 --desc
+
+      - name: Run tests
+        run: uv run pytest
+
+      - name: Run linting
+        run: uv run ruff check src tests
+
+      - name: Type check (mypy smoke)
+        run: uv run mypy -p replayt_langgraph_bridge
+
+      - name: Open or update PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: uv.lock
+          commit-message: "chore(deps): refresh uv.lock"
+          title: "chore(deps): periodic uv.lock refresh"
+          body: |
+            Automated refresh of root `uv.lock` for `[dev]` only (no `demo` extra).
+
+            **Spec:** [BACKLOG_UV_LOCK_REFRESH_WORKFLOW.md](docs/BACKLOG_UV_LOCK_REFRESH_WORKFLOW.md)
+
+            **If `pip-audit` fails:** follow [DEPENDENCY_LOCK_STRATEGY — pip-audit / `supply-chain` triage](docs/DEPENDENCY_LOCK_STRATEGY.md#pip-audit--supply-chain-job-failure-triage-maintainer-playbook) and [CONTRIBUTING — Dependency management](CONTRIBUTING.md#dependency-management).
+
+            **CI parity:** Same `uv` pin, `uv sync --frozen --extra dev`, `pip-audit` flags, pytest / ruff / mypy commands as `.github/workflows/ci.yml` jobs `test` and `supply-chain`.
+          branch: chore/automated-uv-lock-refresh
+          delete-branch: false

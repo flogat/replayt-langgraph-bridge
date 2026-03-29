@@ -91,6 +91,7 @@ def test_gitignore_does_not_hide_packaging_and_ci_paths() -> None:
         "tests/test_gitignore_contract.py",
         "docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md",
         ".github/workflows/ci.yml",
+        ".github/workflows/uv-lock-refresh.yml",
         "README.md",
         "CONTRIBUTING.md",
     ):
