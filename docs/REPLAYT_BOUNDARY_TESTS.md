@@ -63,6 +63,21 @@ Normative mapping for Mission Control item **`4b64a655-bb06-49e5-8912-61b06626a0
 
 ---
 
+## Product backlog: Optional disk-backed checkpoint round-trip (SQLite)
+
+Normative mapping for Mission Control item **`255db7a8-876d-475d-8c69-cdb5f0c9fcc0`** (full checklist: **`docs/BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md`**).
+
+| Backlog criterion | Done when (normative) |
+| ----------------- | ---------------------- |
+| **Focused pytest** with **non-network** LangGraph disk checkpointer (**SQLite** primary) | New or extended tests under **`tests/`** use an upstream **SQLite** (or documented disk) saver, **temp filesystem** paths, and **`compile_replayt_workflow`** + **`invoke`** + **`context={"runner": runner}`** per **BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP §3.2**. |
+| **Save/load across process or graph re-compile** where feasible | At least **one** of cross-process resume or second **compile** against the same DB, per **BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP §2.2**; docstring explains skips. |
+| **Default CI (`[dev]` only, `uv.lock`)** | **`uv sync --frozen --extra dev`** + **`uv run pytest`** (full suite, no **`demo`** extra); any new saver package is **`dev`**-scoped and **lockfile-pinned** per **BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP §3.1**. |
+| **Replayt-facing assertions** | **§2–§3** of **this** document (**contract-named** messages) wherever **replayt** APIs are asserted. |
+| **Platform constraints documented** | **CHECKPOINT_PERSISTENCE.md** §3 or §7 and/or test module docstring per **BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP §3.3**. |
+| **CHANGELOG Unreleased** | Per **BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP §3.4** when implementation merges (not required for phase-2 spec-only edits). |
+
+---
+
 ## 1. Scope: “replayt boundary” in this package
 
 A **replayt boundary test** imports **replayt** and exercises **behavior that replayt owns** that the bridge relies on at compile or run time. The bridge implementation in `replayt_langgraph_bridge.graph` currently depends on these **documented replayt entry points** (see `src/replayt_langgraph_bridge/graph.py`):
@@ -147,6 +162,7 @@ When landing tests, ensure:
 - **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** — Bridge **inbound state** contracts (separate from replayt upstream types).
 - **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** — Compile and routing exception taxonomy, logging, and test obligations for the graph mapping backlog.
 - **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)** — **`interrupt_before` / `interrupt_after`** cookbook and test acceptance (Mission Control backlog `4b64a655-bb06-49e5-8912-61b06626a034`).
+- **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)** — Disk-backed (**SQLite**) checkpoint round-trip pytest and CI acceptance (Mission Control backlog `255db7a8-876d-475d-8c69-cdb5f0c9fcc0`).
 
 ---
 
