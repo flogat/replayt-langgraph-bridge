@@ -16,7 +16,7 @@ Treat the following as **facts** for builders unless a later change explicitly u
 | ----- | ------------- |
 | **Declared runtime bounds** | **`replayt`**: `>=0.4.0,<0.5`; **`langgraph`**: `>=1.1.0,<1.2`** — see **`pyproject.toml`**. |
 | **Resolved pins for CI / lock users** | Root **`uv.lock`** freezes the transitive graph for **`uv sync --frozen --extra dev`**; exact **patch** versions drift as the lock is regenerated. |
-| **README** | **[README.md](../README.md#reference-documentation-optional)** states that **`docs/reference-documentation/`** is not present yet and mentions replayt-oriented offline copies; it should be updated when this backlog ships (see **R9**). |
+| **README** | **[README.md](../README.md#reference-documentation-optional)** points at **`docs/reference-documentation/README.md`**, **`links.manifest.json`**, **`bridge-integration-notes.md`**, and this backlog spec (**R8** / **R9** satisfied for the shipped tree). |
 | **Integrator-facing pin story** | **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#current-dependency-constraints)** — **Current dependency constraints**; keep wording consistent when describing how mirrors relate to pins. |
 
 ---
@@ -48,16 +48,16 @@ Treat the following as **facts** for builders unless a later change explicitly u
 
 ## 4. Builder checklist (phase 3 / gate)
 
-- [ ] **R1** — **`docs/reference-documentation/README.md`** exists.
-- [ ] **R2** — Pin alignment with **`pyproject.toml`** and **`uv.lock`** explained.
-- [ ] **R3** — Refresh cadence documented.
-- [ ] **R4** — Provenance / licensing for excerpts; links-only where copying is disallowed.
-- [ ] **R5** — Both **replayt** and **LangGraph** represented (excerpts and/or manifest).
-- [ ] **R6** — Manifest schema satisfied if a manifest is shipped.
-- [ ] **R7** — No accidental coupling to runtime or tests.
-- [ ] **R8** — Root **README** links updated.
-- [ ] **R9** — Root **README** no longer claims the folder is missing.
-- [ ] **CHANGELOG.md** — Under **Unreleased**, add a short **Documentation** bullet when the folder and mirrors land (integrators and offline readers benefit); omit only if **CONTRIBUTING.md** explicitly exempts pure internal backlog docs (it does not — treat as user-visible doc addition).
+- [x] **R1** — **`docs/reference-documentation/README.md`** exists.
+- [x] **R2** — Pin alignment with **`pyproject.toml`** and **`uv.lock`** explained.
+- [x] **R3** — Refresh cadence documented.
+- [x] **R4** — Provenance / licensing for excerpts; links-only where copying is disallowed.
+- [x] **R5** — Both **replayt** and **LangGraph** represented (excerpts and/or manifest).
+- [x] **R6** — Manifest schema satisfied if a manifest is shipped.
+- [x] **R7** — No accidental coupling to runtime or tests.
+- [x] **R8** — Root **README** links updated.
+- [x] **R9** — Root **README** no longer claims the folder is missing.
+- [x] **CHANGELOG.md** — Under **Unreleased**, add a short **Documentation** bullet when the folder and mirrors land (integrators and offline readers benefit); omit only if **CONTRIBUTING.md** explicitly exempts pure internal backlog docs (it does not — treat as user-visible doc addition).
 
 ---
 
@@ -72,6 +72,6 @@ Treat the following as **facts** for builders unless a later change explicitly u
 
 ## 6. Spec gate (phase 2b)
 
-- [ ] **R1–R9** are traceable from this doc and verifiable in a PR diff (file tree + README).
-- [ ] Wording stays consistent with **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)** and **[README.md](../README.md)** compatibility lines.
-- [ ] No **`.orchestrator/`** or other gitignored scratch is used as the **only** location for shipped mirrors — committed path is **`docs/reference-documentation/`**.
+- [x] **R1–R9** are traceable from this doc and verifiable in a PR diff (file tree + README).
+- [x] Wording stays consistent with **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)** and **[README.md](../README.md)** compatibility lines.
+- [x] No **`.orchestrator/`** or other gitignored scratch is used as the **only** location for shipped mirrors — committed path is **`docs/reference-documentation/`**.
