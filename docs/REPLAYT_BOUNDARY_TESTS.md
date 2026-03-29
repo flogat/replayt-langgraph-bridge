@@ -151,6 +151,7 @@ When a replayt-facing assertion fails, a maintainer reading the pytest output sh
 | Handler return violates `note_transition` / `allows_transition` | `pytest.raises(BridgeTransitionError, match="undeclared transition")` **and** assert `exc.value.code == "undeclared_transition"`; docstring mentions declared edges |
 | Linear workflow mutates `RunContext.data` as expected | `assert out["context"]["n"] == 2, "replayt boundary: RunContext.data carries cumulative ctx.set across steps"` |
 | `Workflow.set_initial` required before compile | `pytest.raises(BridgeWorkflowCompileError, match="set_initial")` (still a `ValueError` subclass) with docstring referencing `workflow.initial_state` |
+| LangGraph **`invoke`** missing / invalid **`runner`** in **`context`** | `pytest.raises(BridgeInvokeContextError, match="replayt bridge invoke context")` **and** assert `exc.value.code` in `("missing_runner", "runner_workflow_mismatch")` as appropriate; docstring references **`invoke`**, **`context`**, **`Runner`** pairing (**BACKLOG_GRAPH_CONSTRUCTION_USER_MESSAGE_AUDIT.md**, **GRAPH_CONSTRUCTION_ERRORS** §3.4) |
 
 ### 3.3 Skips and upstream gaps
 
