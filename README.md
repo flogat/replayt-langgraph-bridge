@@ -59,8 +59,11 @@ python examples/llm_node_graph.py
 
 ## Reference documentation (optional)
 
-This checkout does not yet include [`docs/reference-documentation/`](docs/reference-documentation/). You can add markdown
-copies of upstream replayt documentation there for offline review or agent context.
+This checkout does not yet include [`docs/reference-documentation/`](docs/reference-documentation/). The normative
+**spec and acceptance criteria** for adding optional, version-aligned **replayt** and **LangGraph** excerpts or a links
+manifest live in **[`docs/BACKLOG_REFERENCE_DOCUMENTATION.md`](docs/BACKLOG_REFERENCE_DOCUMENTATION.md)** (Mission Control
+item `0867a72f-8b61-4a00-b076-ddb45cd1b7c8`). Implement against that backlog; keep provenance and licensing constraints
+described there.
 
 ## Installation
 
