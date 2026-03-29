@@ -13,9 +13,9 @@ Treat the following as **facts** for builders unless a later change explicitly u
 | Topic | Current state |
 | ----- | ------------- |
 | **`requires-python`** | **`>=3.11`** in **`pyproject.toml`** — integrator floor may be **wider** than the CI-tested set. |
-| **CI `test` matrix** | **Python 3.11** and **3.12** only (**.github/workflows/ci.yml**). |
+| **CI `test` matrix** | **Python 3.11**, **3.12**, and **3.13** (**.github/workflows/ci.yml**); **`supply-chain`** matches. |
 | **Lock** | Root **`uv.lock`**; jobs use **`uv sync --frozen --extra dev`** then **pytest**, **ruff**, **mypy** (no **`demo`**). |
-| **Spike / readiness** | **3.13** is **not** in CI until **replayt**, **langgraph**, and **`[dev]`** tooling resolve and run cleanly on that interpreter; track blockers in the compatibility issue. |
+| **Spike / readiness** | **3.13** is in CI; maintainer notes in **[COMPATIBILITY_UPDATE_PYTHON_313.md](COMPATIBILITY_UPDATE_PYTHON_313.md)**. |
 
 ---
 
@@ -31,11 +31,11 @@ Treat the following as **facts** for builders unless a later change explicitly u
 
 ## 3. Builder checklist (phase 3 / gate)
 
-- [ ] **P1** — Compatibility issue filed or updated; checklist complete; lock regen + pytest green on **3.13** proven in CI logs or pasted output.
-- [ ] **P2** — Workflow matrix + policy doc note + **Tested matrix** table row.
-- [ ] **P3** — Quirks documented **in the issue**.
-- [ ] **README** — If the **tested** Python set changes integrator-facing expectations, update compatibility lines per **DESIGN_PRINCIPLES** *Justifying new or changed runtime constraints*.
-- [ ] **CHANGELOG.md** — **Unreleased** note when CI matrix or `requires-python` changes are user-visible (per **CONTRIBUTING.md**).
+- [x] **P1** — Compatibility issue filed or updated; checklist complete; lock regen + pytest green on **3.13** proven in CI logs or pasted output. (**Reference:** **[COMPATIBILITY_UPDATE_PYTHON_313.md](COMPATIBILITY_UPDATE_PYTHON_313.md)**.)
+- [x] **P2** — Workflow matrix + policy doc note + **Tested matrix** table row.
+- [x] **P3** — Quirks documented **in the issue** (same reference doc; paste into GitHub when filing).
+- [x] **README** — If the **tested** Python set changes integrator-facing expectations, update compatibility lines per **DESIGN_PRINCIPLES** *Justifying new or changed runtime constraints*.
+- [x] **CHANGELOG.md** — **Unreleased** note when CI matrix or `requires-python` changes are user-visible (per **CONTRIBUTING.md**).
 
 ---
 

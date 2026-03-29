@@ -14,7 +14,7 @@ assignees: ''
 
 ### Python interpreter / CI matrix expansion (e.g. 3.13)
 
-Use this subsection when the tracked change is the **Python runtime** or **GitHub Actions `test` matrix** (not only a PyPI package bump). Normative backlog: **[docs/BACKLOG_PYTHON_313_CI_MATRIX.md](../../docs/BACKLOG_PYTHON_313_CI_MATRIX.md)**.
+Use this subsection when the tracked change is the **Python runtime** or **GitHub Actions `test` matrix** (not only a PyPI package bump). Normative backlog: **[docs/BACKLOG_PYTHON_313_CI_MATRIX.md](../../docs/BACKLOG_PYTHON_313_CI_MATRIX.md)**. **Python 3.13** rollout checklist and quirks archive: **[docs/COMPATIBILITY_UPDATE_PYTHON_313.md](../../docs/COMPATIBILITY_UPDATE_PYTHON_313.md)**.
 
 - [ ] **Spike readiness** — **replayt**, **langgraph**, and **`[dev]`** tools (**pytest**, **ruff**, **mypy**, **uv** / **setup-uv**) are usable on the target Python minor, or blocking gaps are listed under **Quirks / notes** below with upstream links.
 - [ ] **`uv.lock`** — Regenerated as needed so **`uv sync --frozen --extra dev`** succeeds on the new interpreter; lock diff reviewed in the PR.

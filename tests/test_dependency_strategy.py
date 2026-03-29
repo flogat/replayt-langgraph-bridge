@@ -94,6 +94,20 @@ def test_compatibility_update_issue_template_present():
     assert "Compatibility Update" in path.read_text(encoding="utf-8")
 
 
+def test_ci_workflow_matrix_includes_python_3_11_through_3_13():
+    """Jobs that pin Python must exercise 3.11, 3.12, and 3.13 (BACKLOG_PYTHON_313_CI_MATRIX P2)."""
+    ci_path = _REPO_ROOT / ".github" / "workflows" / "ci.yml"
+    text = ci_path.read_text(encoding="utf-8")
+    blocks = re.findall(r"python-version:\s*\[(.*?)\]", text, flags=re.DOTALL)
+    assert blocks, "expected python-version matrix lists in .github/workflows/ci.yml"
+    for block in blocks:
+        for minor in ("3.11", "3.12", "3.13"):
+            quoted = f'"{minor}"'
+            assert quoted in block, (
+                f"CI matrix block must include {quoted} (got {block.strip()!r})"
+            )
+
+
 def test_ci_workflow_installs_dev_without_demo_extra():
     """Primary CI must mirror integrators: [dev] only from lock, never [demo] or --all-extras."""
     ci_path = _REPO_ROOT / ".github" / "workflows" / "ci.yml"

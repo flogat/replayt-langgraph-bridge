@@ -44,7 +44,7 @@ When vulnerabilities are reported, we assess them based on:
 - Matches compatibility matrix in `docs/DESIGN_PRINCIPLES.md`
 
 ### Phase 3 - CI Enhancement
-- Matrixed `supply-chain` job across Python 3.11/3.12
+- Matrixed `supply-chain` job across Python 3.11, 3.12, and 3.13
 - Confirmed clean `pip-audit --desc` runs (no reported vulnerabilities at the time)
 - Completed `CONTRIBUTING.md` dependency management docs
 

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **CI** — **`test`** and **`supply-chain`** matrix includes **Python 3.13** (same **`uv sync --frozen --extra dev`**, **pytest**, **ruff**, **mypy**, **pip-audit** steps). **README**, **MISSION**, **REPLAYT_BOUNDARY_TESTS**, **DEPENDENCY_AUDIT** history, **DESIGN_PRINCIPLES** (**Tested matrix** + policy hook), and **DEPENDENCY_LOCK_STRATEGY** §3.2 updated; draft **Compatibility Update** issue body and quirks in **[docs/COMPATIBILITY_UPDATE_PYTHON_313.md](docs/COMPATIBILITY_UPDATE_PYTHON_313.md)**; contract test for workflow matrix in **`tests/test_dependency_strategy.py`** (phase **3**, backlog **Python 3.13 CI matrix readiness issue and policy hook**).
+
 ### Documentation
 
 - **Python 3.13 CI matrix (spec)** — **[docs/BACKLOG_PYTHON_313_CI_MATRIX.md](docs/BACKLOG_PYTHON_313_CI_MATRIX.md)** (**P1–P3** acceptance), **Compatibility Update** template **Python interpreter / CI matrix expansion** checklist, **DESIGN_PRINCIPLES** (**Python 3.13 and CI matrix lag** + **Tested matrix** cross-link), **DEPENDENCY_LOCK_STRATEGY** §3.2 policy hook, **CONTRIBUTING** pointer (phase **2** spec, backlog **Python 3.13 CI matrix readiness issue and policy hook**).
