@@ -27,6 +27,7 @@ These names are **stable** under semantic versioning for this package: breaking 
 | `BridgeGraphMappingError` | Base for handler return / routing failures during `invoke` (subclass of `Exception`, not `RuntimeError`). Subclasses set a stable string `code`. |
 | `BridgeTransitionError` | Subclass of `BridgeGraphMappingError` with `code == "undeclared_transition"` when a handler return violates declared edges. |
 | `BridgeRoutingError` | Subclass of `BridgeGraphMappingError` with `code == "unknown_next"` when `replayt_next` names an unknown step. |
+| `BridgeLargeGraphWarning` | Subclass of `UserWarning`; **at most once per interpreter process**, `compile_replayt_workflow` may emit this when the workflow step count reaches the high threshold documented in **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** §4.3 (non-fatal). Filter with `warnings.filterwarnings`. |
 | `RedactorHook` | Type alias (`Callable[[dict[str, Any]], dict[str, Any]]`) for custom log attachment redaction; behavior in **[LOG_REDACTION.md](LOG_REDACTION.md)**. |
 | `get_bridge_logger` | Return the bridge logger used for structured records (`LogRecord.replayt_bridge`). |
 | `redact_log_attachment` | Redact a single attachment dict (tests and advanced callers); same rules as **[LOG_REDACTION.md](LOG_REDACTION.md)**. |
@@ -87,6 +88,8 @@ In-repo **tests** may import private helpers (e.g. functions prefixed with `_` i
 ## `compile_replayt_workflow` (extra keyword arguments)
 
 Beyond the parameters summarized in **[README.md](../README.md)** (Public API), **`interrupt_before`** and **`interrupt_after`** are passed through to LangGraph **`StateGraph.compile`**. Lists use **replayt `Workflow` step names** (the same strings you pass to `@workflow.step`). Typical use is a non-`None` **checkpointer** plus one or more **`invoke`** calls on the same **`thread_id`**; see **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §3 and §7.
+
+**Large workflows:** After a successful compile, the bridge may issue **`BridgeLargeGraphWarning`** once per process when the step count is at or above the threshold fixed next to **`_LARGE_GRAPH_STEP_THRESHOLD`** in **`replayt_langgraph_bridge.graph`** (currently **256**). This is non-fatal; see **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** §4.3 and §5.
 
 **Human-in-the-loop:** copy-paste **`MemorySaver`**, **`thread_id`**, and two-**`invoke`** wiring (**`interrupt_after`** example) live in the **Human-in-the-loop** subsection of **[README.md](../README.md)** (immediately after **Checkpoint-enabled usage**).
 

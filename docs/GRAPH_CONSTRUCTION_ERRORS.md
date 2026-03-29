@@ -102,6 +102,8 @@ If maintainers add a **cheap** advisory when compiled graphs are very large (e.g
 
 Exact numeric thresholds are **not** fixed by this spec; choose conservative “high” values, document them next to the implementation, and tie release notes to any later change.
 
+**Shipped behavior (this repo):** After a successful ``compile_replayt_workflow``, if ``len(workflow.step_names())`` is **≥ 256** (constant ``_LARGE_GRAPH_STEP_THRESHOLD`` in ``replayt_langgraph_bridge.graph``), the bridge issues ``warnings.warn(..., BridgeLargeGraphWarning)`` **at most once per process**; later compiles in the same interpreter stay silent. Integrators may filter on ``BridgeLargeGraphWarning`` (re-exported from ``replayt_langgraph_bridge``).
+
 ---
 
 ## 5. Non-normative guidance: graph size, shape, and profiling

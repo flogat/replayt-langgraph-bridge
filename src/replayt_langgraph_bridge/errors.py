@@ -25,3 +25,11 @@ class BridgeRoutingError(BridgeGraphMappingError):
     """``replayt_next`` names a step that is not registered on the workflow."""
 
     code: ClassVar[Literal["unknown_next"]] = "unknown_next"
+
+
+class BridgeLargeGraphWarning(UserWarning):
+    """Emitted at most once per interpreter process when ``compile_replayt_workflow`` builds a very large graph.
+
+    Filter with ``warnings.filterwarnings`` on this category, or silence stdlib warning display. See
+    ``docs/GRAPH_CONSTRUCTION_ERRORS.md`` §4.3.
+    """

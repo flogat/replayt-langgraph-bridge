@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from typing import Annotated, Any
 
 from langgraph.graph import END, START, StateGraph
@@ -15,6 +16,7 @@ from typing_extensions import NotRequired, TypedDict
 
 from replayt_langgraph_bridge.bridge_log import emit_bridge_record, get_bridge_logger
 from replayt_langgraph_bridge.errors import (
+    BridgeLargeGraphWarning,
     BridgeRoutingError,
     BridgeTransitionError,
     BridgeWorkflowCompileError,
@@ -24,6 +26,10 @@ from replayt_langgraph_bridge.state_validation import (
     BridgeValidatingCheckpointSaver,
     validate_inbound_bridge_state,
 )
+
+# Advisory threshold (step count): conservative high bar; not a hard limit. See GRAPH_CONSTRUCTION_ERRORS §5.2.
+_LARGE_GRAPH_STEP_THRESHOLD = 256
+_large_graph_advisory_emitted = False
 
 
 def _merge_context(
@@ -207,6 +213,25 @@ def _route_from(
     return route
 
 
+def _maybe_emit_large_graph_advisory(step_count: int) -> None:
+    """Non-fatal heads-up for very large workflows; at most one warning per process (§4.3)."""
+    global _large_graph_advisory_emitted
+    if step_count < _LARGE_GRAPH_STEP_THRESHOLD:
+        return
+    if _large_graph_advisory_emitted:
+        return
+    _large_graph_advisory_emitted = True
+    warnings.warn(
+        (
+            f"replayt-langgraph-bridge: compiling a workflow with {step_count} steps "
+            f"(threshold {_LARGE_GRAPH_STEP_THRESHOLD}); compile cost and routing tables scale with "
+            "step count. See docs/GRAPH_CONSTRUCTION_ERRORS.md §5 for profiling guidance."
+        ),
+        BridgeLargeGraphWarning,
+        stacklevel=3,
+    )
+
+
 def compile_replayt_workflow(
     workflow: Workflow,
     *,
@@ -253,6 +278,10 @@ def compile_replayt_workflow(
     When ``checkpointer`` is set, optional ``interrupt_before`` and ``interrupt_after`` are passed
     to LangGraph ``StateGraph.compile`` (step names match the replayt ``Workflow``). Multi-``invoke``
     runs on the same ``thread_id`` are documented under ``docs/CHECKPOINT_PERSISTENCE.md``.
+
+    Very large workflows (step count ≥ ``_LARGE_GRAPH_STEP_THRESHOLD`` in this module, currently **256**)
+    may trigger :exc:`~replayt_langgraph_bridge.BridgeLargeGraphWarning` **once per interpreter process**
+    after a successful compile; see ``docs/GRAPH_CONSTRUCTION_ERRORS.md`` §4.3.
     """
 
     if not workflow.initial_state:
@@ -320,8 +349,10 @@ def compile_replayt_workflow(
             effective_checkpointer, logger=log
         )
 
-    return graph.compile(
+    compiled = graph.compile(
         checkpointer=effective_checkpointer,
         interrupt_before=interrupt_before,
         interrupt_after=interrupt_after,
     )
+    _maybe_emit_large_graph_advisory(len(names))
+    return compiled
