@@ -50,6 +50,8 @@ When adding or renaming symbols intended for integrators, update **`replayt_lang
 
 Normative policy and security→lock workflow: **[docs/DEPENDENCY_LOCK_STRATEGY.md](docs/DEPENDENCY_LOCK_STRATEGY.md)**. CI installs **`[dev]`** only from committed **`uv.lock`** (**`uv sync --frozen --extra dev`**); the optional **`demo`** extra is not part of that lock-driven install.
 
+**Periodic lock refresh (guardrail):** **`.github/workflows/uv-lock-refresh.yml`** runs weekly (and via **Actions** manual dispatch): **`uv sync --extra dev`**, frozen sync, **`pip-audit`** with the same flags as **`.github/workflows/ci.yml`** job **`supply-chain`**, then the same **pytest** / **ruff** / **mypy** steps as job **`test`**, and opens a PR only when **`uv.lock`** changes. Spec and acceptance IDs **L1–L10**: **[docs/BACKLOG_UV_LOCK_REFRESH_WORKFLOW.md](docs/BACKLOG_UV_LOCK_REFRESH_WORKFLOW.md)**.
+
 **Maintainers — `pip-audit` / job `supply-chain` failures:** Use the SLA-style triage playbook in **DEPENDENCY_LOCK_STRATEGY** (**[pip-audit / `supply-chain` job failure triage](docs/DEPENDENCY_LOCK_STRATEGY.md#pip-audit--supply-chain-job-failure-triage-maintainer-playbook)**): how severity relates to CI, when to refresh **`uv.lock`** vs document an ignore with upstream tracking, and **CHANGELOG** / **DEPENDENCY_AUDIT** expectations.
 
 ### Regenerating `uv.lock`
@@ -88,7 +90,7 @@ After **`uv sync --frozen --extra dev`** (or **`uv sync --extra dev`** if you ar
 uv run pip-audit --ignore-vuln CVE-2026-4539 --desc
 ```
 
-Same flags as **`.github/workflows/ci.yml`** job **`supply-chain`**. Document accepted ignores in **`docs/DEPENDENCY_AUDIT.md`**.
+Same flags as **`.github/workflows/ci.yml`** job **`supply-chain`** and **`.github/workflows/uv-lock-refresh.yml`**. Document accepted ignores in **`docs/DEPENDENCY_AUDIT.md`**; keep those invocations aligned.
 
 ## Changelog
 

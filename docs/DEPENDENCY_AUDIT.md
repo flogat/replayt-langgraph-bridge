@@ -4,7 +4,7 @@ This document tracks supply-chain vulnerabilities that have been identified and 
 
 ## Audit Process
 
-All dependencies are scanned using **`uv run pip-audit --ignore-vuln CVE-2026-4539 --desc`** in the CI pipeline (`supply-chain` job), after the same **`uv sync --frozen --extra dev`** step as the **`test`** job. The PyPA tool does not support a `--severity-high` filter; any reported vulnerability fails the job except CVEs explicitly ignored here and mirrored in the workflow.
+All dependencies are scanned using **`uv run pip-audit --ignore-vuln CVE-2026-4539 --desc`** after the same **`uv sync --frozen --extra dev`** step as the **`test`** job, in GitHub Actions job **`supply-chain`** (**`.github/workflows/ci.yml`**) and in the scheduled **UV lock refresh** workflow (**`.github/workflows/uv-lock-refresh.yml`**). The PyPA tool does not support a `--severity-high` filter; any reported vulnerability fails the job except CVEs explicitly ignored here and mirrored in those workflows.
 
 **Locked resolution:** `pip-audit` runs in the **same frozen `[dev]` environment** as **`test`** (**`uv run`** after **`uv sync --frozen --extra dev`**), so reported CVEs match the committed **`uv.lock`** graph. Security alert handling, lock regeneration, and **SLA-style** triage for **`supply-chain`** failures are mapped in **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §6 (including **[pip-audit / `supply-chain` job failure triage](DEPENDENCY_LOCK_STRATEGY.md#pip-audit--supply-chain-job-failure-triage-maintainer-playbook)**).
 
@@ -28,8 +28,8 @@ When vulnerabilities are reported, we assess them based on:
 
 - **Package**: `pygments` (e.g. 2.19.x pulled transitively via **replayt → typer → rich → pygments**).
 - **Issue**: ReDoS in **AdlLexer** (not used by this package’s code paths or CI beyond importing the dependency stack).
-- **Mitigation**: Track upstream **pygments** / **rich** / **replayt** releases; remove `--ignore-vuln` from `.github/workflows/ci.yml` when the resolved tree includes a fixed version.
-- **CI**: `.github/workflows/ci.yml` uses **`uv run pip-audit --ignore-vuln CVE-2026-4539 --desc`** so the job matches this documented acceptance.
+- **Mitigation**: Track upstream **pygments** / **rich** / **replayt** releases; remove `--ignore-vuln` from **`.github/workflows/ci.yml`** and **`.github/workflows/uv-lock-refresh.yml`** when the resolved tree includes a fixed version.
+- **CI**: **`.github/workflows/ci.yml`** (job **`supply-chain`**) and **`.github/workflows/uv-lock-refresh.yml`** use **`uv run pip-audit --ignore-vuln CVE-2026-4539 --desc`** so automation matches this documented acceptance.
 
 ## History
 

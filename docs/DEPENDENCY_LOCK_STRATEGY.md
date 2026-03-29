@@ -61,7 +61,7 @@ If maintainers later want a **second** locked file for **`[demo]`** verification
 
 1. **When to regenerate** — Any PR that changes **`[project.dependencies]`**, **`[project.optional-dependencies]`**, or **`requires-python`** in a way that affects the locked surface **must** include an updated lock/constraints file in the same change set (or a clearly linked commit).
 2. **How to document** — **CONTRIBUTING.md** **must** list the exact commands (copy-paste ready) for regenerating the artifact(s), including any required tool install (e.g. `uv` version pin or `pip install pip-tools`).
-3. **Routine cadence (maintainer expectation)** — At minimum, refresh the lock when cutting releases, after security advisories, or when CI failures indicate resolver drift; optional periodic refresh (e.g. monthly) is team discretion—record the chosen habit in **CONTRIBUTING** or this doc in one sentence once decided.
+3. **Routine cadence (maintainer expectation)** — At minimum, refresh the lock when cutting releases, after security advisories, or when CI failures indicate resolver drift. **Scheduled lock refresh** is **implemented** in **`.github/workflows/uv-lock-refresh.yml`** (weekly cron plus **`workflow_dispatch`**): regenerates **`uv.lock`** for **`[dev]`**, runs the same **`pip-audit`** flags as job **`supply-chain`**, then **pytest** / **ruff** / **mypy** matching job **`test`**, and opens or updates a PR when **`uv.lock`** changes. Normative detail and acceptance IDs **L1–L10**: **[BACKLOG_UV_LOCK_REFRESH_WORKFLOW.md](BACKLOG_UV_LOCK_REFRESH_WORKFLOW.md)** (Mission Control **`9c1ba44c-3880-4cb7-a1ac-4a585e2e12d6`**).
 
 ## 6. Security alerts → lock updates (normative mapping)
 
@@ -70,7 +70,7 @@ This ties the lock to **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** and ex
 | Signal | Action |
 | ------ | ------ |
 | **GitHub Dependabot / advisory** on a direct or transitive dependency | Regenerate the lock inside current **`pyproject.toml`** ranges if a fixed version exists; run **pytest** and **`pip-audit`** (same flags as CI). If the fix requires **widening** or changing declared ranges, follow the **Compatibility Update** template and **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#breaking-upstream-releases--triage)**; update **CHANGELOG.md** when bounds change. |
-| **`pip-audit` failure** in CI | Treat as **blocking** unless documented under **Accepted risks** in **DEPENDENCY_AUDIT.md** with matching **`--ignore-vuln`** in **`.github/workflows/ci.yml`**. Prefer **lock regen** and version bumps over ignores. |
+| **`pip-audit` failure** in CI | Treat as **blocking** unless documented under **Accepted risks** in **DEPENDENCY_AUDIT.md** with matching **`--ignore-vuln`** in **`.github/workflows/ci.yml`** and **`.github/workflows/uv-lock-refresh.yml`** (same flags). Prefer **lock regen** and version bumps over ignores. |
 | **Accepted transitive risk** | Document in **DEPENDENCY_AUDIT.md**; ensure the **locked** graph is what **pip-audit** scans when CI uses the lock. |
 
 **Diff discipline:** Security or release review should use version control **diffs on the lock file** (and changelog notes for range changes) to see exactly what entered the tree.
@@ -81,7 +81,7 @@ This subsection is the **SLA-style playbook** for failures in GitHub Actions job
 
 #### Severity and what CI enforces
 
-- **`pip-audit`** reports **CVE-style identifiers** (and with **`--desc`**, short descriptions). The PyPA CLI used in CI **does not** expose a “only high/critical” gate: **any** finding fails **`supply-chain`** unless that CVE is listed in **`--ignore-vuln`** and documented under **Accepted risks** in **DEPENDENCY_AUDIT.md** (mirrored in **`.github/workflows/ci.yml`**).
+- **`pip-audit`** reports **CVE-style identifiers** (and with **`--desc`**, short descriptions). The PyPA CLI used in CI **does not** expose a “only high/critical” gate: **any** finding fails **`supply-chain`** (and the **UV lock refresh** workflow) unless that CVE is listed in **`--ignore-vuln`** and documented under **Accepted risks** in **DEPENDENCY_AUDIT.md** (mirrored in **`.github/workflows/ci.yml`** job **`supply-chain`** and **`.github/workflows/uv-lock-refresh.yml`**).
 - **CVSS / vendor severity labels** (if present in advisory text) inform **how fast** maintainers act and how prominently **CHANGELOG.md** calls the work out; they **do not** override the binary pass/fail unless the project adds a different tool or policy later (today: **fail on any reported CVE** except documented ignores).
 
 #### Response expectations (maintainer-facing)
@@ -90,12 +90,12 @@ This subsection is the **SLA-style playbook** for failures in GitHub Actions job
 | --------- | ---------------- |
 | **New CVE on a direct or transitive dep** with a **patched version** resolvable inside current **`pyproject.toml`** ranges | Land a **lock refresh** (**`uv sync --extra dev`**, commit **`uv.lock`**) and green **pytest** / **`pip-audit`** locally in the **same PR**; merge on the **normal integration cadence** (do not leave **`master`** red overnight without an owner). |
 | **Fix requires range / extra / `requires-python` change** | Open or extend a **Compatibility Update** issue (**[`.github/ISSUE_TEMPLATE/compatibility_update.md`](../.github/ISSUE_TEMPLATE/compatibility_update.md)**), follow **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#breaking-upstream-releases--triage)**; ship constraint + lock + docs + **CHANGELOG** in one coherent change set when possible. |
-| **No fixed release yet** or fix is **infeasible** in-tree | Document **Accepted risk** in **DEPENDENCY_AUDIT.md** (exploitability in **this** repo’s usage, upstream tracking link or issue reference, removal criteria), add the matching **`--ignore-vuln`** flag(s) to **`.github/workflows/ci.yml`** job **`supply-chain`** so local and CI invocations stay identical. **Escalation:** coordinated disclosure or embargoed issues follow **[SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md)** and root **`SECURITY.md`**—do not discuss non-public details in open PRs. |
+| **No fixed release yet** or fix is **infeasible** in-tree | Document **Accepted risk** in **DEPENDENCY_AUDIT.md** (exploitability in **this** repo’s usage, upstream tracking link or issue reference, removal criteria), add the matching **`--ignore-vuln`** flag(s) to **`.github/workflows/ci.yml`** job **`supply-chain`** and **`.github/workflows/uv-lock-refresh.yml`** so local and CI invocations stay identical. **Escalation:** coordinated disclosure or embargoed issues follow **[SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md)** and root **`SECURITY.md`**—do not discuss non-public details in open PRs. |
 | **False positive / scanner mismatch** | Prefer an **upstream issue** (PyPI metadata, advisory DB, or dependency maintainer) linked from **DEPENDENCY_AUDIT.md**; only then a documented ignore with the same **workflow parity** as other accepted risks. |
 
 #### Prefer refreshing `uv.lock` (default path)
 
-1. Reproduce with **`uv sync --frozen --extra dev`** then **`uv run pip-audit`** using the **exact flags** from **CONTRIBUTING.md** / **`.github/workflows/ci.yml`**.
+1. Reproduce with **`uv sync --frozen --extra dev`** then **`uv run pip-audit`** using the **exact flags** from **CONTRIBUTING.md**, **`.github/workflows/ci.yml`** job **`supply-chain`**, and **`.github/workflows/uv-lock-refresh.yml`**.
 2. Identify the **vulnerable distribution(s)** in the output; use **`uv lock`** / **`uv sync --extra dev`** (without **`--frozen`**) to pull **patched** versions **within** declared ranges.
 3. Run **`uv run pytest`**, **`uv run ruff check src tests`**, and **`uv run mypy -p replayt_langgraph_bridge`** as in job **`test`**; re-run **`pip-audit`** until clean or until you move to the documented-ignore path.
 4. Commit **`uv.lock`** (and **`pyproject.toml`** only if ranges or extras changed). PR description should name **CVE IDs** and **packages** bumped.
