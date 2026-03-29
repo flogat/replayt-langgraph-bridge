@@ -72,7 +72,7 @@ In-repo **tests** may import private helpers (e.g. functions prefixed with `_` i
 
 ## `compile_replayt_workflow` (extra keyword arguments)
 
-Beyond the parameters summarized in **[README.md](../README.md)** (Public API), **`interrupt_before`** and **`interrupt_after`** are passed through to LangGraph **`StateGraph.compile`**. Lists use **replayt `Workflow` step names** (the same strings you pass to `@workflow.step`). Typical use is a non-`None` **checkpointer** plus one or more **`invoke`** calls on the same **`thread_id`**; see **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §2 and §6.
+Beyond the parameters summarized in **[README.md](../README.md)** (Public API), **`interrupt_before`** and **`interrupt_after`** are passed through to LangGraph **`StateGraph.compile`**. Lists use **replayt `Workflow` step names** (the same strings you pass to `@workflow.step`). Typical use is a non-`None` **checkpointer** plus one or more **`invoke`** calls on the same **`thread_id`**; see **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §3 and §7.
 
 **Human-in-the-loop:** copy-paste **`MemorySaver`**, **`thread_id`**, and two-**`invoke`** wiring (**`interrupt_after`** example) live in the **Human-in-the-loop** subsection of **[README.md](../README.md)** (immediately after **Checkpoint-enabled usage**).
 

@@ -1,6 +1,6 @@
 """Tests for inbound bridge state validation (STATE_PAYLOAD_VALIDATION.md §7).
 
-Graph + ``MemorySaver`` cases also trace checkpoint behavior to ``docs/CHECKPOINT_PERSISTENCE.md`` §6.
+Graph + ``MemorySaver`` cases also trace checkpoint behavior to ``docs/CHECKPOINT_PERSISTENCE.md`` §7.
 """
 
 from __future__ import annotations
@@ -121,7 +121,7 @@ def test_rejected_first_invoke_no_handler_no_checkpoint(tmp_path: Path) -> None:
 
 
 def test_resume_with_bad_schema_does_not_advance_checkpoint(tmp_path: Path) -> None:
-    """Second ``invoke`` with bad schema does not advance ``MemorySaver`` (CHECKPOINT_PERSISTENCE §5 / STATE_PAYLOAD)."""
+    """Second ``invoke`` with bad schema does not advance ``MemorySaver`` (CHECKPOINT_PERSISTENCE §6 / STATE_PAYLOAD)."""
     wf = Workflow("val_resume")
 
     @wf.step("a")

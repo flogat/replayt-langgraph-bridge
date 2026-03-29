@@ -122,7 +122,7 @@ initial_state = initial_bridge_state()
 
 ### Checkpoint-enabled usage (LangGraph 1.1.x)
 
-**Ephemeral, in-process only:** `MemorySaver` fits tests and local debugging; state is lost when the process exits and this is not a production topology. For durable or hosted stores, see **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** and **[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**. The **`invoke`** / **`config`** shape matches **`tests/test_bridge_graph.py`**.
+**Ephemeral, in-process only:** `MemorySaver` fits tests and local debugging; state is lost when the process exits and this is not a production topology. For durable or hosted stores, see **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** and **[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**. **[Two persistence planes (replayt store vs LangGraph checkpointer)](docs/CHECKPOINT_PERSISTENCE.md#two-persistence-planes-langgraph-checkpointer-vs-replayt-runner--store)** in **CHECKPOINT_PERSISTENCE.md** summarizes what each side persists and how failures group by layer. The **`invoke`** / **`config`** shape matches **`tests/test_bridge_graph.py`**.
 
 ```python
 from uuid import uuid4
@@ -168,7 +168,7 @@ result = graph.invoke(
 
 **`interrupt_*`** lists use **replayt** step names (the same strings as **`@workflow.step(...)`** and **`note_transition`**); they are forwarded to LangGraph **`StateGraph.compile`**. See **[docs/API.md](docs/API.md)** (`compile_replayt_workflow`). Ordering when you pass both lists follows upstream **`compile`** (this bridge does not reorder them).
 
-Copy-paste pattern: **`MemorySaver`**, stable **`thread_id`** in **`config["configurable"]`**, **`Runner`** + store with **`run_id`** set, **`context={"runner": runner}`** on **every** **`invoke`** for that thread, then **`invoke(None, ...)`** to resume. Persistence and resume expectations: **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** §6. Regression tests: **`tests/test_bridge_graph.py`** — **`test_resume_second_invoke_uses_memory_checkpointer`** (**`interrupt_before`**), **`test_resume_second_invoke_interrupt_after_first_uses_memory_checkpointer`** (**`interrupt_after`**).
+Copy-paste pattern: **`MemorySaver`**, stable **`thread_id`** in **`config["configurable"]`**, **`Runner`** + store with **`run_id`** set, **`context={"runner": runner}`** on **every** **`invoke`** for that thread, then **`invoke(None, ...)`** to resume. Persistence and resume expectations: **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** §7. Regression tests: **`tests/test_bridge_graph.py`** — **`test_resume_second_invoke_uses_memory_checkpointer`** (**`interrupt_before`**), **`test_resume_second_invoke_interrupt_after_first_uses_memory_checkpointer`** (**`interrupt_after`**).
 
 ```python
 from uuid import uuid4
@@ -221,7 +221,7 @@ assert out2["context"]["phase"] == 11
 assert out2["replayt_next"] == ""
 ```
 
-To **pause and resume** across two **`invoke`** calls, compile with **`interrupt_before`** or **`interrupt_after`** (replayt step names). Run the first **`invoke`** with initial state, **`config`**, and **`context`**. For the continuation **`invoke`**, pass **`None`** as the graph input, keep the same **`config`** and **`context`**, and reuse the same compiled graph and saver. See **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** §6 and the tests named above.
+To **pause and resume** across two **`invoke`** calls, compile with **`interrupt_before`** or **`interrupt_after`** (replayt step names). Run the first **`invoke`** with initial state, **`config`**, and **`context`**. For the continuation **`invoke`**, pass **`None`** as the graph input, keep the same **`config`** and **`context`**, and reuse the same compiled graph and saver. See **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** §7 and the tests named above.
 
 ## Typing (PEP 561)
 

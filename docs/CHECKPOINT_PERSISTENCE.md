@@ -2,7 +2,7 @@
 
 This document defines **what is persisted** when using `compile_replayt_workflow(..., checkpointer=...)`, **how in-memory and durable stores differ**, **secret/PII expectations** on serialized graph state, and **failure behavior** for bad or mismatched data. It satisfies the backlog to make checkpoint behavior **explicit before production-minded adoption**.
 
-**Backlog traceability:** Mission Control item **Add LangGraph checkpoint integration slice** maps acceptance criteria and slice boundaries to this file and tests in **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)**.
+**Backlog traceability:** Mission Control item **Add LangGraph checkpoint integration slice** maps acceptance criteria and slice boundaries to this file and tests in **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)**. Mission Control item **Durable replayt store vs LangGraph checkpoint: single ownership diagram** (`fae06d2c-c181-4706-b533-f93eb99b8f07`) specifies the operator-facing **two persistence planes** section and README link in **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**.
 
 **Relationship to other specs:** Inbound validation of `ReplaytBridgeState` is specified in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**. Hosted topology, TLS, and IAM-style controls are in **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**. Assets and adversaries are summarized in **[THREAT_MODEL.md](THREAT_MODEL.md)**.
 
@@ -20,7 +20,43 @@ The bridge **does not** fork replayt or LangGraph persistence. It **does not** d
 
 ---
 
-## 2. In-memory vs durable checkpointers
+## Two persistence planes (LangGraph checkpointer vs replayt Runner / store)
+
+**[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md) §2** defers treating LangGraph checkpoint durability and replayt **Runner** / **store** durability as the same thing. They are **separate**: a durable graph checkpointer **does not** replace a configured replayt store (event log, approvals, and other replayt-persisted data). A healthy replayt store **does not** by itself give you a LangGraph resume unless you also use a **compatible** **`Checkpointer`**, a consistent **`thread_id`**, and the same compiled graph semantics.
+
+| Plane | What persists | Who owns format and lifecycle |
+| ----- | ------------- | ----------------------------- |
+| **LangGraph `Checkpointer`** | Serialized **graph channel** state (including **`ReplaytBridgeState`**) | LangGraph + saver stack + integrator backend choice |
+| **Replayt `Runner` + store** | Replayt run records (e.g. **`JSONLStore`**), approvals, events | replayt APIs + integrator store path and backup policy |
+
+```mermaid
+flowchart TB
+  subgraph LG["LangGraph checkpoint plane"]
+    CP[Integrator Checkpointer]
+    CH[Channel checkpoints incl. ReplaytBridgeState]
+    CP --- CH
+  end
+  subgraph RT["Replayt Runner / store plane"]
+    RN[Runner]
+    ST[Store e.g. JSONLStore]
+    RN --- ST
+  end
+  INT{{Integrator coordinates both planes}}
+  LG --- INT
+  RT --- INT
+```
+
+The two planes use **different bytes and contracts**. The bridge **does not** merge them, migrate one into the other, or ship a default durable backend for either.
+
+**Failure modes by layer** (detail in [§6](#6-failure-modes-corrupt-data-and-version-skew), **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**, and **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**):
+
+- **LangGraph checkpointer and serialized graph state** — Blob corruption or deserialization failures surface from LangGraph or the saver implementation; **LangGraph** / checkpoint **format skew** across versions; wrong or reused **`thread_id`** breaking resume; remote or hosted backends add **network, TLS, and ACL** risk (**[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**).
+- **Bridge inbound validation** (when `checkpointer=` is set) — Invalid dict-shaped channel values → **`BridgeStateValidationError`** before handlers run; **no** new checkpoint from that rejected **`invoke`** (**[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**).
+- **Replayt Runner / store** — Store loss or corruption; **workflow definition** changes versus old run data; replayt-level resume errors **independent** of LangGraph checkpoint bytes; **integrator** responsibility for paths, permissions, backup, and migration (no unified migration across planes from this package).
+
+---
+
+## 3. In-memory vs durable checkpointers
 
 | Class | Typical use | Durability | Production notes |
 | ----- | ----------- | ---------- | ------------------ |
@@ -31,7 +67,7 @@ The bridge **does not** fork replayt or LangGraph persistence. It **does not** d
 
 ---
 
-## 3. Supported checkpointer backends (this release line)
+## 4. Supported checkpointer backends (this release line)
 
 **Declared integration target** (see `pyproject.toml` and **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)**): **langgraph `>=1.1.0,<1.2`**.
 
@@ -46,13 +82,13 @@ The bridge **does not** fork replayt or LangGraph persistence. It **does not** d
 **Known limitations (summary):**
 
 1. **No default durable checkpoint** — persistence is off unless you pass `checkpointer=`.
-2. **Checkpoint contents mirror graph state** — anything placed in `ReplaytBridgeState["context"]` may appear in serialized checkpoints (see §4).
+2. **Checkpoint contents mirror graph state** — anything placed in `ReplaytBridgeState["context"]` may appear in serialized checkpoints (see §5).
 3. **Upstream deserialization** — LangGraph / checkpoint libraries control replay of stored blobs; follow upstream **security** and **persistence** docs for the versions you run (including hardening options such as strict msgpack, where applicable — pointers in **HOSTED_DEPLOYMENT_AUTHZ**).
 4. **Bridge validation is boundary-scoped** — it validates **dict-shaped inbound channel state** at defined entry points; it does **not** implement a full forensic audit of arbitrary on-disk corruption inside proprietary checkpoint encodings.
 
 ---
 
-## 4. Secrets, PII, and serialized state
+## 5. Secrets, PII, and serialized state
 
 - **Checkpoint serialization** includes LangGraph’s view of channel values. Treat **`ReplaytBridgeState`** as **persistence-bound**: do not place secrets or sensitive PII in `context` unless your storage, retention, and access policies explicitly allow it.
 - **Shallow merge** of `context` across updates (see **[THREAT_MODEL.md](THREAT_MODEL.md)**) limits some accidental propagation patterns but does **not** prevent intentional storage of sensitive fields.
@@ -62,11 +98,11 @@ For a deny-oriented list of unsafe field categories, see **[THREAT_MODEL.md — 
 
 ---
 
-## 5. Failure modes: corrupt data and version skew
+## 6. Failure modes: corrupt data and version skew
 
 Behavior is split between **bridge-owned validation** and **upstream / integrator-owned** layers.
 
-### 5.1 Inbound bridge state (bridge — fail closed)
+### 6.1 Inbound bridge state (bridge — fail closed)
 
 Per **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**:
 
@@ -75,13 +111,13 @@ Per **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**:
 
 This is the **fail closed** guarantee for **untrusted dict-shaped** bridge state at the validation boundary.
 
-### 5.2 LangGraph checkpoint blob corruption or deserialization failure
+### 6.2 LangGraph checkpoint blob corruption or deserialization failure
 
 If storage is corrupted, truncated, or incompatible with the **LangGraph / checkpointer** version in use, errors are raised by **LangGraph or the saver implementation**, not by a dedicated bridge type. The bridge does **not** promise automatic repair or migration of arbitrary checkpoint bytes.
 
 **Integrator expectation:** Treat such failures as **fatal for that thread** unless upstream APIs document recovery; restore from backup or discard the checkpoint namespace.
 
-### 5.3 Version skew matrix
+### 6.3 Version skew matrix
 
 | Skew | Detection / failure surface | Fail closed? |
 | ---- | --------------------------- | -------------- |
@@ -91,13 +127,13 @@ If storage is corrupted, truncated, or incompatible with the **LangGraph / check
 | **LangGraph checkpoint format** change across upstream versions | Deserialization or runtime errors from LangGraph / checkpoint stack | **Integrator** must not mix checkpoint stores across incompatible LangGraph lines |
 | **Replayt workflow graph** changed while old checkpoints exist | Possible undefined behavior or replayt errors when resuming | **Integrator** responsibility to migrate or invalidate old threads |
 
-### 5.4 Routing and transition errors
+### 6.4 Routing and transition errors
 
 **Routing / transition** failures from the bridge raise **`BridgeRoutingError`** / **`BridgeTransitionError`** (see **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)**). Their `str(exception)` values may include **step names** and allowed targets to aid debugging (**[THREAT_MODEL.md](THREAT_MODEL.md)**). These are separate from **inbound state validation** errors.
 
 ---
 
-## 6. Builder-facing acceptance checklist (tests + docs)
+## 7. Builder-facing acceptance checklist (tests + docs)
 
 Map the product backlog to verifiable items:
 
@@ -108,11 +144,11 @@ Map the product backlog to verifiable items:
 
 **Existing baseline (maintainers must keep coverage green):** `tests/test_bridge_graph.py` (`MemorySaver` + `invoke` linear workflow; `test_resume_second_invoke_uses_memory_checkpointer` for two-`invoke` resume) and `tests/test_state_payload_validation.py` (checkpoint non-advance on bad inbound state, resume-related assertions) illustrate allowed patterns. When touching these behaviors, **reference this document** in the test module or function docstring so traceability stays obvious.
 
-- [x] **README / API.md / THREAT_MODEL** — Links to this spec (see §7).
+- [x] **README / API.md / THREAT_MODEL** — Links to this spec (see §8).
 
 ---
 
-## 7. Related documents
+## 8. Related documents
 
 - **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** — Inbound dict validation, schema version, no partial checkpoint on reject.
 - **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** — Topologies T1–T5, TLS, IAM, upstream persistence links.
@@ -120,3 +156,4 @@ Map the product backlog to verifiable items:
 - **[LOG_REDACTION.md](LOG_REDACTION.md)** — Logging only; not checkpoint contents.
 - **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** — Replayt-facing test style; LangGraph checkpoint tests may live alongside but are **not** a substitute for this persistence contract.
 - **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)** — Spec and acceptance criteria for **`interrupt_before` / `interrupt_after`** integrator cookbook and CI coverage (Mission Control backlog `4b64a655-bb06-49e5-8912-61b06626a034`).
+- **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)** — Spec and acceptance criteria for the **two persistence planes** diagram / table and layered failure modes (Mission Control backlog `fae06d2c-c181-4706-b533-f93eb99b8f07`).

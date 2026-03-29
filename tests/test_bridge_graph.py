@@ -2,7 +2,7 @@
 
 Normative expectations for scope, assertion messages, and ``pytest.raises`` usage:
 ``docs/REPLAYT_BOUNDARY_TESTS.md``. Checkpoint and ``MemorySaver`` patterns trace to
-``docs/CHECKPOINT_PERSISTENCE.md`` §6.
+``docs/CHECKPOINT_PERSISTENCE.md`` §7.
 """
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ def test_compile_rejects_unregistered_initial_step() -> None:
 
 
 def test_linear_workflow_via_langgraph(tmp_path: Path) -> None:
-    """``RunContext.data`` mirrors ``context``; ``JSONLStore``/``Runner`` + ``MemorySaver`` invoke (CHECKPOINT_PERSISTENCE §6)."""
+    """``RunContext.data`` mirrors ``context``; ``JSONLStore``/``Runner`` + ``MemorySaver`` invoke (CHECKPOINT_PERSISTENCE §7)."""
     wf = Workflow("linear")
 
     @wf.step("first")
@@ -91,7 +91,7 @@ def test_linear_workflow_via_langgraph(tmp_path: Path) -> None:
 
 
 def test_resume_second_invoke_uses_memory_checkpointer(tmp_path: Path) -> None:
-    """Second ``invoke`` continues the same ``thread_id`` from ``MemorySaver`` (CHECKPOINT_PERSISTENCE §6)."""
+    """Second ``invoke`` continues the same ``thread_id`` from ``MemorySaver`` (CHECKPOINT_PERSISTENCE §7)."""
     wf = Workflow("resume_two_invoke")
 
     @wf.step("first")
@@ -151,7 +151,7 @@ def test_resume_second_invoke_uses_memory_checkpointer(tmp_path: Path) -> None:
 def test_resume_second_invoke_interrupt_after_first_uses_memory_checkpointer(
     tmp_path: Path,
 ) -> None:
-    """``interrupt_after`` + second ``invoke`` on the same ``thread_id`` (CHECKPOINT_PERSISTENCE §6).
+    """``interrupt_after`` + second ``invoke`` on the same ``thread_id`` (CHECKPOINT_PERSISTENCE §7).
 
     Spec: ``docs/BACKLOG_HITL_INTERRUPT_COOKBOOK.md`` (backlog ``4b64a655-bb06-49e5-8912-61b06626a034``).
     Observable first-``invoke`` state matches LangGraph 1.1.x with ``interrupt_after=["first"]``.
@@ -213,7 +213,7 @@ def test_resume_second_invoke_interrupt_after_first_uses_memory_checkpointer(
 
 
 def test_unknown_next_state_raises(tmp_path: Path) -> None:
-    """Routing rejects unknown next step; ``MemorySaver`` present (CHECKPOINT_PERSISTENCE §6 baseline)."""
+    """Routing rejects unknown next step; ``MemorySaver`` present (CHECKPOINT_PERSISTENCE §7 baseline)."""
     wf = Workflow("bad")
 
     @wf.step("a")
@@ -238,7 +238,7 @@ def test_unknown_next_state_raises(tmp_path: Path) -> None:
 
 
 def test_declared_edge_violation_raises(tmp_path: Path) -> None:
-    """Declared-edge violation; ``MemorySaver`` present (CHECKPOINT_PERSISTENCE §6 baseline)."""
+    """Declared-edge violation; ``MemorySaver`` present (CHECKPOINT_PERSISTENCE §7 baseline)."""
     wf = Workflow("edges")
 
     @wf.step("a")

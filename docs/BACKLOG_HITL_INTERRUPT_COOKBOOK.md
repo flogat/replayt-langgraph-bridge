@@ -2,7 +2,7 @@
 
 Normative **spec and acceptance criteria** for Mission Control backlog **Human-in-the-loop cookbook: interrupt_before / interrupt_after with tests** (item `4b64a655-bb06-49e5-8912-61b06626a034`). Phase **2** (spec lead) owns this document; phase **3** (builder) implements against it; phase **2b** (spec gate) checks completeness.
 
-**Related normative docs:** checkpoint slice **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)**; persistence and resume checklist **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §6; public API **[API.md](API.md)** and **README**; assertion style **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
+**Related normative docs:** checkpoint slice **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)**; persistence and resume checklist **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §7; public API **[API.md](API.md)** and **README**; assertion style **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
 
 ---
 
@@ -13,7 +13,7 @@ The following is **already true** in-tree unless a future change removes it:
 - **`compile_replayt_workflow(..., interrupt_before=..., interrupt_after=...)`** forwards both kwargs to LangGraph **`StateGraph.compile`** for **`langgraph >=1.1.0,<1.2`** (see **`pyproject.toml`**).
 - **`tests/test_bridge_graph.py`** includes **`test_resume_second_invoke_uses_memory_checkpointer`**, which uses **`interrupt_before=["second"]`** with **`MemorySaver`**, a stable **`thread_id`** in **`config["configurable"]`**, **`Runner`** + **`JSONLStore`**, and a second **`invoke(None, ...)`** — this satisfies a minimal **“at least one interrupt path”** bar for **`interrupt_before`** only.
 
-**Implementation (this backlog, builder):** **README** — fenced **Human-in-the-loop** example (**`interrupt_after`**, **`MemorySaver`**, two **`invoke`** calls); **`docs/API.md`** — pointer to that subsection; **`tests/test_bridge_graph.py`** — **`test_resume_second_invoke_interrupt_after_first_uses_memory_checkpointer`**; **`CHANGELOG.md` — Unreleased** documentation bullet. Related links: **BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md**, **CHECKPOINT_PERSISTENCE.md** §7, **REPLAYT_BOUNDARY_TESTS.md**.
+**Implementation (this backlog, builder):** **README** — fenced **Human-in-the-loop** example (**`interrupt_after`**, **`MemorySaver`**, two **`invoke`** calls); **`docs/API.md`** — pointer to that subsection; **`tests/test_bridge_graph.py`** — **`test_resume_second_invoke_interrupt_after_first_uses_memory_checkpointer`**; **`CHANGELOG.md` — Unreleased** documentation bullet. Related links: **BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md**, **CHECKPOINT_PERSISTENCE.md** §8, **REPLAYT_BOUNDARY_TESTS.md**.
 
 ---
 
@@ -39,7 +39,7 @@ An integrator reading **published** docs (not **`src/`**) must find:
    - First **`graph.invoke(initial_bridge_state(...), config=..., context={"runner": runner})`** and second **`graph.invoke(None, config=..., context={"runner": runner})`** with the **same** **`config`**, **`context`**, compiled graph, and saver.
    - A one-line clarification that **`interrupt_*`** values are **replayt** step names, forwarded to LangGraph **`compile`** (per **API.md**).
 
-2. **Traceability** — Link to **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §6 and name the canonical test module/function(s) that lock the example (e.g. **`test_resume_second_invoke_uses_memory_checkpointer`** plus any new **`interrupt_after`** test).
+2. **Traceability** — Link to **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §7 and name the canonical test module/function(s) that lock the example (e.g. **`test_resume_second_invoke_uses_memory_checkpointer`** plus any new **`interrupt_after`** test).
 
 3. **`docs/API.md`** — If the full cookbook lives in README only, **API.md** must still retain (or add) a short **“see README — Human-in-the-loop”** (or equivalent) pointer so **API.md** readers discover the snippet; the existing **`interrupt_*`** forward to **`StateGraph.compile`** sentence stays authoritative for parameters.
 
@@ -48,7 +48,7 @@ An integrator reading **published** docs (not **`src/`**) must find:
 On the default CI install (**`uv sync --frozen --extra dev`**, **`uv run pytest`**, no **`demo`** extra, no network credentials):
 
 1. **Keep** **`test_resume_second_invoke_uses_memory_checkpointer`** as the **`interrupt_before`** regression anchor.
-2. **Add** at least **one** new test (or clearly scoped extension) that exercises **`interrupt_after`** with **`MemorySaver`**, the same **`Runner`** + **`thread_id`** resume pattern, and **replayt boundary** assertion messages per **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** (prefix **`replayt boundary:`** or equivalent contract naming). The test docstring must cite **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §6 and this spec (**`BACKLOG_HITL_INTERRUPT_COOKBOOK.md`**) or the backlog item id.
+2. **Add** at least **one** new test (or clearly scoped extension) that exercises **`interrupt_after`** with **`MemorySaver`**, the same **`Runner`** + **`thread_id`** resume pattern, and **replayt boundary** assertion messages per **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** (prefix **`replayt boundary:`** or equivalent contract naming). The test docstring must cite **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §7 and this spec (**`BACKLOG_HITL_INTERRUPT_COOKBOOK.md`**) or the backlog item id.
 3. **Assertions** must encode **observable** post-first-**`invoke`** state (e.g. **`replayt_next`**, **`context`** keys) consistent with **LangGraph 1.1.x** behavior for **`interrupt_after`** on the chosen step — derive expected values from current pinned LangGraph, not guesswork; adjust if upstream patch changes semantics.
 
 **If** a maintainer discovers **`interrupt_after`** cannot be asserted deterministically on the supported stack, they must **not** silently drop coverage: document the blocker in a **spec gate** note, add an issue reference, and still ship §3.1 documentation for **`interrupt_after`** — this spec prefers **test + doc**; waiver requires explicit **2b** recorded decision.

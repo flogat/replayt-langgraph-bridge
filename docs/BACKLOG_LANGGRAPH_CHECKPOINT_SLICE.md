@@ -2,7 +2,7 @@
 
 Normative **spec and acceptance criteria** for Mission Control backlog **Add LangGraph checkpoint integration slice** (item `6e2e8723-57c1-4f0c-bb74-6e9eb10beb23`). Phase **2** (spec lead) owns this document; phase **3** (builder) implements or verifies against it; phase **2b** (spec gate) checks completeness.
 
-**Related normative docs:** persistence contract **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**; inbound state and wrapped saver **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; hosted backends **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**; public entry points **[API.md](API.md)** and **README**. **Human-in-the-loop interrupts** (copy-paste cookbook + **`interrupt_after`** test obligations): **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)**.
+**Related normative docs:** persistence contract **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**; inbound state and wrapped saver **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; hosted backends **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**; public entry points **[API.md](API.md)** and **README**. **Human-in-the-loop interrupts** (copy-paste cookbook + **`interrupt_after`** test obligations): **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)**. **Two persistence planes** (replayt **Runner** / store vs LangGraph **Checkpointer** — operator diagram and failure-mode grouping): **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**.
 
 ---
 
@@ -13,7 +13,7 @@ Kickoff text for this backlog sometimes claims that checkpoints are promised but
 **Builders must treat the following as the authoritative baseline** unless a future change explicitly removes it:
 
 - **`compile_replayt_workflow(..., checkpointer=..., interrupt_before=..., interrupt_after=...)`** — forwards to LangGraph **`StateGraph.compile`** for **langgraph `>=1.1.0,<1.2`** (see **`pyproject.toml`**).
-- **Deterministic tests** on the default CI path (**`uv sync --frozen --extra dev`** then **`uv run pytest`**; same suite **CONTRIBUTING** documents). Loose **`pip install -e ".[dev]"`** does not match the frozen **`uv.lock`** graph. Coverage includes **`tests/test_bridge_graph.py`** (including **`test_resume_second_invoke_uses_memory_checkpointer`**), **`tests/test_state_payload_validation.py`**. Tests should keep docstring traceability to **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §6 per **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
+- **Deterministic tests** on the default CI path (**`uv sync --frozen --extra dev`** then **`uv run pytest`**; same suite **CONTRIBUTING** documents). Loose **`pip install -e ".[dev]"`** does not match the frozen **`uv.lock`** graph. Coverage includes **`tests/test_bridge_graph.py`** (including **`test_resume_second_invoke_uses_memory_checkpointer`**), **`tests/test_state_payload_validation.py`**. Tests should keep docstring traceability to **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §7 per **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
 
 Unless scope is explicitly widened below, this backlog covers **verification, documentation clarity, and gap closure** on the existing checkpoint path, not a greenfield checkpoint feature.
 
@@ -26,7 +26,7 @@ Unless scope is explicitly widened below, this backlog covers **verification, do
 | Integrator passes a LangGraph **1.1.x**-compatible **`Checkpointer`** into **`compile_replayt_workflow`** | Bridge-shipped **default** durable backend or encryption |
 | **In-process** checkpoint round-trip (e.g. **`MemorySaver`**) for docs, CI, and local debugging | **Distributed** coordination, multi-tenant isolation guarantees |
 | **Resume** semantics: multiple **`invoke`** calls with the same **`thread_id`** (via **`config["configurable"]`**) and the same compiled graph + saver, including **`interrupt_before` / `interrupt_after`** where needed | In-repo **first-class** samples for every upstream saver (SQLite, Postgres, cloud); integrators follow **LangGraph / langgraph-checkpoint** docs until a backlog adds maintained examples |
-| **Limitations** documented: ephemeral vs durable vs hosted (**CHECKPOINT_PERSISTENCE.md** §2–3; **HOSTED_DEPLOYMENT_AUTHZ.md**) | Equating LangGraph checkpoint durability with **replayt** **Runner** / **store** durability (separate ownership; see **CHECKPOINT_PERSISTENCE.md** §1) |
+| **Limitations** documented: ephemeral vs durable vs hosted (**CHECKPOINT_PERSISTENCE.md** §3–4; **HOSTED_DEPLOYMENT_AUTHZ.md**) | Equating LangGraph checkpoint durability with **replayt** **Runner** / **store** durability (separate ownership; operator-facing diagram and failure-mode grouping in **CHECKPOINT_PERSISTENCE.md** — **Two persistence planes (LangGraph checkpointer vs replayt Runner / store)**; normative acceptance in **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**). |
 
 ---
 
@@ -54,7 +54,7 @@ Docs explicitly state:
 - **Ephemeral / single-process** patterns (**MemorySaver**-class) vs **durable** backends and **hosted** deployments.
 - That the bridge does **not** implement distributed or production-grade storage by itself.
 
-**Normative home:** **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §2–3; **hosted** controls in **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**.
+**Normative home:** **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** §3–4; **hosted** controls in **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**.
 
 ---
 
