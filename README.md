@@ -164,7 +164,64 @@ result = graph.invoke(
 # result["context"]["visit"] == 2 after both steps complete
 ```
 
-To **pause and resume** across two **`invoke`** calls, compile with **`interrupt_before`** or **`interrupt_after`** (replayt step names). Run the first **`invoke`** with initial state, **`config`**, and **`context`**. For the continuation **`invoke`**, pass **`None`** as the graph input, keep the same **`config`** and **`context`**, and reuse the same compiled graph and saver. See **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** §6 and **`test_resume_second_invoke_uses_memory_checkpointer`**.
+### Human-in-the-loop (`interrupt_before` / `interrupt_after`)
+
+**`interrupt_*`** lists use **replayt** step names (the same strings as **`@workflow.step(...)`** and **`note_transition`**); they are forwarded to LangGraph **`StateGraph.compile`**. See **[docs/API.md](docs/API.md)** (`compile_replayt_workflow`). Ordering when you pass both lists follows upstream **`compile`** (this bridge does not reorder them).
+
+Copy-paste pattern: **`MemorySaver`**, stable **`thread_id`** in **`config["configurable"]`**, **`Runner`** + store with **`run_id`** set, **`context={"runner": runner}`** on **every** **`invoke`** for that thread, then **`invoke(None, ...)`** to resume. Persistence and resume expectations: **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** §6. Regression tests: **`tests/test_bridge_graph.py`** — **`test_resume_second_invoke_uses_memory_checkpointer`** (**`interrupt_before`**), **`test_resume_second_invoke_interrupt_after_first_uses_memory_checkpointer`** (**`interrupt_after`**).
+
+```python
+from uuid import uuid4
+
+from langgraph.checkpoint.memory import MemorySaver
+from replayt.persistence import JSONLStore
+from replayt.runner import Runner
+from replayt.workflow import Workflow
+
+from replayt_langgraph_bridge import compile_replayt_workflow, initial_bridge_state
+
+wf = Workflow("hitl_demo")
+
+@wf.step("first")
+def first(ctx):
+    ctx.set("phase", 1)
+    return "second"
+
+@wf.step("second")
+def second(ctx):
+    ctx.set("phase", ctx.get("phase", 0) + 10)
+    return None
+
+wf.set_initial("first")
+wf.note_transition("first", "second")
+
+store = JSONLStore("hitl_events.jsonl")  # use a temp path in real tests
+runner = Runner(wf, store)
+runner.run_id = str(uuid4())
+
+saver = MemorySaver()
+graph = compile_replayt_workflow(
+    wf,
+    checkpointer=saver,
+    interrupt_after=["first"],  # pause after the first step (replayt name)
+)
+config = {"configurable": {"thread_id": "hitl-thread"}}
+
+out1 = graph.invoke(
+    initial_bridge_state(context={"seed": True}),
+    config=config,
+    context={"runner": runner},
+)
+# LangGraph 1.1.x: first step ran; bridge leaves replayt_next at the next step name.
+assert out1["context"]["phase"] == 1
+assert out1["replayt_next"] == "second"
+
+out2 = graph.invoke(None, config=config, context={"runner": runner})
+assert out2["context"]["phase"] == 11
+assert out2["replayt_next"] == ""
+```
+
+To **pause and resume** across two **`invoke`** calls, compile with **`interrupt_before`** or **`interrupt_after`** (replayt step names). Run the first **`invoke`** with initial state, **`config`**, and **`context`**. For the continuation **`invoke`**, pass **`None`** as the graph input, keep the same **`config`** and **`context`**, and reuse the same compiled graph and saver. See **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** §6 and the tests named above.
 
 ## Typing (PEP 561)
 

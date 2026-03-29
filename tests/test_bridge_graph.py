@@ -148,6 +148,70 @@ def test_resume_second_invoke_uses_memory_checkpointer(tmp_path: Path) -> None:
     )
 
 
+def test_resume_second_invoke_interrupt_after_first_uses_memory_checkpointer(
+    tmp_path: Path,
+) -> None:
+    """``interrupt_after`` + second ``invoke`` on the same ``thread_id`` (CHECKPOINT_PERSISTENCE §6).
+
+    Spec: ``docs/BACKLOG_HITL_INTERRUPT_COOKBOOK.md`` (backlog ``4b64a655-bb06-49e5-8912-61b06626a034``).
+    Observable first-``invoke`` state matches LangGraph 1.1.x with ``interrupt_after=["first"]``.
+    """
+    wf = Workflow("resume_two_invoke_after")
+
+    @wf.step("first")
+    def first(ctx):
+        ctx.set("phase", 1)
+        return "second"
+
+    @wf.step("second")
+    def second(ctx):
+        ctx.set("phase", ctx.get("phase", 0) + 10)
+        return None
+
+    wf.set_initial("first")
+    wf.note_transition("first", "second")
+
+    store_path = tmp_path / "resume_after.jsonl"
+    store = JSONLStore(store_path)
+    runner = Runner(wf, store)
+    runner.run_id = str(uuid.uuid4())
+
+    saver = MemorySaver()
+    graph = compile_replayt_workflow(
+        wf, checkpointer=saver, interrupt_after=["first"]
+    )
+    cfg = {"configurable": {"thread_id": "resume-after-first"}}
+
+    out1 = graph.invoke(
+        initial_bridge_state(context={"seed": True}),
+        config=cfg,
+        context={"runner": runner},
+    )
+    assert out1["context"]["seed"] is True, (
+        "replayt boundary: first invoke must preserve merged LangGraph context in bridge state"
+    )
+    assert out1["context"]["phase"] == 1, (
+        "replayt boundary: interrupt_after first must run first step and persist RunContext.data"
+    )
+    assert out1["replayt_next"] == "second", (
+        "replayt boundary: interrupt_after first must leave replayt_next at the next step"
+    )
+    assert len(list(saver.list(cfg))) >= 1, (
+        "replayt boundary: MemorySaver must persist at least one checkpoint for resume"
+    )
+
+    out2 = graph.invoke(None, config=cfg, context={"runner": runner})
+    assert out2["context"]["phase"] == 11, (
+        "replayt boundary: resumed invoke must run second step and accumulate RunContext.data"
+    )
+    assert out2["replayt_next"] == "", (
+        "replayt boundary: terminal step must clear replayt_next after resume"
+    )
+    assert out2["context"]["seed"] is True, (
+        "replayt boundary: resumed run must keep original context keys from first invoke"
+    )
+
+
 def test_unknown_next_state_raises(tmp_path: Path) -> None:
     """Routing rejects unknown next step; ``MemorySaver`` present (CHECKPOINT_PERSISTENCE §6 baseline)."""
     wf = Workflow("bad")
