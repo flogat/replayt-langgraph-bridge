@@ -2,9 +2,20 @@
 
 This document defines **what is persisted** when using `compile_replayt_workflow(..., checkpointer=...)`, **how in-memory and durable stores differ**, **secret/PII expectations** on serialized graph state, and **failure behavior** for bad or mismatched data. It satisfies the backlog to make checkpoint behavior **explicit before production-minded adoption**.
 
-**Backlog traceability:** Mission Control item **Add LangGraph checkpoint integration slice** maps acceptance criteria and slice boundaries to this file and tests in **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)**. Mission Control item **Durable replayt store vs LangGraph checkpoint: single ownership diagram** (`fae06d2c-c181-4706-b533-f93eb99b8f07`) specifies the operator-facing **two persistence planes** section and README link in **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**. Mission Control item **Add optional disk-backed checkpoint round-trip test (SQLite)** (`255db7a8-876d-475d-8c69-cdb5f0c9fcc0`) specifies CI pytest and **`dev`** lockfile obligations in **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)**.
+**Backlog traceability:** Mission Control item **Add LangGraph checkpoint integration slice** maps acceptance criteria and slice boundaries to this file and tests in **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)**. Mission Control item **Durable replayt store vs LangGraph checkpoint: single ownership diagram** (`fae06d2c-c181-4706-b533-f93eb99b8f07`) specifies the operator-facing **two persistence planes** section and README link in **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**. Mission Control item **Add optional disk-backed checkpoint round-trip test (SQLite)** (`255db7a8-876d-475d-8c69-cdb5f0c9fcc0`) specifies CI pytest and **`dev`** lockfile obligations in **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)**. Mission Control item **Hosted checkpoint runbook: tighten cross-links and integrator checklist** (`af6b342e-289d-4173-a317-2c9815746cbf`) specifies the paired-doc runbook, integrator checklist, and README/API anchor contract in **[BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md](BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md)**.
 
-**Relationship to other specs:** Inbound validation of `ReplaytBridgeState` is specified in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**. Hosted topology, TLS, and IAM-style controls are in **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**. Assets and adversaries are summarized in **[THREAT_MODEL.md](THREAT_MODEL.md)**.
+**Relationship to other specs:** Inbound validation of `ReplaytBridgeState` is specified in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**. Hosted topology, TLS, IAM-style controls, the **integrator checklist** (**TLS**, **identity**, **`thread_id`** tenancy, **secrets**), and **explicit non-guarantees** for multi-tenant or distributed storage are in **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** (read together with this file as one runbook—see below). Assets and adversaries are summarized in **[THREAT_MODEL.md](THREAT_MODEL.md)**.
+
+---
+
+## Integrator runbook: remote checkpoints
+
+If you are choosing a **durable**, **network-attached**, or **shared** LangGraph **`Checkpointer`**, read **this document** and **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** as **one story**:
+
+- **Here (CHECKPOINT_PERSISTENCE):** **[Two persistence planes](#two-persistence-planes-langgraph-checkpointer-vs-replayt-runner--store)**, **[in-memory vs durable](#3-in-memory-vs-durable-checkpointers)**, **[secrets in serialized state](#5-secrets-pii-and-serialized-state)**, and **[failure modes / skew](#6-failure-modes-corrupt-data-and-version-skew)**.
+- **In HOSTED_DEPLOYMENT_AUTHZ:** the **[Integrator checklist: remote or multi-tenant checkpoints](HOSTED_DEPLOYMENT_AUTHZ.md#integrator-checklist-remote-or-multi-tenant-checkpoints)** and **[what this package does not guarantee](HOSTED_DEPLOYMENT_AUTHZ.md#what-this-package-does-not-guarantee-multi-tenant-and-distributed-storage)** for **multi-tenant** and **distributed** deployments.
+
+You do **not** need to read **`src/`** to learn those boundaries; they are normative in the docs above. Acceptance criteria: **[BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md](BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md)**.
 
 ---
 
@@ -154,7 +165,8 @@ Map the product backlog to verifiable items:
 ## 8. Related documents
 
 - **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** — Inbound dict validation, schema version, no partial checkpoint on reject.
-- **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** — Topologies T1–T5, TLS, IAM, upstream persistence links.
+- **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** — Topologies T1–T5, TLS, IAM, upstream persistence links, **[integrator checklist (remote / multi-tenant)](HOSTED_DEPLOYMENT_AUTHZ.md#integrator-checklist-remote-or-multi-tenant-checkpoints)**, **[non-guarantees](HOSTED_DEPLOYMENT_AUTHZ.md#what-this-package-does-not-guarantee-multi-tenant-and-distributed-storage)**.
+- **[BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md](BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md)** — Spec and acceptance (**H1**–**H7**) for the hosted checkpoint runbook backlog (`af6b342e-289d-4173-a317-2c9815746cbf`).
 - **[THREAT_MODEL.md](THREAT_MODEL.md)** — Assets, adversaries, unsafe fields, non-goals.
 - **[LOG_REDACTION.md](LOG_REDACTION.md)** — Logging only; not checkpoint contents.
 - **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** — Replayt-facing test style; LangGraph checkpoint tests may live alongside but are **not** a substitute for this persistence contract.

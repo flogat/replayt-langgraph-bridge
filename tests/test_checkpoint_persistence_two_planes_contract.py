@@ -39,7 +39,7 @@ def test_readme_links_two_persistence_planes_anchor() -> None:
     readme = _README.read_text(encoding="utf-8")
     assert _ANCHOR_FRAGMENT in readme
     assert re.search(
-        r"\[two persistence planes \(replayt store vs LangGraph checkpointer\)\]",
+        r"\[two persistence planes \(langgraph checkpointer vs replayt runner / store\)\]",
         readme,
         re.IGNORECASE,
     ), "expected README anchor text for two persistence planes"

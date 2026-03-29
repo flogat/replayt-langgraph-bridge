@@ -73,10 +73,11 @@ In-repo **tests** may import private helpers (e.g. functions prefixed with `_` i
 
 | Topic | Normative doc |
 | ----- | ------------- |
-| Checkpoint persistence scope, backends pattern (langgraph 1.1.x), failure modes | **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** |
+| Checkpoint persistence scope, backends pattern (langgraph 1.1.x), failure modes | **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** (see **[Integrator runbook: remote checkpoints](CHECKPOINT_PERSISTENCE.md#integrator-runbook-remote-checkpoints)** and **[Two persistence planes](CHECKPOINT_PERSISTENCE.md#two-persistence-planes-langgraph-checkpointer-vs-replayt-runner--store)**) |
 | Backlog: checkpoint slice acceptance criteria and in/out of scope | **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)** |
 | Backlog: disk-backed (SQLite) checkpoint round-trip pytest + CI / lockfile obligations | **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)** |
-| Hosted checkpoints, remote runtimes, TLS, and access control | **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** |
+| Backlog: hosted checkpoint runbook — checklist, non-guarantees, README/API anchors | **[BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md](BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md)** |
+| Hosted checkpoints, remote runtimes, TLS, access control, integrator checklist, non-guarantees | **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** (**[checklist](HOSTED_DEPLOYMENT_AUTHZ.md#integrator-checklist-remote-or-multi-tenant-checkpoints)**, **[non-guarantees](HOSTED_DEPLOYMENT_AUTHZ.md#what-this-package-does-not-guarantee-multi-tenant-and-distributed-storage)**) |
 | Inbound state limits and schema version | **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** |
 | Compile-time and routing/mapping errors (`compile_replayt_workflow`, `replayt_next`) | **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** |
 | Large workflows: non-normative scale expectations, profiling pointers, optional advisory spec | **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** §5–§4.3; **[BACKLOG_LARGE_WORKFLOW_COMPILE_ERGONOMICS.md](BACKLOG_LARGE_WORKFLOW_COMPILE_ERGONOMICS.md)** |
