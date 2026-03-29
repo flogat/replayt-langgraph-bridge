@@ -41,6 +41,9 @@ jobs:
     - name: Run linting
       run: uv run ruff check src tests
 
+    - name: Type check (mypy smoke)
+      run: uv run mypy -p replayt_langgraph_bridge
+
   supply-chain:
     runs-on: ubuntu-latest
     strategy:

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **PEP 561:** **`py.typed`** under **`replayt_langgraph_bridge`**, setuptools **`package-data`** so wheels/sdists include the marker, **`mypy`** in **`[dev]`** with **`[tool.mypy]`** smoke scope (**`follow_imports = "skip"`**, **`ignore_missing_imports = true`**), CI step **`uv run mypy -p replayt_langgraph_bridge`**, README **Typing (PEP 561)** and extras matrix update, **`tests/test_pep561_packaging.py`** (wheel must contain **`py.typed`** when **`uv`** is on **`PATH`**). Regenerated **`uv.lock`** (phase **3**, backlog **PEP 561 typing posture: py.typed, stub coverage, and contributor note**).
+
 ### Changed
 
 - **`.gitignore`**: env files (**`.env`**, **`.env.*`**), **direnv**, common private key filenames (**`*.pfx`** alongside **`*.pem`** / **`*.p12`**), dev-only **`local_checkpoints/`** / **`scratch/`** / **`*.dev.sqlite3`**, and local coverage data (**`.coverage`**, **`.coverage.*`**); header and comments tie blocks to **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** §2–§3 (phase **3**, backlog **Review and tighten `.gitignore` for local secrets and orchestrator artifacts**).

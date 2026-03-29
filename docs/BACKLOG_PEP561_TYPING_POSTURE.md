@@ -6,17 +6,17 @@ Normative **spec and acceptance criteria** for Mission Control backlog **PEP 561
 
 ---
 
-## 1. Reconciliation with repository state (baseline at phase 2)
+## 1. Reconciliation with repository state
 
 Treat the following as **facts** for builders unless a later change explicitly updates this section:
 
 | Topic | Current state |
 | ----- | --------------- |
-| **`py.typed` marker** | **Absent** under **`src/replayt_langgraph_bridge/`**. Wheels/sdists do **not** advertise PEP 561 typed-package status. |
-| **Setuptools layout** | **`[tool.setuptools.package-dir]`** maps **`""` → `src`**; packages discovered under **`src`**. A zero-byte **`py.typed`** file is **not** guaranteed to land in the distribution without explicit **`package-data`** (or **`MANIFEST.in`**). |
+| **`py.typed` marker** | **Present** at **`src/replayt_langgraph_bridge/py.typed`**. **`[tool.setuptools.package-data]`** lists it so wheels/sdists include the marker (contract: **`tests/test_pep561_packaging.py`**). |
+| **Setuptools layout** | **`[tool.setuptools.package-dir]`** maps **`""` → `src`**; packages discovered under **`src`**. **`package-data`** is required so a **`py.typed`** file is not dropped from artifacts. |
 | **Inline annotations** | Public re-exports use **`TypedDict`**, **`Literal`**, and type aliases in several places; internal modules use **`typing`** / **`typing_extensions`** as needed. |
-| **CI** | Job **`test`** runs **`uv run pytest`** and **`uv run ruff check`** only—**no** **`mypy`** or **`pyright`** step. |
-| **`[dev]` extra** | **pytest**, **ruff**, **pip-audit** only; **no** type-checker dependency in **`uv.lock`** today. Adding one requires lock regeneration per **CONTRIBUTING.md**. |
+| **CI** | Job **`test`** runs **`uv run pytest`**, **`uv run ruff check src tests`**, and **`uv run mypy -p replayt_langgraph_bridge`** after **`uv sync --frozen --extra dev`**. |
+| **`[dev]` extra** | **pytest**, **ruff**, **pip-audit**, **mypy**; **mypy** is pinned in **`uv.lock`**. Smoke settings live under **`[tool.mypy]`** in **`pyproject.toml`** (**`follow_imports = "skip"`**, **`ignore_missing_imports = true`**). |
 
 ---
 
@@ -56,11 +56,11 @@ User-visible delivery (**`py.typed`**, new **dev** type-checker dependency, **CI
 
 ## 6. Spec gate / builder checklist (phases 2b / 3)
 
-- [ ] **A1** satisfied: **`py.typed`** in artifacts **or** documented omission with README + **§7** rationale.
-- [ ] **A2** satisfied: **mypy** *or* **pyright** smoke **in CI** **or** verbatim **CONTRIBUTING** commands; scope stays **minimal** (public / bridge-owned path, not wholesale strictification).
-- [ ] **A3** satisfied: **CONTRIBUTING** **Public API typing** matches **`__all__`** / **API.md** after any API edits.
-- [ ] **README** mentions typing expectations when **`py.typed`** ships.
-- [ ] **CHANGELOG** updated for user-visible packaging or CI changes.
+- [x] **A1** satisfied: **`py.typed`** in artifacts **or** documented omission with README + **§7** rationale.
+- [x] **A2** satisfied: **mypy** *or* **pyright** smoke **in CI** **or** verbatim **CONTRIBUTING** commands; scope stays **minimal** (public / bridge-owned path, not wholesale strictification).
+- [x] **A3** satisfied: **CONTRIBUTING** **Public API typing** matches **`__all__`** / **API.md** after any API edits.
+- [x] **README** mentions typing expectations when **`py.typed`** ships.
+- [x] **CHANGELOG** updated for user-visible packaging or CI changes.
 
 ---
 

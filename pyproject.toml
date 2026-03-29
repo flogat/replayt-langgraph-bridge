@@ -18,6 +18,8 @@ dev = [
   "pytest>=8.0",
   "ruff>=0.6.0",
   "pip-audit>=2.7.0",
+  # PEP 561 smoke for bridge-owned modules; upstream deps use ignore_missing_imports in [tool.mypy]
+  "mypy>=1.11.0",
 ]
 # Vendor LLM HTTP/API clients and thin LangChain wrappers for samples only—not required for the public bridge API.
 demo = [
@@ -40,6 +42,18 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+replayt_langgraph_bridge = ["py.typed"]
+
+[tool.mypy]
+python_version = "3.11"
+# Resolve the package as replayt_langgraph_bridge (not src.*); mypy_path matches src layout.
+mypy_path = "src"
+explicit_package_bases = true
+ignore_missing_imports = true
+# Smoke scope: type-check bridge modules only; do not pull full upstream graphs into analysis.
+follow_imports = "skip"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
