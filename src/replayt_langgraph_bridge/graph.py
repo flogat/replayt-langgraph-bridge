@@ -227,9 +227,11 @@ def compile_replayt_workflow(
 
     Bridge lifecycle events are logged on the logger named ``replayt_langgraph_bridge`` (or ``bridge_logger``)
     with structured metadata under ``LogRecord.replayt_bridge`` after redaction per ``docs/LOG_REDACTION.md``.
-    With no handlers configured for that logger, stdlib logging emits nothing by default; to force silence or
-    tune verbosity, set levels, attach ``logging.NullHandler``, or pass a no-op ``bridge_logger``. See
-    ``docs/API.md`` (bridge logging). Set ``REPLAYT_BRIDGE_STRICT_REDACT=1`` or pass ``strict_redact=True`` for
+    The logger uses level ``NOTSET`` and ``propagate=True``, so the effective threshold follows ancestors (often
+    root ``WARNING``). ``ERROR`` records may still reach ``stderr`` via the interpreter's last-resort handler
+    without explicit handler configuration; ``INFO`` / ``DEBUG`` need a configured handler or ``logging.basicConfig``.
+    To silence or tune output, see ``docs/API.md`` (bridge logging): ``NullHandler``, ``propagate=False``, levels,
+    or a no-op ``bridge_logger``. Set ``REPLAYT_BRIDGE_STRICT_REDACT=1`` or pass ``strict_redact=True`` for
     stricter masking (most restrictive wins when the env enables strict). ``redact=False`` disables built-in
     redaction and emits a runtime warning.
 
