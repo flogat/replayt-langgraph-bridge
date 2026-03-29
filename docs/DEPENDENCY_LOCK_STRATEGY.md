@@ -36,12 +36,14 @@ After implementation, **at least one** CI job (see §4) **must** install using *
 
 ### 3.2 Python versions
 
-CI runs **Python 3.11** and **3.12** (`.github/workflows/ci.yml`). The Builder **must** either:
+CI runs **Python 3.11**, **3.12**, and **3.13** (`.github/workflows/ci.yml` **`test`** and **`supply-chain`** matrices). The Builder **must** either:
 
-- Maintain **one** lock strategy that supports **both** interpreters (e.g. uv’s unified lock with per-version sync), **or**
+- Maintain **one** lock strategy that supports **every** matrix interpreter (uv’s unified **`uv.lock`** with per-version **`uv sync --frozen`**), **or**
 - Commit **separate** lock artifacts per Python minor **only if** documented with explicit regen commands for each.
 
 Either way, **each matrix job** must install from the documented artifact(s) so resolution is frozen for that job.
+
+**Python 3.13:** The **`test`** and **`supply-chain`** jobs include **3.13**; root **`uv.lock`** remains the single frozen graph for **`[dev]`** on all three minors. Rollout notes: **[docs/COMPATIBILITY_UPDATE_PYTHON_313.md](COMPATIBILITY_UPDATE_PYTHON_313.md)**. The next Python minor should repeat the **Compatibility Update** checklist and **[BACKLOG_PYTHON_313_CI_MATRIX.md](BACKLOG_PYTHON_313_CI_MATRIX.md)** pattern.
 
 ### 3.3 Optional `demo` extra
 

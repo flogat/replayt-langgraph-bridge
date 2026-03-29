@@ -70,6 +70,6 @@ When the builder lands user-visible cookbook text or clarifies **`interrupt_*`**
 ## 5. Spec gate / builder checklist (phases 2b / 3)
 
 - [x] §3.1 copy-paste cookbook present in README and/or **API.md** with §3.1 traceability links.
-- [x] §3.2 **`interrupt_after`** test present and green on **Python** 3.11 and 3.12 CI (or explicit §3.2 waiver recorded in spec gate with issue link).
+- [x] §3.2 **`interrupt_after`** test present and green on **Python** 3.11, **3.12**, and **3.13** CI (or explicit §3.2 waiver recorded in spec gate with issue link).
 - [x] Assertion messages remain contract-named per **REPLAYT_BOUNDARY_TESTS.md** for replayt-importing tests.
 - [x] **CHANGELOG.md — Unreleased** updated when integrator-facing doc/semantics ship.
