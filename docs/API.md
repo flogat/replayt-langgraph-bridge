@@ -34,7 +34,19 @@ These names are **stable** under semantic versioning for this package: breaking 
 
 ### Bridge logging (silence and verbosity)
 
-The bridge uses the stdlib logger named `replayt_langgraph_bridge` (or the `bridge_logger` you pass to `compile_replayt_workflow`). Records propagate to ancestor loggers by default; with a typical root configuration, **ERROR** bridge events can still appear even if you never attached a handler to the bridge logger. To drop bridge output entirely, attach `logging.NullHandler` to `replayt_langgraph_bridge`, set `logger.propagate = False`, or pass a logger you control. For more detail, adjust levels and handlers on that logger or its parents. Emitted attachments follow **[LOG_REDACTION.md](LOG_REDACTION.md)** when `redact=True` (default).
+The bridge uses the stdlib logger named `replayt_langgraph_bridge` unless you pass `bridge_logger` to `compile_replayt_workflow`. That logger uses level `NOTSET` and `propagate=True`, so the effective threshold follows ancestor loggers (often the root at `WARNING`). **ERROR** records can still reach `stderr` through the interpreter last-resort handler when no handler is configured. **INFO** and **DEBUG** need a handler on this logger or an ancestor, or `logging.basicConfig` (or equivalent) on the root.
+
+Compile-time and routing failures are specified in **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)**; related diagnostics use the same bridge logger. Inbound state validation can log on that logger too; see **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**. Structured attachments follow **[LOG_REDACTION.md](LOG_REDACTION.md)** when `redact=True` (default).
+
+To silence bridge output, attach `logging.NullHandler` to `replayt_langgraph_bridge`, set `propagate=False`, tune levels, or pass a no-op `bridge_logger`.
+
+```python
+import logging
+
+log = logging.getLogger("replayt_langgraph_bridge")
+log.addHandler(logging.NullHandler())
+log.propagate = False
+```
 
 ### Experimental and internal (normative rules)
 
@@ -65,6 +77,7 @@ In-repo **tests** may import private helpers (e.g. functions prefixed with `_` i
 | Hosted checkpoints, remote runtimes, TLS, and access control | **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** |
 | Inbound state limits and schema version | **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** |
 | Compile-time and routing/mapping errors (`compile_replayt_workflow`, `replayt_next`) | **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** |
+| Bridge logger qualname, default levels, silence | **[Bridge logging](#bridge-logging-silence-and-verbosity)** |
 | Bridge-originated logging and redaction | **[LOG_REDACTION.md](LOG_REDACTION.md)** |
 | Replayt-facing tests and assertion style | **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** |
 | Dependency ranges and compatibility process | **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)** |
