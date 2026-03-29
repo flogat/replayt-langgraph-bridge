@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **Durable replayt store vs LangGraph checkpoint (spec)** — **[docs/BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](docs/BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**: testable acceptance for the **two persistence planes** section in **CHECKPOINT_PERSISTENCE.md**, README link, traceability updates, and spec-gate checklist (phase **2**, backlog **Durable replayt store vs LangGraph checkpoint: single ownership diagram**); **CHECKPOINT_PERSISTENCE.md** / **BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md** cross-links (same phase).
 - **Human-in-the-loop:** README **Human-in-the-loop** copy-paste example (**`MemorySaver`**, **`interrupt_after`**, two **`invoke`** calls, **`context={"runner": runner}`**); **`docs/API.md`** pointer to that section; **`tests/test_bridge_graph.py`** adds **`test_resume_second_invoke_interrupt_after_first_uses_memory_checkpointer`** for LangGraph 1.1.x **`interrupt_after`** semantics (phase **3**, backlog **Human-in-the-loop cookbook: interrupt_before / interrupt_after with tests**).
 
 ### Added

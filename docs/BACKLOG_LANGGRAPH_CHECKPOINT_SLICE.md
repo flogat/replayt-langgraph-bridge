@@ -2,7 +2,7 @@
 
 Normative **spec and acceptance criteria** for Mission Control backlog **Add LangGraph checkpoint integration slice** (item `6e2e8723-57c1-4f0c-bb74-6e9eb10beb23`). Phase **2** (spec lead) owns this document; phase **3** (builder) implements or verifies against it; phase **2b** (spec gate) checks completeness.
 
-**Related normative docs:** persistence contract **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**; inbound state and wrapped saver **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; hosted backends **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**; public entry points **[API.md](API.md)** and **README**. **Human-in-the-loop interrupts** (copy-paste cookbook + **`interrupt_after`** test obligations): **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)**.
+**Related normative docs:** persistence contract **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**; inbound state and wrapped saver **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; hosted backends **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**; public entry points **[API.md](API.md)** and **README**. **Human-in-the-loop interrupts** (copy-paste cookbook + **`interrupt_after`** test obligations): **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)**. **Two persistence planes** (replayt **Runner** / store vs LangGraph **Checkpointer** — operator diagram and failure-mode grouping): **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**.
 
 ---
 
@@ -26,7 +26,7 @@ Unless scope is explicitly widened below, this backlog covers **verification, do
 | Integrator passes a LangGraph **1.1.x**-compatible **`Checkpointer`** into **`compile_replayt_workflow`** | Bridge-shipped **default** durable backend or encryption |
 | **In-process** checkpoint round-trip (e.g. **`MemorySaver`**) for docs, CI, and local debugging | **Distributed** coordination, multi-tenant isolation guarantees |
 | **Resume** semantics: multiple **`invoke`** calls with the same **`thread_id`** (via **`config["configurable"]`**) and the same compiled graph + saver, including **`interrupt_before` / `interrupt_after`** where needed | In-repo **first-class** samples for every upstream saver (SQLite, Postgres, cloud); integrators follow **LangGraph / langgraph-checkpoint** docs until a backlog adds maintained examples |
-| **Limitations** documented: ephemeral vs durable vs hosted (**CHECKPOINT_PERSISTENCE.md** §2–3; **HOSTED_DEPLOYMENT_AUTHZ.md**) | Equating LangGraph checkpoint durability with **replayt** **Runner** / **store** durability (separate ownership; see **CHECKPOINT_PERSISTENCE.md** §1) |
+| **Limitations** documented: ephemeral vs durable vs hosted (**CHECKPOINT_PERSISTENCE.md** §2–3; **HOSTED_DEPLOYMENT_AUTHZ.md**) | Equating LangGraph checkpoint durability with **replayt** **Runner** / **store** durability (separate ownership; see **CHECKPOINT_PERSISTENCE.md** §1). **Expanded operator-facing treatment** (single diagram/table + layered failure modes + README pointer) is backlog **`fae06d2c-c181-4706-b533-f93eb99b8f07`** — **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**. |
 
 ---
 

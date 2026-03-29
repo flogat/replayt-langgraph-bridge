@@ -2,7 +2,7 @@
 
 This document defines **what is persisted** when using `compile_replayt_workflow(..., checkpointer=...)`, **how in-memory and durable stores differ**, **secret/PII expectations** on serialized graph state, and **failure behavior** for bad or mismatched data. It satisfies the backlog to make checkpoint behavior **explicit before production-minded adoption**.
 
-**Backlog traceability:** Mission Control item **Add LangGraph checkpoint integration slice** maps acceptance criteria and slice boundaries to this file and tests in **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)**.
+**Backlog traceability:** Mission Control item **Add LangGraph checkpoint integration slice** maps acceptance criteria and slice boundaries to this file and tests in **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)**. Mission Control item **Durable replayt store vs LangGraph checkpoint: single ownership diagram** (`fae06d2c-c181-4706-b533-f93eb99b8f07`) specifies the operator-facing **two persistence planes** section and README link in **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**.
 
 **Relationship to other specs:** Inbound validation of `ReplaytBridgeState` is specified in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**. Hosted topology, TLS, and IAM-style controls are in **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**. Assets and adversaries are summarized in **[THREAT_MODEL.md](THREAT_MODEL.md)**.
 
@@ -120,3 +120,4 @@ Map the product backlog to verifiable items:
 - **[LOG_REDACTION.md](LOG_REDACTION.md)** — Logging only; not checkpoint contents.
 - **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** — Replayt-facing test style; LangGraph checkpoint tests may live alongside but are **not** a substitute for this persistence contract.
 - **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)** — Spec and acceptance criteria for **`interrupt_before` / `interrupt_after`** integrator cookbook and CI coverage (Mission Control backlog `4b64a655-bb06-49e5-8912-61b06626a034`).
+- **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)** — Spec and acceptance criteria for the **two persistence planes** diagram / table and layered failure modes (Mission Control backlog `fae06d2c-c181-4706-b533-f93eb99b8f07`).
