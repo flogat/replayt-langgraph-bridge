@@ -61,9 +61,10 @@ The following **must not** be ignored (treat as **forbidden ignore targets** whe
 | **`tests/`** | Default **pytest** **`testpaths`**; CI runs the full suite with no path filter. |
 | **`docs/`** | Normative specifications and integrator-facing documentation. |
 | **`.github/workflows/`** | CI definitions (e.g. **`test`**, **`supply-chain`**). |
+| **`.env.example`** | Tracked, comment-only template for local environment variable **names** (no secrets). Must stay visible to Git: **`.env.*`** is ignored, so **`!.env.example`** sits **immediately** after that line in **`.gitignore`** (Category **A**). |
 | **Root policy files** | **`README.md`**, **`CONTRIBUTING.md`**, **`CHANGELOG.md`**, **`SECURITY.md`**, **`LICENSE`**, **`MANIFEST.in`** (if present), and any committed **`src/**`** / **`tests/**`** data files relied on by tests. |
 
-**Packaging verification:** After editing **`.gitignore`**, the Builder **must** run **`uv sync --frozen --extra dev`**, **`uv run pytest`** (no path or marker filter, per **CONTRIBUTING** / **REPLAYT_BOUNDARY_TESTS**), and confirm **`python -m build`** (or **`uv build`**) produces a wheel/sdist from a clean worktree **without** missing tracked files. If the project adds a **tracked** **`.env.example`**, ensure ignore rules for **`.env*`** do not exclude it (**`!.env.example`**).
+**Packaging verification:** After editing **`.gitignore`**, the Builder **must** run **`uv sync --frozen --extra dev`**, **`uv run pytest`** (no path or marker filter, per **CONTRIBUTING** / **REPLAYT_BOUNDARY_TESTS**), and confirm **`python -m build`** (or **`uv build`**) produces a wheel/sdist from a clean worktree **without** missing tracked files. This repository **ships** **`.env.example`**; keep **`!.env.example`** immediately under **`.env.*`** so the template is never hidden.
 
 ---
 
@@ -145,19 +146,19 @@ Use this list when expanding **Category A** or **B**; **do not** copy it wholesa
 - **`.orchestrator/`** is **gitignored by design** (ephemeral Mission Control state). Do not **`git add`** it unless an explicit workflow requires it.
 - **Secrets policy** for *runtime behavior* remains **[DESIGN_PRINCIPLES.md — Secrets policy](DESIGN_PRINCIPLES.md#secrets-policy)**; this document covers **version-control boundaries** only.
 
-### 7.1 Current baseline (spec snapshot for phase 3)
+### 7.1 Current baseline (`.env.example` and Category **A**)
 
-As of the spec refinement for this backlog, the repository **already** carries a commented **`.gitignore`** and **CONTRIBUTING** “must never commit” text that satisfy **G1**–**G3** at a high level. The **Builder** phase should **audit** against §2–§5.1 (diff vs merge base), add patterns only where gaps exist, and extend **CONTRIBUTING** bullets if new categories land—not duplicate existing blocks without cause.
+The repository **ships** a root **`.env.example`**: comment-only keys (for example optional **`OPENAI_API_KEY`**, **`ANTHROPIC_API_KEY`**, **`LANGCHAIN_*`**, **`REPLAYT_BRIDGE_STRICT_REDACT`**) with **no** values, plus short pointers to this doc and **Secrets policy**. **`.gitignore`** ignores **`.env`**, **`.env.*`**, then **`!.env.example`** on the following line so the template stays tracked (**§3**). **README** and **CONTRIBUTING** link **`.env.example`** from setup and secrets guidance; **`tests/test_gitignore_contract.py`** asserts **`git check-ignore`** does **not** match **`.env.example`** (**G5**).
 
 **Merge-base review (normative for Builder):** From the git root, compare the feature branch to the integration branch (today **`master`**) with:
 
 ```bash
-git diff master -- .gitignore CONTRIBUTING.md docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md
+git diff master -- .gitignore CONTRIBUTING.md docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md .env.example
 ```
 
 If the diff is empty for **`.gitignore`**, the Builder **still** completes **G1**–**G5** by recording in the PR description (or issue) that the audit found no additional patterns needed, and by confirming **§5.1** / **`test_gitignore_contract`** pass on CI. If the diff is non-empty, cite **§2** categories in the PR.
 
-**`.env.example` (tracked template):** The repo does **not** ship a committed **`.env.example`** today. The commented **`!.env.example`** hint in **`.gitignore`** is forward-looking. When maintainers add a **tracked** **`.env.example`**, they **must** uncomment or add **`!.env.example`** immediately under **`.env.*`** so Category **A** does not hide the template (**§3**).
+**Changing the template:** Edits to **`.env.example`** belong in the **same** change set as any **`.gitignore`** or contract-test updates needed so **§2** / **§3** / **G5** stay true.
 
 ---
 
