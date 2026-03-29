@@ -18,6 +18,8 @@ alignment_result.json
 !.env.example
 .envrc
 .direnv/
+# CLI credential store (FTP/HTTP); optional catalog GITIGNORE_AND_LOCAL_ARTIFACTS.md §6
+.netrc
 *.pem
 *.p12
 # Windows PKCS#12-style bundles (same hygiene as *.p12; §6 optional catalog)

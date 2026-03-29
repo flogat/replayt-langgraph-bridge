@@ -39,6 +39,7 @@ def test_gitignore_blocks_env_and_secret_filenames() -> None:
         ".env",
         ".env.local",
         ".envrc",
+        ".netrc",
         "secrets.pem",
         "bundle.p12",
         "bundle.pfx",
@@ -104,6 +105,7 @@ def test_contributing_links_gitignore_spec() -> None:
     text = _CONTRIBUTING.read_text(encoding="utf-8")
     assert "## What must never be committed" in text
     assert "GITIGNORE_AND_LOCAL_ARTIFACTS.md" in text
+    assert "tests/test_gitignore_contract.py" in text
 
 
 def test_spec_lists_builder_acceptance_g1_through_g5() -> None:
