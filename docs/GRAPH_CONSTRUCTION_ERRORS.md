@@ -34,6 +34,7 @@ This document specifies **bridge-owned** error behavior and observability when a
 | Handler return violates declared edges | `BridgeTransitionError` (`code` **`undeclared_transition`**) | Substring **`undeclared transition`**; includes step name and `allowed=` targets | `transition_invalid` |
 | Inbound `ReplaytBridgeState` invalid | `BridgeStateValidationError` | Generic stable string per STATE_PAYLOAD_VALIDATION | May attach validation context per that spec |
 | LangGraph `StateGraph.compile` / runtime | LangGraph / stdlib | Upstream message | Not bridge-originated |
+| `CompiledStateGraph.invoke` / `ainvoke` with **missing** `context`, **missing** `runner` key, **`runner=None`**, **wrong-`Workflow` `Runner`**, or non-dict `context` | `BridgeInvokeContextError` | Substring **`replayt bridge invoke context`**; `code` is **`missing_runner`** or **`runner_workflow_mismatch`**; names `invoke` / `context` / `runner` / `Workflow` pairing; see §3.4 (no raw `context` payloads) | None at bridge (step entry) |
 
 **Secrets and messages:** Routing and transition errors (`BridgeRoutingError`, `BridgeTransitionError`) include **step names** and **allowed targets** in `str(exc)` (non-secret workflow structure). They **must not** include raw `context` values, secrets, or unredacted attachments. (Structured logs that include `context` use the redaction pipeline — **[LOG_REDACTION.md](LOG_REDACTION.md)**.)
 
@@ -43,7 +44,7 @@ This document specifies **bridge-owned** error behavior and observability when a
 
 ### 3.1 Stable exception types
 
-Integrators must be able to distinguish **compile-time workflow misuse**, **transition contract violations**, and **routing to an unknown step** without parsing arbitrary text.
+Integrators must be able to distinguish **compile-time workflow misuse**, **transition contract violations**, **routing to an unknown step**, and **misconfigured `invoke` runtime context** (`runner` wiring) without parsing arbitrary text.
 
 **Required**
 
@@ -58,6 +59,7 @@ Integrators must be able to distinguish **compile-time workflow misuse**, **tran
 | `BridgeWorkflowCompileError` | `ValueError` | Missing `set_initial` / invalid initial step registration (today’s `ValueError` cases). |
 | `BridgeTransitionError` | `BridgeGraphMappingError`* | Handler return not allowed by `note_transition` / `allows_transition` (today substring `undeclared transition`). |
 | `BridgeRoutingError` | `BridgeGraphMappingError`* | `replayt_next` names a step not on the workflow (today substring `unknown next state`). |
+| `BridgeInvokeContextError` | `Exception` | Missing or invalid LangGraph **`invoke`** **`context`** / **`runner`** before step execution (§3.4). |
 
 \*`BridgeGraphMappingError` is a shared **public** base for mapping/routing failures (subclass `Exception`; does not need to inherit `RuntimeError`). Subclasses may set a **stable** string attribute e.g. `code: Final[Literal["undeclared_transition", "unknown_next"]]` for metrics — optional but encouraged if a single handler wants to branch without `isinstance` chains.
 
@@ -70,6 +72,26 @@ Tests **must** assert **`type(exc)`** (or `code` if using the single-type altern
 ### 3.3 Upstream exceptions
 
 The bridge **may** let **LangGraph** or **replayt** exceptions propagate unchanged when the bridge does not translate the failure (e.g. internal LangGraph compile errors). Document any **new** wrapped/propagated cases in this file and in **`compile_replayt_workflow`** docstring.
+
+### 3.4 Runtime `invoke` context (`runner` wiring)
+
+**Contract:** The compiled graph’s LangGraph **runtime context** must supply a configured replayt **`Runner`** for the **same** `Workflow` (and store) the graph was built from: **`invoke(..., context={"runner": runner})`** (or the async equivalent). This is distinct from **compile-time** validation (§2) and from **routing** errors (`replayt_next`).
+
+**Shipped behavior:** Validation runs at step-node entry in **`graph.py`** (`_require_invoke_runner`) **before** `RunContext` construction or `runner._current_state` assignment.
+
+1. **Choke point** — `runner` must be present, non-`None`, a **`replayt.runner.Runner`**, and (for supported replayt **0.4.x**) `runner.workflow is` the same **`Workflow`** instance passed to **`compile_replayt_workflow`**. If **`Runner.workflow`** is absent or the identity check is unreliable in a future replayt release, narrow or drop the mismatch check and record the rationale in **CHANGELOG** / an issue.
+2. **Public exception** — **`BridgeInvokeContextError`** (subclass **`Exception`**, exported in **`__all__`** and **`docs/API.md`**) with:
+   - **`str(exc)`** that names **`invoke`**, **`context`**, **`runner`**, and **`Workflow`** pairing; points to **`docs/GRAPH_CONSTRUCTION_ERRORS.md`** §3.4.
+   - **Stable substring** for **`pytest.raises(..., match=…)`:** **`replayt bridge invoke context`** (pinned here and in **REPLAYT_BOUNDARY_TESTS** §3.2).
+   - **No** raw `context` dict, secrets, or checkpoint payloads.
+3. **`code`** — Instance attribute on the exception: **`missing_runner`** (omitted / empty / wrong-type context, missing key, `None` runner, or non-`Runner` value) or **`runner_workflow_mismatch`** (runner bound to a different workflow than the compiled graph).
+4. **Cause chain** — Primary surface is **`BridgeInvokeContextError`**; no misleading **`KeyError`** / **`AttributeError`** as the raised type for these cases.
+
+**Tests:** **`tests/test_bridge_graph.py`** covers omitted `context`, `context={}`, `context={"runner": None}`, and wrong-`Workflow` **`Runner`**; asserts **`type(exc)`**, **`match=`** on **`replayt bridge invoke context`**, and **`code`** where applicable.
+
+### 3.5 Compile-time `KeyError` chaining (`initial_state` not registered)
+
+When **`workflow.initial_state`** names an unregistered step, the implementation may catch **`KeyError`** from **`workflow.get_handler`** and re-raise **`BridgeWorkflowCompileError`** with **`from e`**. Integrators may see **PEP 415** exception chaining in tracebacks. **Target:** keep **`BridgeWorkflowCompileError`** as the **raised** type; message remains the stable **`not a registered`** phrasing (§2). Optional Builder polish: ensure **`str(exc)`** alone is sufficient for common cases without requiring expand of **`__cause__`**.
 
 ---
 
@@ -162,6 +184,7 @@ The first graph-mapping hardening pass is merged; use the list below as a **regr
 4. **CHANGELOG.md** under **Unreleased**: note new exception types / any message changes integrators might catch.
 5. Re-read **THREAT_MODEL** / **DESIGN_PRINCIPLES** security bullets for consistency (step names OK; secrets not in `str(exc)`).
 6. When touching **large-graph** advisories: follow **§4.3**; keep thresholds and opt-in documented; extend tests per **BACKLOG_LARGE_WORKFLOW_COMPILE_ERGONOMICS**.
+7. **`invoke` context:** Keep §3.4 (**`BridgeInvokeContextError`**, pinned substring, tests) aligned with **`graph.py`**; extend **`compile_replayt_workflow`** / **`docs/API.md`** when invoke guidance changes.
 
 ---
 

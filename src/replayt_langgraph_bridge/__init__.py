@@ -14,6 +14,9 @@ Public API (see ``docs/API.md`` for stability policy and full layout; ``__all__`
 - ``BridgeWorkflowCompileError``: Subclass of ``ValueError`` for missing ``set_initial`` or invalid initial step.
 - ``BridgeGraphMappingError`` / ``BridgeTransitionError`` / ``BridgeRoutingError``: Mapping and routing failures during
   ``invoke`` (see ``docs/GRAPH_CONSTRUCTION_ERRORS.md``); mapping subclasses expose a stable ``code`` string.
+- ``BridgeInvokeContextError``: Missing or invalid LangGraph ``invoke`` ``context`` / replayt ``Runner`` before a step
+  runs (see ``docs/GRAPH_CONSTRUCTION_ERRORS.md`` §3.4); exposes ``code`` (``missing_runner`` or
+  ``runner_workflow_mismatch``).
 - ``BridgeLargeGraphWarning``: Subclass of ``UserWarning``; may be emitted at most once per process when
   ``compile_replayt_workflow`` compiles a workflow whose step count reaches a high documented threshold (see
   ``docs/GRAPH_CONSTRUCTION_ERRORS.md`` §4.3).
@@ -27,6 +30,7 @@ Internal modules (not part of the supported import surface for applications):
 from .bridge_log import get_bridge_logger
 from .errors import (
     BridgeGraphMappingError,
+    BridgeInvokeContextError,
     BridgeLargeGraphWarning,
     BridgeRoutingError,
     BridgeTransitionError,
@@ -44,6 +48,7 @@ __version__ = "0.1.0"
 
 __all__ = [
     "BridgeGraphMappingError",
+    "BridgeInvokeContextError",
     "BridgeLargeGraphWarning",
     "BridgeRoutingError",
     "BridgeStateValidationError",

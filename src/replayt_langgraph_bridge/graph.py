@@ -16,6 +16,7 @@ from typing_extensions import NotRequired, TypedDict
 
 from replayt_langgraph_bridge.bridge_log import emit_bridge_record, get_bridge_logger
 from replayt_langgraph_bridge.errors import (
+    BridgeInvokeContextError,
     BridgeLargeGraphWarning,
     BridgeRoutingError,
     BridgeTransitionError,
@@ -30,6 +31,9 @@ from replayt_langgraph_bridge.state_validation import (
 # Advisory threshold (step count): conservative high bar; not a hard limit. See GRAPH_CONSTRUCTION_ERRORS §5.2.
 _LARGE_GRAPH_STEP_THRESHOLD = 256
 _large_graph_advisory_emitted = False
+
+# Pinned for pytest match= and GRAPH_CONSTRUCTION_ERRORS §3.4 (integrator-facing invoke context contract).
+_INVOKE_CONTEXT_SUBSTRING = "replayt bridge invoke context"
 
 
 def _merge_context(
@@ -91,6 +95,46 @@ def _normalize_next(handler_result: str | None) -> str:
     return str(handler_result)
 
 
+def _require_invoke_runner(
+    runtime: Runtime[ReplaytBridgeContext], workflow: Workflow
+) -> Runner:
+    """Validate LangGraph runtime context before ``RunContext`` or replayt runner internals are touched."""
+    raw = runtime.context
+    if raw is None:
+        raise BridgeInvokeContextError(
+            f"{_INVOKE_CONTEXT_SUBSTRING}: pass invoke(..., context={{'runner': runner}}) with a Runner "
+            f"for this Workflow; see docs/GRAPH_CONSTRUCTION_ERRORS.md §3.4",
+            code="missing_runner",
+        )
+    if not isinstance(raw, dict):
+        raise BridgeInvokeContextError(
+            f"{_INVOKE_CONTEXT_SUBSTRING}: invoke context must be a dict with key 'runner'; "
+            f"see docs/GRAPH_CONSTRUCTION_ERRORS.md §3.4",
+            code="missing_runner",
+        )
+    runner = raw.get("runner")
+    if runner is None:
+        raise BridgeInvokeContextError(
+            f"{_INVOKE_CONTEXT_SUBSTRING}: context['runner'] must be a non-None replayt Runner "
+            f"for this Workflow; see docs/GRAPH_CONSTRUCTION_ERRORS.md §3.4",
+            code="missing_runner",
+        )
+    if not isinstance(runner, Runner):
+        raise BridgeInvokeContextError(
+            f"{_INVOKE_CONTEXT_SUBSTRING}: context['runner'] must be a replayt Runner instance; "
+            f"see docs/GRAPH_CONSTRUCTION_ERRORS.md §3.4",
+            code="missing_runner",
+        )
+    bound_wf = getattr(runner, "workflow", None)
+    if bound_wf is not workflow:
+        raise BridgeInvokeContextError(
+            f"{_INVOKE_CONTEXT_SUBSTRING}: Runner.workflow must be the same Workflow instance "
+            f"this graph was compiled from; see docs/GRAPH_CONSTRUCTION_ERRORS.md §3.4",
+            code="runner_workflow_mismatch",
+        )
+    return runner
+
+
 def _make_step_node(
     step_name: str,
     workflow: Workflow,
@@ -105,7 +149,7 @@ def _make_step_node(
         state: ReplaytBridgeState, *, runtime: Runtime[ReplaytBridgeContext]
     ) -> dict[str, Any]:
         validate_inbound_bridge_state(state, logger=bridge_logger)
-        runner = runtime.context["runner"]
+        runner = _require_invoke_runner(runtime, workflow)
         run_id = getattr(runner, "run_id", None)
         runner._current_state = step_name
         ctx = RunContext(runner, llm_defaults=merged_llm or None)
@@ -263,9 +307,12 @@ def compile_replayt_workflow(
     **Raises:** :exc:`~replayt_langgraph_bridge.BridgeWorkflowCompileError` if ``workflow.initial_state`` is unset
     or not a registered step; :exc:`~replayt_langgraph_bridge.BridgeTransitionError` if a handler return violates
     declared edges; :exc:`~replayt_langgraph_bridge.BridgeRoutingError` if ``replayt_next`` targets an unknown
-    step during routing. Normative detail: ``docs/GRAPH_CONSTRUCTION_ERRORS.md``. Inbound validation failures
-    raise :exc:`~replayt_langgraph_bridge.BridgeStateValidationError`. LangGraph or replayt may raise their own
-    exceptions when the bridge does not translate the failure.
+    step during routing; :exc:`~replayt_langgraph_bridge.BridgeInvokeContextError` if ``invoke`` omits ``context``,
+    omits ``runner``, passes ``runner=None``, or passes a :class:`~replayt.runner.Runner` bound to a different
+    ``Workflow`` than the one compiled into the graph (see ``docs/GRAPH_CONSTRUCTION_ERRORS.md`` §3.4). Normative
+    detail: ``docs/GRAPH_CONSTRUCTION_ERRORS.md``. Inbound validation failures raise
+    :exc:`~replayt_langgraph_bridge.BridgeStateValidationError`. LangGraph or replayt may raise their own exceptions
+    when the bridge does not translate the failure.
 
     Inbound :class:`ReplaytBridgeState` is validated on every bridge step before handlers run: schema
     version ``{1}`` (``bridge_state_schema_version`` omitted means ``1``), nesting depth ≤ 32, walk

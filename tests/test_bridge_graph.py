@@ -17,6 +17,7 @@ from replayt.runner import Runner
 from replayt.workflow import Workflow
 
 from replayt_langgraph_bridge import (
+    BridgeInvokeContextError,
     BridgeRoutingError,
     BridgeTransitionError,
     BridgeWorkflowCompileError,
@@ -265,3 +266,95 @@ def test_declared_edge_violation_raises(tmp_path: Path) -> None:
         )
     assert exc_info.value.code == "undeclared_transition"
     assert type(exc_info.value) is BridgeTransitionError
+
+
+def test_invoke_omits_context_raises_bridge_invoke_context_error() -> None:
+    """LangGraph ``invoke`` without ``context=`` must raise ``BridgeInvokeContextError`` (GRAPH_CONSTRUCTION_ERRORS §3.4)."""
+    wf = Workflow("ctx_omit")
+
+    @wf.step("a")
+    def a(ctx):
+        return None
+
+    wf.set_initial("a")
+
+    graph = compile_replayt_workflow(wf, checkpointer=MemorySaver())
+    with pytest.raises(BridgeInvokeContextError, match=r"replayt bridge invoke context") as exc_info:
+        graph.invoke(
+            initial_bridge_state(),
+            config={"configurable": {"thread_id": "ctx-omit"}},
+        )
+    assert exc_info.value.code == "missing_runner"
+    assert type(exc_info.value) is BridgeInvokeContextError
+
+
+def test_invoke_empty_context_raises_bridge_invoke_context_error(tmp_path: Path) -> None:
+    """``context={}`` must raise ``BridgeInvokeContextError`` (missing ``runner`` key)."""
+    wf = Workflow("ctx_empty")
+
+    @wf.step("a")
+    def a(ctx):
+        return None
+
+    wf.set_initial("a")
+    graph = compile_replayt_workflow(wf, checkpointer=MemorySaver())
+    with pytest.raises(BridgeInvokeContextError, match=r"replayt bridge invoke context") as exc_info:
+        graph.invoke(
+            initial_bridge_state(),
+            config={"configurable": {"thread_id": "ctx-empty"}},
+            context={},
+        )
+    assert exc_info.value.code == "missing_runner"
+    assert type(exc_info.value) is BridgeInvokeContextError
+
+
+def test_invoke_runner_none_raises_bridge_invoke_context_error(tmp_path: Path) -> None:
+    """``context={\"runner\": None}`` must raise ``BridgeInvokeContextError``."""
+    wf = Workflow("ctx_runner_none")
+
+    @wf.step("a")
+    def a(ctx):
+        return None
+
+    wf.set_initial("a")
+    graph = compile_replayt_workflow(wf, checkpointer=MemorySaver())
+    with pytest.raises(BridgeInvokeContextError, match=r"replayt bridge invoke context") as exc_info:
+        graph.invoke(
+            initial_bridge_state(),
+            config={"configurable": {"thread_id": "ctx-none"}},
+            context={"runner": None},
+        )
+    assert exc_info.value.code == "missing_runner"
+    assert type(exc_info.value) is BridgeInvokeContextError
+
+
+def test_invoke_runner_wrong_workflow_raises_bridge_invoke_context_error(
+    tmp_path: Path,
+) -> None:
+    """``Runner`` for a different ``Workflow`` than the compiled graph must raise ``BridgeInvokeContextError``."""
+    wf_a = Workflow("mismatch_a")
+    wf_b = Workflow("mismatch_b")
+
+    @wf_a.step("a")
+    def a_a(ctx):
+        return None
+
+    @wf_b.step("a")
+    def a_b(ctx):
+        return None
+
+    wf_a.set_initial("a")
+    wf_b.set_initial("a")
+
+    store = JSONLStore(tmp_path / "mismatch.jsonl")
+    runner_b = Runner(wf_b, store)
+
+    graph_a = compile_replayt_workflow(wf_a, checkpointer=MemorySaver())
+    with pytest.raises(BridgeInvokeContextError, match=r"replayt bridge invoke context") as exc_info:
+        graph_a.invoke(
+            initial_bridge_state(),
+            config={"configurable": {"thread_id": "wf-mismatch"}},
+            context={"runner": runner_b},
+        )
+    assert exc_info.value.code == "runner_workflow_mismatch"
+    assert type(exc_info.value) is BridgeInvokeContextError

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import ClassVar, Literal
 
+InvokeContextErrorCode = Literal["missing_runner", "runner_workflow_mismatch"]
+
 
 class BridgeGraphMappingError(Exception):
     """Base class for failures mapping handler returns to the workflow graph (routing / edges)."""
@@ -25,6 +27,20 @@ class BridgeRoutingError(BridgeGraphMappingError):
     """``replayt_next`` names a step that is not registered on the workflow."""
 
     code: ClassVar[Literal["unknown_next"]] = "unknown_next"
+
+
+class BridgeInvokeContextError(Exception):
+    """Raised when :meth:`~langgraph.graph.state.CompiledStateGraph.invoke` context omits or misconfigures the replayt
+    :class:`~replayt.runner.Runner` for the compiled :class:`~replayt.workflow.Workflow`.
+
+    ``code`` is ``\"missing_runner\"`` or ``\"runner_workflow_mismatch\"`` (see ``docs/GRAPH_CONSTRUCTION_ERRORS.md`` §3.4).
+    """
+
+    code: InvokeContextErrorCode
+
+    def __init__(self, message: str, *, code: InvokeContextErrorCode) -> None:
+        super().__init__(message)
+        self.code = code
 
 
 class BridgeLargeGraphWarning(UserWarning):
