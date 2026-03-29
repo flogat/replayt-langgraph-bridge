@@ -37,13 +37,13 @@ Normative **`.gitignore`** categories, required exceptions for reproducible buil
 
 Integration-style tests that call **replayt** must follow that document (contract-named assertions, `pytest.raises` `match=` strings, skip reasons with tracking issues).
 
-When adding or renaming symbols intended for integrators, update **`replayt_langgraph_bridge.__all__`**, **[docs/API.md](docs/API.md)**, the **Public API** section of **README.md**, and **`tests/test_public_api.py`** (`_STABLE_PUBLIC_NAMES`) together (see **API.md** for the checklist).
+When adding or renaming symbols intended for integrators, update **`replayt_langgraph_bridge.__all__`**, the **Stable public symbols** table in **[docs/API.md](docs/API.md)**, and the **Public API** section of **README.md** together (see **API.md** for the checklist). **`tests/test_public_api.py`** **`test_all_matches_docs_api_stable_table`** compares **`__all__`** to that table on every default **`pytest`** run.
 
 ### Public API typing (annotations)
 
 - Symbols in **`replayt_langgraph_bridge.__all__`** are the **supported public surface** for type checkers as well as runtime imports. Keep their annotations **consistent** with **[docs/API.md](docs/API.md)** and actual behavior; when signatures, return types, or structural types (**`TypedDict`**, **`Literal`**, type aliases) change, update docstrings and **API.md** in the same change set (same checklist as above).
 - Prefer **explicit** parameter and return annotations on public callables and structural types (**`ReplaytBridgeState`**, stable exception **`code`** literals, **`RedactorHook`**) so integrators and tools do not depend on inference across re-exports.
-- **Internal modules** (`graph.py`, `state_validation.py`, etc.) may use broader types (**`Any`**, looser generics) where required for LangGraph or replayt interoperability; that is **not** permission to expose new integrator-facing names without adding them to **`__all__`**, **API.md**, **README**, and **`tests/test_public_api.py`**.
+- **Internal modules** (`graph.py`, `state_validation.py`, etc.) may use broader types (**`Any`**, looser generics) where required for LangGraph or replayt interoperability; that is **not** permission to expose new integrator-facing names without adding them to **`__all__`**, **API.md**, and **README** (the stable-table contract test will fail until **API.md** and **`__all__`** match).
 - **PEP 561** packaging (**`py.typed`** in wheels/sdists), **stub** policy, and **mypy** smoke (**CI** and the command in **Development setup** above) are defined in **[docs/BACKLOG_PEP561_TYPING_POSTURE.md](docs/BACKLOG_PEP561_TYPING_POSTURE.md)**; keep **README**, **CHANGELOG**, and that doc aligned when this surface changes.
 
 ## Dependency management
@@ -107,6 +107,8 @@ Update **[CHANGELOG.md](CHANGELOG.md)** in the **same pull request** as the chan
 **Dependency pins** — Any change to declared runtime ranges or to which packages live in core vs an optional extra needs a changelog bullet with **before → after** (or explicit new bounds), not only a comment in **`pyproject.toml`**.
 
 **Breaking and experimental API** — Follow **[docs/API.md](docs/API.md#experimental-and-internal-normative-rules)**. Changelog bullets must lead with **`Breaking:`** or **`Experimental:`** where applicable so packagers can scan releases without diff archaeology.
+
+**Public export set (`__all__`)** — When you change **`replayt_langgraph_bridge.__all__`**, update the **Stable public symbols** table in **[docs/API.md](docs/API.md)** in the same change set when practical. **SemVer** and **CHANGELOG.md** expectations (add vs remove/rename): **[docs/RELEASE_CHANGELOG.md](docs/RELEASE_CHANGELOG.md#public-export-set-and-semver)**. Normative spec for the **`__all__` ↔ API.md** check (**E1**–**E8**): **[docs/BACKLOG_SEMVER_API_EXPORT_AUTOMATION.md](docs/BACKLOG_SEMVER_API_EXPORT_AUTOMATION.md)**. Default **`uv run pytest`** includes **`tests/test_public_api.py`** **`test_all_matches_docs_api_stable_table`**, which fails with **`only_in_all`** / **`only_in_api_md`** when the sets differ.
 
 Purely internal refactors, test-only changes, or typo fixes that do not affect integrators **do not** require changelog entries unless they change documented behavior.
 
