@@ -51,6 +51,18 @@ Normative mapping for keeping **[THREAT_MODEL.md](THREAT_MODEL.md)** discoverabl
 
 ---
 
+## Product backlog: Human-in-the-loop cookbook (`interrupt_before` / `interrupt_after`)
+
+Normative mapping for Mission Control item **`4b64a655-bb06-49e5-8912-61b06626a034`** (full checklist and reconciliation with existing tests: **`docs/BACKLOG_HITL_INTERRUPT_COOKBOOK.md`**).
+
+| Backlog criterion | Done when (normative) |
+| ----------------- | ---------------------- |
+| **Copy-paste cookbook** for paused graphs (**LangGraph 1.1.x** + bridge **Runner** wiring) | **README** and/or **`docs/API.md`** include a fenced Python example per **BACKLOG_HITL_INTERRUPT_COOKBOOK §3.1** (`MemorySaver`, **`thread_id`**, **`interrupt_before` / `interrupt_after`**, two **`invoke`** calls, **`context={"runner": runner}`**). |
+| **Automated interrupt coverage** | **`tests/test_bridge_graph.py`** (or adjacent): keep **`test_resume_second_invoke_uses_memory_checkpointer`**; add at least one test exercising **`interrupt_after`** per **BACKLOG_HITL_INTERRUPT_COOKBOOK §3.2** (deterministic, **`[dev]`** only, contract-named **`replayt boundary:`** messages). |
+| **Changelog** | **CHANGELOG.md — Unreleased** when integrator-facing **`interrupt_*`** semantics or cookbook text ships (**BACKLOG_HITL_INTERRUPT_COOKBOOK §3.3**). |
+
+---
+
 ## 1. Scope: “replayt boundary” in this package
 
 A **replayt boundary test** imports **replayt** and exercises **behavior that replayt owns** that the bridge relies on at compile or run time. The bridge implementation in `replayt_langgraph_bridge.graph` currently depends on these **documented replayt entry points** (see `src/replayt_langgraph_bridge/graph.py`):
@@ -134,6 +146,7 @@ When landing tests, ensure:
 - **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** — LangGraph checkpoint persistence scope, failure modes, and deterministic test obligations (complements replayt-focused rules here).
 - **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** — Bridge **inbound state** contracts (separate from replayt upstream types).
 - **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** — Compile and routing exception taxonomy, logging, and test obligations for the graph mapping backlog.
+- **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)** — **`interrupt_before` / `interrupt_after`** cookbook and test acceptance (Mission Control backlog `4b64a655-bb06-49e5-8912-61b06626a034`).
 
 ---
 

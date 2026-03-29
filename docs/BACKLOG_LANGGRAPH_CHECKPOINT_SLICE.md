@@ -2,7 +2,7 @@
 
 Normative **spec and acceptance criteria** for Mission Control backlog **Add LangGraph checkpoint integration slice** (item `6e2e8723-57c1-4f0c-bb74-6e9eb10beb23`). Phase **2** (spec lead) owns this document; phase **3** (builder) implements or verifies against it; phase **2b** (spec gate) checks completeness.
 
-**Related normative docs:** persistence contract **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**; inbound state and wrapped saver **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; hosted backends **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**; public entry points **[API.md](API.md)** and **README**.
+**Related normative docs:** persistence contract **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**; inbound state and wrapped saver **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; hosted backends **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**; public entry points **[API.md](API.md)** and **README**. **Human-in-the-loop interrupts** (copy-paste cookbook + **`interrupt_after`** test obligations): **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)**.
 
 ---
 
