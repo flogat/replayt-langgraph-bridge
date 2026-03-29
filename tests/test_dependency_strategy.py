@@ -25,6 +25,12 @@ _LLM_VENDOR_CLIENT_DENYLIST: frozenset[str] = frozenset(
 # Expected members of the demo extra (must match pyproject.toml demo list).
 _DEMO_EXTRA_EXPECTED_NAMES: frozenset[str] = frozenset(_LLM_VENDOR_CLIENT_DENYLIST)
 
+# §6 maintainer playbook in DEPENDENCY_LOCK_STRATEGY.md — CONTRIBUTING / DEPENDENCY_AUDIT link here.
+_PIP_AUDIT_PLAYBOOK_HEADING = (
+    "### pip-audit / `supply-chain` job failure triage (maintainer playbook)"
+)
+_PIP_AUDIT_PLAYBOOK_ANCHOR = "#pip-audit--supply-chain-job-failure-triage-maintainer-playbook"
+
 
 def _pep508_name(requirement: str) -> str:
     m = re.match(r"^\s*([A-Za-z0-9_.-]+)", requirement)
@@ -138,6 +144,37 @@ def test_ci_workflow_installs_dev_without_demo_extra():
             assert "[dev]" in line, (
                 "Editable project installs in CI must use the dev extra: " + line
             )
+
+
+def test_dependency_lock_strategy_has_pip_audit_supply_chain_playbook():
+    """Lock §6 SLA-style triage section so maintainer links stay valid."""
+    path = _REPO_ROOT / "docs" / "DEPENDENCY_LOCK_STRATEGY.md"
+    text = path.read_text(encoding="utf-8")
+    assert _PIP_AUDIT_PLAYBOOK_HEADING in text, (
+        "docs/DEPENDENCY_LOCK_STRATEGY.md must keep the §6 playbook heading "
+        "(CONTRIBUTING and DEPENDENCY_AUDIT use this anchor)"
+    )
+    assert "**Never** add **`--ignore-vuln`**" in text, (
+        "playbook must retain the rule: no CI ignore without DEPENDENCY_AUDIT documentation"
+    )
+
+
+def test_contributing_links_pip_audit_playbook_anchor():
+    path = _REPO_ROOT / "CONTRIBUTING.md"
+    text = path.read_text(encoding="utf-8")
+    needle = f"docs/DEPENDENCY_LOCK_STRATEGY.md{_PIP_AUDIT_PLAYBOOK_ANCHOR}"
+    assert needle in text, (
+        "CONTRIBUTING.md must link maintainers to the playbook with the stable GitHub/MkDocs anchor"
+    )
+
+
+def test_dependency_audit_links_pip_audit_playbook_anchor():
+    path = _REPO_ROOT / "docs" / "DEPENDENCY_AUDIT.md"
+    text = path.read_text(encoding="utf-8")
+    needle = f"DEPENDENCY_LOCK_STRATEGY.md{_PIP_AUDIT_PLAYBOOK_ANCHOR}"
+    assert needle in text, (
+        "DEPENDENCY_AUDIT.md must reference the playbook anchor for supply-chain triage"
+    )
 
 
 def test_uv_lockfile_committed_for_dev_install():
