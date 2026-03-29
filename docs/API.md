@@ -84,6 +84,7 @@ In-repo **tests** may import private helpers (e.g. functions prefixed with `_` i
 | Replayt-facing tests and assertion style | **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** |
 | Dependency ranges and compatibility process | **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)** |
 | PEP 561 **`py.typed`**, stub policy, contributor annotation rules | **[BACKLOG_PEP561_TYPING_POSTURE.md](BACKLOG_PEP561_TYPING_POSTURE.md)** |
+| Streaming / async LangGraph calls vs bridge-tested **`invoke`** path | **[Streaming and async LangGraph entry points](#streaming-and-async-langgraph-entry-points-invoke-stream-astream)**; backlog spec **[BACKLOG_STREAMING_ASYNC_API_STANCE.md](BACKLOG_STREAMING_ASYNC_API_STANCE.md)** |
 
 ## `compile_replayt_workflow` (extra keyword arguments)
 
@@ -92,6 +93,16 @@ Beyond the parameters summarized in **[README.md](../README.md)** (Public API), 
 **Large workflows:** After a successful compile, the bridge may issue **`BridgeLargeGraphWarning`** once per process when the step count is at or above the threshold fixed next to **`_LARGE_GRAPH_STEP_THRESHOLD`** in **`replayt_langgraph_bridge.graph`** (currently **256**). This is non-fatal; see **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** §4.3 and §5.
 
 **Human-in-the-loop:** copy-paste **`MemorySaver`**, **`thread_id`**, and two-**`invoke`** wiring (**`interrupt_after`** example) live in the **Human-in-the-loop** subsection of **[README.md](../README.md)** (immediately after **Checkpoint-enabled usage**).
+
+## Streaming and async LangGraph entry points (`invoke`, `stream`, `astream`)
+
+**Documented and CI-tested path:** Use synchronous **`CompiledStateGraph.invoke`** with **`initial_bridge_state`**, optional LangGraph **`config`** (e.g. **`thread_id`** when a **`checkpointer`** is set), and **`context={"runner": runner}`**. README examples, checkpoint guidance in **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**, and **`tests/`** all follow this pattern.
+
+**LangGraph streaming and async APIs:** The object returned by **`compile_replayt_workflow`** is a normal LangGraph **`CompiledStateGraph`**, which also exposes upstream methods such as **`stream`**, **`astream`**, **`ainvoke`**, **`batch`**, and **`abatch`**. Semantics—**`stream_mode`**, **`version="v2"`** chunk shapes, subgraph streaming, checkpoint/task debug streams, and async **`RunnableConfig`** / Python-version caveats—are defined by **LangGraph**, not extended or wrapped by this package. Start with the official guide **[LangGraph streaming (Python)](https://docs.langchain.com/oss/python/langgraph/streaming)** and the **`CompiledStateGraph`** / **`Pregel`** reference for the **langgraph** version you run (declared range in **`pyproject.toml`**). Persistence-oriented behavior when streaming checkpoint-related modes remains subject to **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** and **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**.
+
+**What the bridge does not guarantee:** Maintainers do **not** treat **`stream`**, **`astream`**, or other non-**`invoke`** entry points as a separately tested or documented contract. The bridge registers **synchronous** node functions that call replayt step handlers **synchronously**; there is **no** support for **`async def`** replayt step handlers or bridge-specific streaming adapters. Do **not** assume **`stream`/`astream`** timing, ordering, or checkpoint/interrupt interaction matches every **`invoke`** mental model without checking upstream documentation for your graph and LangGraph version. Per-chunk stream payloads are **not** covered by **[LOG_REDACTION.md](LOG_REDACTION.md)** beyond whatever you emit yourself from integrator code.
+
+Testable backlog mapping and spec-gate checklist: **[BACKLOG_STREAMING_ASYNC_API_STANCE.md](BACKLOG_STREAMING_ASYNC_API_STANCE.md)**.
 
 ## Builder acceptance checklist (backlog: public API)
 
