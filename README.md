@@ -235,7 +235,7 @@ Supported names are exactly those in `replayt_langgraph_bridge.__all__` (see **[
 - `initial_bridge_state(*, context=None)`: Create the initial state dictionary for the bridge graph. The same inbound limits and schema rules apply to `context` before the value is returned; failures raise `BridgeStateValidationError`.
 - `ReplaytBridgeState`: `TypedDict` for the bridge channel shape; wire format and limits are normative in **[docs/STATE_PAYLOAD_VALIDATION.md](docs/STATE_PAYLOAD_VALIDATION.md)**.
 - `BridgeStateValidationError`: Subclass of `ValueError` for inbound state validation failures (stable, generic `str` values).
-- `BridgeWorkflowCompileError`, `BridgeGraphMappingError`, `BridgeTransitionError`, `BridgeRoutingError`: Compile and graph-mapping errors (**[docs/GRAPH_CONSTRUCTION_ERRORS.md](docs/GRAPH_CONSTRUCTION_ERRORS.md)**).
+- `BridgeWorkflowCompileError`, `BridgeGraphMappingError`, `BridgeTransitionError`, `BridgeRoutingError`: Compile and graph-mapping errors (**[docs/GRAPH_CONSTRUCTION_ERRORS.md](docs/GRAPH_CONSTRUCTION_ERRORS.md)**). `BridgeLargeGraphWarning` (`UserWarning` subclass) may be emitted **once per process** after a successful compile when the workflow has many steps (threshold in **`replayt_langgraph_bridge.graph`**; see the same doc §4.3).
 - `RedactorHook`, `get_bridge_logger`, `redact_log_attachment`: Types and helpers for custom redaction and tests (see the log redaction spec).
 - `__version__`: The package version.
 
