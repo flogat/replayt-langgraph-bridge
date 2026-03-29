@@ -74,7 +74,7 @@ In the **README** text that discusses **checkpoints** or **checkpoint-enabled** 
 
 - Update **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** intro **Backlog traceability** bullet (or adjacent line) to cite this spec **`BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md`** alongside the existing checkpoint-slice pointer.
 - Update **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)** deferred row (§2 table) to link **this** spec as the place where the “do not equate” guidance is expanded for operators.
-- Add this file to **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md) §7 Related documents** (unless the builder prefers a single “Backlog specs” line — either is fine if discoverable).
+- Add this file to **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md) §8 Related documents** (unless the builder prefers a single “Backlog specs” line — either is fine if discoverable).
 
 ### 3.4 Non-goals (hard)
 
@@ -93,8 +93,8 @@ When the builder lands **§3.1–§3.3** (integrator-visible **CHECKPOINT_PERSIS
 
 ## 5. Spec gate / builder checklist (phases 2b / 3)
 
-- [ ] **CHECKPOINT_PERSISTENCE.md** contains **§ Two persistence planes (LangGraph checkpointer vs replayt Runner / store)** with diagram **or** table per §3.1.
-- [ ] Same section includes **layer-grouped failure-mode bullets** covering the three rows in §3.1 table (checkpointer, bridge validation, replayt store).
-- [ ] **README** links to that section with operator-meaningful anchor text per §3.2.
-- [ ] **BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md** deferred cross-link updated; **CHECKPOINT_PERSISTENCE.md** traceability + §7 (or equivalent) updated per §3.3.
-- [ ] **CHANGELOG.md — Unreleased** updated when user-facing doc ships (§4).
+- [x] **CHECKPOINT_PERSISTENCE.md** contains **§ Two persistence planes (LangGraph checkpointer vs replayt Runner / store)** with diagram **or** table per §3.1.
+- [x] Same section includes **layer-grouped failure-mode bullets** covering the three rows in §3.1 table (checkpointer, bridge validation, replayt store).
+- [x] **README** links to that section with operator-meaningful anchor text per §3.2.
+- [x] **BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md** deferred cross-link updated; **CHECKPOINT_PERSISTENCE.md** traceability + §8 (or equivalent) updated per §3.3.
+- [x] **CHANGELOG.md — Unreleased** updated when user-facing doc ships (§4).
