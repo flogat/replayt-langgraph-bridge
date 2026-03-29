@@ -77,7 +77,7 @@ This ties the lock to **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)** and ex
 
 ### pip-audit / `supply-chain` job failure triage (maintainer playbook)
 
-This subsection is the **SLA-style playbook** for failures in GitHub Actions job **`supply-chain`** (after **`uv sync --frozen --extra dev`**, step **`Run supply-chain audit`**: **`uv run pip-audit`** with the same flags as **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)**). It complements the table above and **[CONTRIBUTING.md](../CONTRIBUTING.md)** so lock refreshes stay **boring**, **traceable**, and aligned with **[docs/SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md)** where security fixes are user-visible.
+This subsection is the **SLA-style playbook** for failures in GitHub Actions job **`supply-chain`** (after **`uv sync --frozen --extra dev`**, step **`Run supply-chain audit`**: **`uv run pip-audit`** with the same flags as **[docs/DEPENDENCY_AUDIT.md](DEPENDENCY_AUDIT.md)**). It complements the table above and **[CONTRIBUTING.md](../CONTRIBUTING.md)** so lock refreshes stay **boring** and **traceable**. User-visible security fixes follow **[docs/SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md)**.
 
 #### Severity and what CI enforces
 
