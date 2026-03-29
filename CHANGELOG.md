@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Large-workflow compile advisory** — After a successful `compile_replayt_workflow`, workflows with **≥ 256** registered steps trigger `BridgeLargeGraphWarning` (**`UserWarning`**) **at most once per interpreter process**; later compiles stay silent. Threshold lives as **`_LARGE_GRAPH_STEP_THRESHOLD`** in **`replayt_langgraph_bridge.graph`**. Documented in **[docs/GRAPH_CONSTRUCTION_ERRORS.md](docs/GRAPH_CONSTRUCTION_ERRORS.md)** §4.3, **[docs/API.md](docs/API.md)**, and **`tests/test_large_graph_compile_advisory.py`** (phase **3**, backlog **Large-workflow compile ergonomics: doc limits and optional warning hook**).
+- **Large-workflow compile advisory** — After a successful `compile_replayt_workflow`, workflows with **≥ 256** registered steps may emit `BridgeLargeGraphWarning` (**`UserWarning`**) **at most once per interpreter process**; later compiles stay silent. Threshold lives as **`_LARGE_GRAPH_STEP_THRESHOLD`** in **`replayt_langgraph_bridge.graph`**. Documented in **[docs/GRAPH_CONSTRUCTION_ERRORS.md](docs/GRAPH_CONSTRUCTION_ERRORS.md)** §4.3, **[docs/API.md](docs/API.md)**, and **`tests/test_large_graph_compile_advisory.py`** (phase **3**, backlog **Large-workflow compile ergonomics: doc limits and optional warning hook**).
 
 ### Changed
 

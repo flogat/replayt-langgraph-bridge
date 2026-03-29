@@ -280,7 +280,7 @@ def compile_replayt_workflow(
     runs on the same ``thread_id`` are documented under ``docs/CHECKPOINT_PERSISTENCE.md``.
 
     Very large workflows (step count ≥ ``_LARGE_GRAPH_STEP_THRESHOLD`` in this module, currently **256**)
-    may trigger :exc:`~replayt_langgraph_bridge.BridgeLargeGraphWarning` **once per interpreter process**
+    may emit ``BridgeLargeGraphWarning`` (a ``UserWarning`` subclass) **once per interpreter process**
     after a successful compile; see ``docs/GRAPH_CONSTRUCTION_ERRORS.md`` §4.3.
     """
 
