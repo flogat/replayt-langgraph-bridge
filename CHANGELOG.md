@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
-- **`.gitignore`** — ignore **`.netrc`** (CLI credential drops in the clone) with a pointer to **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** §2.A / §6; **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** §2 table updated; **`tests/test_gitignore_contract.py`** and **CONTRIBUTING** contract (**G3** / **G5**) alignment (phase **3**, backlog **Review and tighten `.gitignore` for local secrets and orchestrator artifacts**).
+- **`.gitignore`** — ignore **`.netrc`** (CLI credential drops in the clone); **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** §2.A / §6 and §2 table; **`tests/test_gitignore_contract.py`** and **CONTRIBUTING** (**G3** / **G5**) (phase **3**, backlog **Review and tighten `.gitignore` for local secrets and orchestrator artifacts**).
 
 - **`.gitignore` / local secrets backlog (spec)** — **[docs/BACKLOG_GITIGNORE_LOCAL_SECRETS.md](docs/BACKLOG_GITIGNORE_LOCAL_SECRETS.md)** (Mission Control **`27853c00-77f0-403a-9ff2-6d45f3255a4f`**): acceptance mapping to **G1**–**G5**, zero-diff audit path, non-goals; **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** §0 / §2.B / §5 tightened for **private prompts** and duplicate traceability removed (phase **2**, backlog **Review and tighten `.gitignore` for local secrets and orchestrator artifacts**).
 

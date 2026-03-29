@@ -15,7 +15,7 @@ Treat the following as the **baseline** unless a later commit explicitly changes
 | Topic | Snapshot |
 | ----- | -------- |
 | **Root `.gitignore`** | Categories **A**–**E** populated per **[GITIGNORE_AND_LOCAL_ARTIFACTS.md](GITIGNORE_AND_LOCAL_ARTIFACTS.md)** §2 (env/secrets, orchestration and agent scratch including **`.orchestrator/`** and **`.cursor/skills/`**, local checkpoint dirs / dev SQLite suffix, Python and tooling noise, placeholder **`path/`**). |
-| **`CONTRIBUTING.md`** | **What must never be committed** exists and links **`GITIGNORE_AND_LOCAL_ARTIFACTS.md`** and **`test_gitignore_contract.py`**. |
+| **`CONTRIBUTING.md`** | **What must never be committed** exists and links **`GITIGNORE_AND_LOCAL_ARTIFACTS.md`** and **`tests/test_gitignore_contract.py`**. |
 | **Contract tests** | **`tests/test_gitignore_contract.py`** asserts representative ignored vs not-ignored paths via **`git check-ignore`**. |
 
 **Builder implication:** The implementation PR may show an **empty** **`.gitignore`** diff if **`master`** already satisfies §2; in that case **[GITIGNORE_AND_LOCAL_ARTIFACTS.md](GITIGNORE_AND_LOCAL_ARTIFACTS.md)** §5.2 still applies (explicit audit note + §5.1 verification green).
