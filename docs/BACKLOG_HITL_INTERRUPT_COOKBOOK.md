@@ -13,10 +13,7 @@ The following is **already true** in-tree unless a future change removes it:
 - **`compile_replayt_workflow(..., interrupt_before=..., interrupt_after=...)`** forwards both kwargs to LangGraph **`StateGraph.compile`** for **`langgraph >=1.1.0,<1.2`** (see **`pyproject.toml`**).
 - **`tests/test_bridge_graph.py`** includes **`test_resume_second_invoke_uses_memory_checkpointer`**, which uses **`interrupt_before=["second"]`** with **`MemorySaver`**, a stable **`thread_id`** in **`config["configurable"]`**, **`Runner`** + **`JSONLStore`**, and a second **`invoke(None, ...)`** — this satisfies a minimal **“at least one interrupt path”** bar for **`interrupt_before`** only.
 
-**Documented gap this backlog closes:**
-
-- README describes pause/resume in prose and points at §6 and the test above, but there is **no** dedicated **copy-paste** example that shows **`interrupt_before` / `interrupt_after` in the compile call** alongside **`MemorySaver`** and the two-**`invoke`** pattern (integrators must infer from the linear checkpoint snippet + paragraph).
-- There is **no** automated test that exercises **`interrupt_after`**; both kwargs should be **CI-proven** if LangGraph semantics allow a small deterministic scenario.
+**Implementation (this backlog, builder):** **README** — fenced **Human-in-the-loop** example (**`interrupt_after`**, **`MemorySaver`**, two **`invoke`** calls); **`docs/API.md`** — pointer to that subsection; **`tests/test_bridge_graph.py`** — **`test_resume_second_invoke_interrupt_after_first_uses_memory_checkpointer`**; **`CHANGELOG.md` — Unreleased** documentation bullet. Related links: **BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md**, **CHECKPOINT_PERSISTENCE.md** §7, **REPLAYT_BOUNDARY_TESTS.md**.
 
 ---
 
@@ -72,7 +69,7 @@ When the builder lands user-visible cookbook text or clarifies **`interrupt_*`**
 
 ## 5. Spec gate / builder checklist (phases 2b / 3)
 
-- [ ] §3.1 copy-paste cookbook present in README and/or **API.md** with §3.1 traceability links.
-- [ ] §3.2 **`interrupt_after`** test present and green on **Python** 3.11 and 3.12 CI (or explicit §3.2 waiver recorded in spec gate with issue link).
-- [ ] Assertion messages remain contract-named per **REPLAYT_BOUNDARY_TESTS.md** for replayt-importing tests.
-- [ ] **CHANGELOG.md — Unreleased** updated when integrator-facing doc/semantics ship.
+- [x] §3.1 copy-paste cookbook present in README and/or **API.md** with §3.1 traceability links.
+- [x] §3.2 **`interrupt_after`** test present and green on **Python** 3.11 and 3.12 CI (or explicit §3.2 waiver recorded in spec gate with issue link).
+- [x] Assertion messages remain contract-named per **REPLAYT_BOUNDARY_TESTS.md** for replayt-importing tests.
+- [x] **CHANGELOG.md — Unreleased** updated when integrator-facing doc/semantics ship.
