@@ -74,8 +74,8 @@ Integrator-visible **API.md** / **README** updates ship with **CHANGELOG.md — 
 
 ## 7. Spec gate / builder checklist (phases 2b / 3)
 
-- [ ] **S1** satisfied: **API.md** subsection + **README** one-line pointer with upstream link(s).
-- [ ] **S2** satisfied: explicit **unsupported / undefined** language for bridge streaming guarantees and async handlers.
-- [ ] **S3** satisfied: **CHANGELOG** **Unreleased** updated; **no** new tests unless code ships.
-- [ ] **Cross-spec index** row in **API.md** updated.
-- [ ] **This file** (`BACKLOG_STREAMING_ASYNC_API_STANCE.md`) linked from **API.md** backlog traceability or **Related** line if the project pattern calls for it (optional if index row cites streaming spec intent).
+- [x] **S1** satisfied: **API.md** subsection + **README** one-line pointer with upstream link(s).
+- [x] **S2** satisfied: explicit **unsupported / undefined** language for bridge streaming guarantees and async handlers.
+- [x] **S3** satisfied: **CHANGELOG** **Unreleased** updated; **no** new tests unless code ships.
+- [x] **Cross-spec index** row in **API.md** updated.
+- [x] **This file** (`BACKLOG_STREAMING_ASYNC_API_STANCE.md`) linked from **API.md** backlog traceability or **Related** line if the project pattern calls for it (optional if index row cites streaming spec intent).
