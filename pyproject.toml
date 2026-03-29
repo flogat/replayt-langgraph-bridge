@@ -4,8 +4,8 @@ version = "0.1.0"
 description = "LangGraph adapter mapping replayt workflow states to graph nodes and checkpoints: Python project using replayt; see docs for scope."
 requires-python = ">=3.11"
 dependencies = [
-  # replayt: Initial integration target is 0.4.x series
-  # Upper bound prevents automatic upgrades to breaking 0.5.x changes
+  # replayt: 0.4.x integration target; <0.5 until 0.5 is published and CI-green (BACKLOG_REPLAYT_05_READINESS,
+  # docs/COMPATIBILITY_UPDATE_REPLAYT_05.md).
   "replayt>=0.4.0,<0.5",
   
   # langgraph: Initial integration target is 1.1.x series  

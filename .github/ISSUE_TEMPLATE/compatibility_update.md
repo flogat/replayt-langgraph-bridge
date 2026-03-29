@@ -23,6 +23,14 @@ Use this subsection when the tracked change is the **Python runtime** or **GitHu
 - [ ] **Documentation** — **`docs/DESIGN_PRINCIPLES.md`** **Tested matrix** row and **`docs/DEPENDENCY_LOCK_STRATEGY.md`** §3.2 updated; **README** compatibility lines updated if integrator-facing tested versions change.
 - [ ] **Quirks / notes (in this issue)** — Any **stdlib** deprecations/removals, **typing** or tooling edge cases, **upstream** workarounds, **skips**/**xfails** (with tracking links). Do **not** rely on chat-only context for maintainer handoff.
 
+### Replayt 0.5+ compatibility (bridge consumer work)
+
+Use this subsection when tracking **replayt** **0.5** (prerelease or GA), not only patch bumps on **0.4.x**. Normative backlog: **[docs/BACKLOG_REPLAYT_05_READINESS.md](../../docs/BACKLOG_REPLAYT_05_READINESS.md)**.
+
+- [ ] **API inventory** — Listed every **`replayt.*`** import in **`src/replayt_langgraph_bridge/`** and in replayt boundary / persistence **`tests/`** modules; compared to **replayt 0.5** public API and release notes (renames, deprecations, removals).
+- [ ] **Boundary tests** — If the bridge must rely on **new** supported replayt symbols, updated **`docs/REPLAYT_BOUNDARY_TESTS.md` §1** and tests in the **same change set**; if not, noted **“§1 unchanged”** with a one-line reason in this issue.
+- [ ] **Pin decision** — Recorded whether **`pyproject.toml`** moves to e.g. **`>=0.5.0,<0.6`** (or stays narrower) with rationale tied to **Test Results** below; **`uv.lock`** regen plan noted when the range changes.
+
 ## Test Results
 - [ ] Ran existing test suite against new version
 - [ ] Test results: 

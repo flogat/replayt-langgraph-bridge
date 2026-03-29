@@ -14,6 +14,10 @@ This package **uses** replayt as a dependency. It is **not** a fork or extension
 
 **First Supported Versions:** Targets **replayt 0.4.x** and **LangGraph 1.1.x** (`replayt>=0.4.0,<0.5`, `langgraph>=1.1.0,<1.2` in `pyproject.toml`); ranges may widen as CI proves patch compatibility.
 
+## Replayt 0.5 readiness (consumer-side)
+
+When **replayt** ships **0.5** (prerelease or GA), compatibility work — pins, **`uv.lock`**, contract tests, and docs — belongs **here**, not in replayt core. Normative acceptance criteria, API inventory steps, **Compatibility Update** issue expectations, and the **pin decision** checklist are in **[BACKLOG_REPLAYT_05_READINESS.md](BACKLOG_REPLAYT_05_READINESS.md)** (Mission Control `8c5e0a89-66d8-4e11-ac7e-532b39f11156`). Boundary-test obligations and the §1 symbol table live in **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
+
 ## Optional vendor-LLM samples
 
 Teams may combine this bridge with LangGraph nodes that call OpenAI, Anthropic, or similar APIs. That is **optional**: use **`pip install replayt-langgraph-bridge[demo]`** when you need those client libraries in your environment. This repository ships a minimal opt-in sample at **`examples/llm_node_graph.py`**. Packaging, secrets, CI, and redaction expectations are normative in **[DESIGN_PRINCIPLES.md — LLM and demos](DESIGN_PRINCIPLES.md#llm-and-demos)** and **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)**.
