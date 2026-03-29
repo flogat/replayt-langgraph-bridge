@@ -67,6 +67,19 @@ This project **adheres to [Semantic Versioning 2.0.0](https://semver.org/spec/v2
 
 **Upstream majors (replayt / LangGraph)** often require bridge **code**, **pins**, and **tests**; the resulting bridge release may be MINOR or MAJOR depending on whether integrators must change code or constraints. Follow the **Compatibility Update** template and maintainer checklist in **DESIGN_PRINCIPLES.md**.
 
+### Public export set and SemVer
+
+The **stable public symbol** set is defined by **`replayt_langgraph_bridge.__all__`** and the **Stable public symbols** table in **[API.md](API.md)**; they **must** match (see **[BACKLOG_SEMVER_API_EXPORT_AUTOMATION.md](BACKLOG_SEMVER_API_EXPORT_AUTOMATION.md)** for the automated check spec).
+
+| Change | Typical bump (post-1.0) | **0.x** practice | **CHANGELOG.md** |
+| ------ | ------------------------ | ----------------- | ---------------- |
+| **Add** a new stable symbol (new row in **API.md** + name in **`__all__`**) | **MINOR** | Same; note under **Unreleased** (**### Added** or **### Changed**) before release | Describe the symbol and point to **API.md** when helpful |
+| **Remove** or **rename** a stable symbol, or stop exporting one | **MAJOR** | **MINOR** acceptable only with explicit **Breaking** / **### Removed** lead-in per §2 | **Breaking** lead-in; migration pointer in **API.md** / **README** when non-trivial |
+| **Reorder** **`__all__`** only (same set of names) | **PATCH** or no release note | Same | Omit or **PATCH**-level note if worth mentioning |
+| **Doc-only** edits to **API.md** that **do not** change the table’s symbol set | **PATCH** | Same | **### Documentation** when integrators should re-read |
+
+**Workflow:** Land **`__init__.py`**, **API.md**, and **CHANGELOG.md — Unreleased** updates in the **same** pull request when practical so release review sees **intent** alongside **diff**. The automated export-set check (backlog **E1**) enforces code–doc alignment; it does **not** replace judgment on **SemVer**—maintainers still classify **Breaking** vs **Added** per §2–§3.
+
 ---
 
 ## 4. Initial `0.1.0` section

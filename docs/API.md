@@ -11,7 +11,7 @@ Normative contract for integrators: what may be imported, stability expectations
 
 ## Source of truth for exported names
 
-The package attribute `replayt_langgraph_bridge.__all__` is the **canonical list** of supported public symbols. Maintainers must keep **`src/replayt_langgraph_bridge/__init__.py`** `__all__`, this document, and the **Public API** section of **[README.md](../README.md)** aligned whenever that set changes.
+The package attribute `replayt_langgraph_bridge.__all__` is the **canonical list** of supported public symbols. Maintainers must keep **`src/replayt_langgraph_bridge/__init__.py`** `__all__`, this document, and the **Public API** section of **[README.md](../README.md)** aligned whenever that set changes. Default **`pytest`** runs **`tests/test_public_api.py`** **`test_all_matches_docs_api_stable_table`**, which parses the **Stable public symbols** table (below) and fails unless its symbol set equals **`__all__`**; normative rules and IDs **E1**–**E8**: **[BACKLOG_SEMVER_API_EXPORT_AUTOMATION.md](BACKLOG_SEMVER_API_EXPORT_AUTOMATION.md)**. **SemVer** and **CHANGELOG.md** expectations when that set changes: **[RELEASE_CHANGELOG.md](RELEASE_CHANGELOG.md#public-export-set-and-semver)**.
 
 ## Stable public symbols (integrator-facing)
 
@@ -88,6 +88,7 @@ In-repo **tests** may import private helpers (e.g. functions prefixed with `_` i
 | Dependency ranges and compatibility process | **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)** |
 | PEP 561 **`py.typed`**, stub policy, contributor annotation rules | **[BACKLOG_PEP561_TYPING_POSTURE.md](BACKLOG_PEP561_TYPING_POSTURE.md)** |
 | Streaming / async LangGraph calls vs bridge-tested **`invoke`** path | **[Streaming and async LangGraph entry points](#streaming-and-async-langgraph-entry-points-invoke-stream-astream)**; backlog spec **[BACKLOG_STREAMING_ASYNC_API_STANCE.md](BACKLOG_STREAMING_ASYNC_API_STANCE.md)** |
+| Backlog: automated **`__all__`** ↔ **API.md** stable table check, SemVer / changelog coupling | **[BACKLOG_SEMVER_API_EXPORT_AUTOMATION.md](BACKLOG_SEMVER_API_EXPORT_AUTOMATION.md)**; **[RELEASE_CHANGELOG.md](RELEASE_CHANGELOG.md#public-export-set-and-semver)** |
 
 ## `compile_replayt_workflow` (extra keyword arguments)
 
@@ -111,7 +112,7 @@ Testable backlog mapping and spec-gate checklist: **[BACKLOG_STREAMING_ASYNC_API
 
 Use this to verify the backlog item **Define the public adapter API and module layout** is satisfied in code and docs:
 
-1. **`__all__`** matches the stable table in this section (same names, no accidental drift).
+1. **`__all__`** matches the stable table in this section (same names, no accidental drift); **`tests/test_public_api.py`** **`test_all_matches_docs_api_stable_table`** enforces set equality.
 2. Each stable symbol has a **docstring** (or, for `RedactorHook`, a clear module-level description where the alias is defined) describing parameters, returns, and links to the relevant normative doc where appropriate.
 3. **[README.md](../README.md)** Public API section and **Usage** example import **only** from `replayt_langgraph_bridge` (not from submodules).
 4. This file (**docs/API.md**) stays in sync when the public set changes.
