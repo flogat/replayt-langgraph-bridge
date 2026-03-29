@@ -78,6 +78,20 @@ Normative mapping for Mission Control item **`255db7a8-876d-475d-8c69-cdb5f0c9fc
 
 ---
 
+## Product backlog: Replayt 0.5 readiness checklist and boundary test updates
+
+Normative mapping for Mission Control item **`8c5e0a89-66d8-4e11-ac7e-532b39f11156`** (full checklist, API inventory, pin decision, CI vs blockers: **`docs/BACKLOG_REPLAYT_05_READINESS.md`**).
+
+| Backlog criterion | Done when (normative) |
+| ----------------- | ---------------------- |
+| **Compatibility Update issue filled out** | **R1** in **BACKLOG_REPLAYT_05_READINESS §2** — issue from **`.github/ISSUE_TEMPLATE/compatibility_update.md`** with **replayt** **0.5** target version, completed **Test Results** / **Impact** / **Required Changes**, plus template **Replayt 0.5+ compatibility** checklist (or equivalent) linking **BACKLOG_REPLAYT_05_READINESS**. |
+| **Track public API vs `src/` and contract tests** | **R2** — inventory of **`replayt.*`** usage in **`src/replayt_langgraph_bridge/`** and replayt-facing **`tests/`** modules, reconciled to **0.5** public API; recorded in that issue. |
+| **`pyproject` pin decision** | **R3** — decision documented in the issue and **`pyproject.toml`** (and **DESIGN_PRINCIPLES** / **README** when integrator-facing) updated on merge; comments justify the range. |
+| **Green CI on prerelease or documented blockers** | **R4** — matrix-green evidence (3.11–3.13, frozen **`[dev]`** path per repo norms) **or** blocker list with upstream URLs in the issue. |
+| **Boundary spec / §1 table** | **R5** — If new replayt surfaces are required, update **§1** table below and contract tests in the same change set; otherwise issue states **§1 unchanged** with rationale. |
+
+---
+
 ## 1. Scope: “replayt boundary” in this package
 
 A **replayt boundary test** imports **replayt** and exercises **behavior that replayt owns** that the bridge relies on at compile or run time. The bridge implementation in `replayt_langgraph_bridge.graph` currently depends on these **documented replayt entry points** (see `src/replayt_langgraph_bridge/graph.py`):
@@ -166,6 +180,7 @@ When landing tests, ensure:
 - **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)** — **`interrupt_before` / `interrupt_after`** cookbook and test acceptance (Mission Control backlog `4b64a655-bb06-49e5-8912-61b06626a034`).
 - **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)** — Disk-backed (**SQLite**) checkpoint round-trip pytest and CI acceptance (Mission Control backlog `255db7a8-876d-475d-8c69-cdb5f0c9fcc0`).
 - **[BACKLOG_FIRST_PARTY_LLM_SAMPLE.md](BACKLOG_FIRST_PARTY_LLM_SAMPLE.md)** — First-party **`examples/`** LLM sample, **`[demo]`** extra, CI boundaries, env vars, and redaction acceptance (Mission Control backlog `74a40ce9-cd64-4ab3-bda8-50296e094201`).
+- **[BACKLOG_REPLAYT_05_READINESS.md](BACKLOG_REPLAYT_05_READINESS.md)** — **replayt 0.5** pin readiness, API inventory, Compatibility Update issue, CI vs upstream blockers (Mission Control backlog `8c5e0a89-66d8-4e11-ac7e-532b39f11156`).
 
 ---
 

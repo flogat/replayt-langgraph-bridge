@@ -79,7 +79,7 @@ When the first integration (or any later change) adds or tightens **runtime** de
 ### Breaking upstream releases — triage
 
 1. **Monitor** — Watch for new **major** (or behavior-changing) releases of **replayt** and **langgraph**.
-2. **Track** — Open a **Compatibility Update** issue using **[`.github/ISSUE_TEMPLATE/compatibility_update.md`](../.github/ISSUE_TEMPLATE/compatibility_update.md)** (fields: upstream package/version, test results, impact, required doc and constraint updates). For a **new Python minor in CI** (e.g. **3.13**), use the template’s **Python interpreter / CI matrix expansion** checklist and **[BACKLOG_PYTHON_313_CI_MATRIX.md](BACKLOG_PYTHON_313_CI_MATRIX.md)**.
+2. **Track** — Open a **Compatibility Update** issue using **[`.github/ISSUE_TEMPLATE/compatibility_update.md`](../.github/ISSUE_TEMPLATE/compatibility_update.md)** (fields: upstream package/version, test results, impact, required doc and constraint updates). For **replayt 0.5+**, use the template’s **Replayt 0.5+ compatibility** checklist and **[BACKLOG_REPLAYT_05_READINESS.md](BACKLOG_REPLAYT_05_READINESS.md)**. For a **new Python minor in CI** (e.g. **3.13**), use the template’s **Python interpreter / CI matrix expansion** checklist and **[BACKLOG_PYTHON_313_CI_MATRIX.md](BACKLOG_PYTHON_313_CI_MATRIX.md)**.
 3. **Test** — Run **pytest** (and supply-chain audit if deps change) against the candidate versions; record pass/fail and surprises in the issue.
 4. **Assess** — Decide whether the bridge needs code shims, range-only updates, or a new bridge major.
 5. **Document** — Update **`pyproject.toml`**, this section, **`README.md`**, and **`CHANGELOG.md`**; release notes call out compatibility boundary changes.
