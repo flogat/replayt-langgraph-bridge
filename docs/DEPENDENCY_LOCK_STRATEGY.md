@@ -43,6 +43,8 @@ CI runs **Python 3.11** and **3.12** (`.github/workflows/ci.yml`). The Builder *
 
 Either way, **each matrix job** must install from the documented artifact(s) so resolution is frozen for that job.
 
+**Python 3.13 (policy hook):** Until maintainers add **3.13** to the workflow, **`requires-python`** may still allow **`>=3.11`** without CI exercising **3.13**. When **replayt**, **langgraph**, and **`[dev]`** tooling are ready, add **3.13** to the **`test`** matrix per **[docs/BACKLOG_PYTHON_313_CI_MATRIX.md](BACKLOG_PYTHON_313_CI_MATRIX.md)** and the **Compatibility Update** template’s **Python interpreter / CI matrix expansion** checklist; then update **DESIGN_PRINCIPLES.md** **Tested matrix** and this subsection so docs match CI.
+
 ### 3.3 Optional `demo` extra
 
 **Default:** Do **not** include **`demo`** in the primary CI lock. That preserves the current contract: default CI proves the integrator-relevant path without vendor LLM client packages.

@@ -75,6 +75,8 @@ For **how** pins, ranges, and optional extras are chosen—and what “minimum s
 
 When triaging a new **major** or a risky range change, open a **Compatibility Update** issue using **[`.github/ISSUE_TEMPLATE/compatibility_update.md`](.github/ISSUE_TEMPLATE/compatibility_update.md)** and follow the maintainer checklist in **DESIGN_PRINCIPLES.md** (same section as above).
 
+**Python minor on CI (e.g. 3.13):** Use the template’s **Python interpreter / CI matrix expansion** checklist and **[docs/BACKLOG_PYTHON_313_CI_MATRIX.md](docs/BACKLOG_PYTHON_313_CI_MATRIX.md)** so **`uv.lock`**, **pytest**, **workflow** matrix, and docs stay aligned; see **DESIGN_PRINCIPLES.md** — **Python 3.13 and CI matrix lag**.
+
 ### Running audits locally
 
 After **`uv sync --frozen --extra dev`** (or **`uv sync --extra dev`** if you are refreshing the lock), run:

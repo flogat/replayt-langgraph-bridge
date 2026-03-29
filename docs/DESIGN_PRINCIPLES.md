@@ -28,12 +28,18 @@ This section is the **source of truth** for how pins, ranges, and extras are cho
 | -------- | -------------------- | -------------- |
 | **Minimum supported** | Lowest **replayt** / **LangGraph** / **Python** versions the maintainers commit to supporting, based on features the bridge uses and security posture | Lower bounds in `[project.dependencies]` and `requires-python`; repeated in this doc for readability |
 | **Upper bounds** | `< next major` on **replayt** and **langgraph** so `pip install` does not silently pull a new major | Upper bounds in `[project.dependencies]` |
-| **Tested matrix** | **Python** 3.11 and 3.12 in GitHub Actions; job **`test`** runs **`uv sync --frozen --extra dev`** then **`uv run pytest`**, **`uv run ruff check src tests`**, and **`uv run mypy -p replayt_langgraph_bridge`** from the same resolved graph in **`uv.lock`** (no **`demo`** extra). | `.github/workflows/ci.yml`; **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** |
+| **Tested matrix** | **Python** 3.11 and 3.12 in GitHub Actions; job **`test`** runs **`uv sync --frozen --extra dev`** then **`uv run pytest`**, **`uv run ruff check src tests`**, and **`uv run mypy -p replayt_langgraph_bridge`** from the same resolved graph in **`uv.lock`** (no **`demo`** extra). | `.github/workflows/ci.yml`; **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)**; adding **3.13** — **[BACKLOG_PYTHON_313_CI_MATRIX.md](BACKLOG_PYTHON_313_CI_MATRIX.md)** and **[Python 3.13 and CI matrix lag](#python-313-and-ci-matrix-lag-policy-hook)** |
 | **Locked CI resolution** | Root **`uv.lock`** freezes the **`[dev]`** install (core + dev tools, **no** **`demo`**) so CI and release branches replay the same transitive graph; **`test`** and **`supply-chain`** install with **`uv sync --frozen --extra dev`**. | **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §3–§4 |
 | **Core install in CI** | **`test`** (and **`supply-chain`**) install the bridge for checks **without** optional **demo / LLM-sample** extras—**`[dev]`** only via the lock. When a **`demo`** extra exists, CI must still prove the **default + dev** surface is enough for the main test suite. | `.github/workflows/ci.yml`; README **Dependency strategy** |
 | **Optional verification** | Before widening ranges or after upstream incidents, maintainers may install explicit versions locally or in a branch (e.g. `pip install 'replayt==x.y.z'`) and run **pytest**; document outcomes in a compatibility issue | Maintainer workflow; see template below |
 
 Optional extras must stay **out of** `[project.dependencies]` unless they are required for the published bridge API at install time.
+
+### Python 3.13 and CI matrix lag (policy hook)
+
+- **`requires-python`** may advertise a range **broader** than the interpreters GitHub Actions exercises (for example **`>=3.11`** while CI runs **3.11** and **3.12** only). **Documented CI coverage** is what **`.github/workflows/ci.yml`** **`test`** runs, not every minor allowed by **`requires-python`**.
+- **Adding Python 3.13:** Use a **Compatibility Update** issue and complete the **Python interpreter / CI matrix expansion** checklist in **[`.github/ISSUE_TEMPLATE/compatibility_update.md`](../.github/ISSUE_TEMPLATE/compatibility_update.md)**. Full acceptance mapping: **[BACKLOG_PYTHON_313_CI_MATRIX.md](BACKLOG_PYTHON_313_CI_MATRIX.md)**.
+- **When the spike completes:** Land **`.github/workflows/ci.yml`** matrix updates together with a **short design note** in **this subsection** or in **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md) §3.2** that **3.13** is now in the **tested matrix**, and update the **Tested matrix** table row above to list **3.11**, **3.12**, and **3.13** (until then, the table row remains accurate as written).
 
 ### Version selection rules
 
@@ -73,7 +79,7 @@ When the first integration (or any later change) adds or tightens **runtime** de
 ### Breaking upstream releases — triage
 
 1. **Monitor** — Watch for new **major** (or behavior-changing) releases of **replayt** and **langgraph**.
-2. **Track** — Open a **Compatibility Update** issue using **[`.github/ISSUE_TEMPLATE/compatibility_update.md`](../.github/ISSUE_TEMPLATE/compatibility_update.md)** (fields: upstream package/version, test results, impact, required doc and constraint updates).
+2. **Track** — Open a **Compatibility Update** issue using **[`.github/ISSUE_TEMPLATE/compatibility_update.md`](../.github/ISSUE_TEMPLATE/compatibility_update.md)** (fields: upstream package/version, test results, impact, required doc and constraint updates). For a **new Python minor in CI** (e.g. **3.13**), use the template’s **Python interpreter / CI matrix expansion** checklist and **[BACKLOG_PYTHON_313_CI_MATRIX.md](BACKLOG_PYTHON_313_CI_MATRIX.md)**.
 3. **Test** — Run **pytest** (and supply-chain audit if deps change) against the candidate versions; record pass/fail and surprises in the issue.
 4. **Assess** — Decide whether the bridge needs code shims, range-only updates, or a new bridge major.
 5. **Document** — Update **`pyproject.toml`**, this section, **`README.md`**, and **`CHANGELOG.md`**; release notes call out compatibility boundary changes.
