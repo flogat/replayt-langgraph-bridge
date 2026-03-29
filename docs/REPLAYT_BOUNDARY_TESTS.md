@@ -181,6 +181,7 @@ When landing tests, ensure:
 - **[THREAT_MODEL.md](THREAT_MODEL.md)** — Checkpoint/state threat model; **documentation linkage** contract in §6 of this file.
 - **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** — LangGraph checkpoint persistence scope, failure modes, and deterministic test obligations (complements replayt-focused rules here).
 - **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** — Bridge **inbound state** contracts (separate from replayt upstream types).
+- **[STATE_PAYLOAD_VALIDATION.md §9](STATE_PAYLOAD_VALIDATION.md#9-fuzz-and-regression-test-suite-parametrized-boundaries)** — Default **pytest** matrix for inbound size limits, schema cases, and **`MemorySaver`** non-mutation (Mission Control `945d5aa3-41cb-4806-a49b-8756186e7046`).
 - **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** — Compile and routing exception taxonomy, logging, and test obligations for the graph mapping backlog.
 - **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)** — **`interrupt_before` / `interrupt_after`** cookbook and test acceptance (Mission Control backlog `4b64a655-bb06-49e5-8912-61b06626a034`).
 - **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)** — Disk-backed (**SQLite**) checkpoint round-trip pytest and CI acceptance (Mission Control backlog `255db7a8-876d-475d-8c69-cdb5f0c9fcc0`).
