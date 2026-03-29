@@ -37,7 +37,7 @@ The full policy (selection rules, LangGraph major rollout risk, **core vs demo L
 
 ### LLM demos (optional samples)
 
-**Shipped in this repository today:** The optional **`[demo]`** extra declares vendor LLM client packages only. There is **no** committed first-party script under `examples/` (or similar) that invokes a live model. Scope and policy are normative in **[docs/MISSION.md](docs/MISSION.md#llm-demos-and-optional-samples-scope)** and **[docs/DESIGN_PRINCIPLES.md — LLM and demos](docs/DESIGN_PRINCIPLES.md#llm-and-demos)**.
+**Shipped in this repository today:** The optional **`[demo]`** extra declares vendor LLM client packages only. There is **no** committed first-party script under `examples/` (or similar) that invokes a live model. **Planned** first-party sample acceptance criteria (path, env vars, CI boundaries, redaction): **[docs/BACKLOG_FIRST_PARTY_LLM_SAMPLE.md](docs/BACKLOG_FIRST_PARTY_LLM_SAMPLE.md)**. Scope and policy are normative in **[docs/MISSION.md](docs/MISSION.md#llm-demos-and-optional-samples-scope)** and **[docs/DESIGN_PRINCIPLES.md — LLM and demos](docs/DESIGN_PRINCIPLES.md#llm-and-demos)**.
 
 **If you install `[demo]`** for your own code or a future shipped sample:
 
