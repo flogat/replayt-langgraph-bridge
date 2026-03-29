@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **Human-in-the-loop:** README **Human-in-the-loop** copy-paste example (**`MemorySaver`**, **`interrupt_after`**, two **`invoke`** calls, **`context={"runner": runner}`**); **`docs/API.md`** pointer to that section; **`tests/test_bridge_graph.py`** adds **`test_resume_second_invoke_interrupt_after_first_uses_memory_checkpointer`** for LangGraph 1.1.x **`interrupt_after`** semantics (phase **3**, backlog **Human-in-the-loop cookbook: interrupt_before / interrupt_after with tests**).
+
 ### Added
 
 - **PEP 561:** **`py.typed`** under **`replayt_langgraph_bridge`**, setuptools **`package-data`** so wheels/sdists include the marker, **`mypy`** in **`[dev]`** with **`[tool.mypy]`** smoke scope (**`follow_imports = "skip"`**, **`ignore_missing_imports = true`**), CI step **`uv run mypy -p replayt_langgraph_bridge`**, README **Typing (PEP 561)** and extras matrix update, **`tests/test_pep561_packaging.py`** (wheel must contain **`py.typed`** when **`uv`** is on **`PATH`**). Regenerated **`uv.lock`** (phase **3**, backlog **PEP 561 typing posture: py.typed, stub coverage, and contributor note**).

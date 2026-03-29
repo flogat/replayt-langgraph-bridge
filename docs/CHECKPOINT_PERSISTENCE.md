@@ -119,3 +119,4 @@ Map the product backlog to verifiable items:
 - **[THREAT_MODEL.md](THREAT_MODEL.md)** — Assets, adversaries, unsafe fields, non-goals.
 - **[LOG_REDACTION.md](LOG_REDACTION.md)** — Logging only; not checkpoint contents.
 - **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** — Replayt-facing test style; LangGraph checkpoint tests may live alongside but are **not** a substitute for this persistence contract.
+- **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)** — Spec and acceptance criteria for **`interrupt_before` / `interrupt_after`** integrator cookbook and CI coverage (Mission Control backlog `4b64a655-bb06-49e5-8912-61b06626a034`).
