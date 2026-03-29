@@ -67,7 +67,7 @@ Resolved graph from **`uv sync --frozen --extra dev`** / **`uv.lock`** on PyPI (
 
 | Command | Result |
 | ------- | ------ |
-| **`uv run pytest`** (no path filter) | **131 passed**, exit code **0** |
+| **`uv run pytest`** (no path filter) | **135 passed**, exit code **0** |
 | **`uv run ruff check src tests`** | clean, exit code **0** |
 | **`uv run mypy -p replayt_langgraph_bridge`** | success, exit code **0** |
 
