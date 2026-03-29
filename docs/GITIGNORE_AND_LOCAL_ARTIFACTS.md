@@ -8,9 +8,9 @@ This document is the **source of truth** for which paths the repository **should
 
 ## 0. Backlog traceability
 
-**Backlog:** Review and tighten **`.gitignore`** for local secrets and orchestrator artifacts (workflow item **`27853c00-77f0-403a-9ff2-6d45f3255a4f`**).
+**Backlog:** Review and tighten **`.gitignore`** for local secrets and orchestrator artifacts (workflow item **`27853c00-77f0-403a-9ff2-6d45f3255a4f`**). Short Mission Control framing and builder checklist: **[BACKLOG_GITIGNORE_LOCAL_SECRETS.md](BACKLOG_GITIGNORE_LOCAL_SECRETS.md)**.
 
-**User story (verbatim intent):** Contributors want **`.gitignore`** to exclude common secret filenames and local orchestration directories so accidental commits of tokens or private prompts are less likely.
+**User story (verbatim intent):** Contributors want **`.gitignore`** to exclude common secret filenames and local orchestration directories so accidental commits of **tokens**, **API keys**, or **private prompts** (for example content under **`.cursor/skills/`** or Mission Control handoffs under **`.orchestrator/`**) are less likely.
 
 **Constraints from product backlog:**
 
@@ -42,7 +42,7 @@ The Builder **must** ensure **`.gitignore`** covers at least the following **cat
 | Category | Rationale | Examples of patterns to include (illustrative; adjust for collisions) |
 | -------- | --------- | ------------------------------------------------------------------------ |
 | **A. Environment and secrets files** | API keys and tokens often land in dotenv or ad-hoc config files. | `.env`, `.env.*`, `!.env.example` (only if the repo adds a **tracked** template named exactly `.env.example`), `.envrc`, `.direnv/`, `*.pem`, `*.p12`, `*.pfx`, `id_rsa`, `id_ed25519`, `*.key` (where used for **private** key material—document if a public key filename is tracked and needs a negated rule). See **§6 Optional pattern catalog** for additional filenames to consider when contributors adopt new tooling. |
-| **B. Orchestration and local agent scratch** | Mission Control and agent tools write under fixed trees; these must not enter git history. | `.orchestrator/` (already present), **`.cursor/skills/`** (already present), **`.aider*`** (already present), alignment JSON at repo root if mis-placed (**`alignment_result.json`**, **`.alignment_result.json`**—already present). Extend only when a **new** tool writes a stable, non-portable directory name documented in this table. |
+| **B. Orchestration and local agent scratch** | Mission Control and agent tools write under fixed trees; these must not enter git history. Treat skill bodies, handoffs, and private prompts as **local-only** when they live under these trees. | `.orchestrator/` (already present), **`.cursor/skills/`** (already present), **`.aider*`** (already present), alignment JSON at repo root if mis-placed (**`alignment_result.json`**, **`.alignment_result.json`**—already present). Extend only when a **new** tool writes a stable, non-portable directory name documented in this table. |
 | **C. Local durable checkpoint / store dumps (dev only)** | Contributors experimenting with **SQLite**, **JSONL stores**, or LangGraph-local persistence may create files that look like production data. | Prefer **directory-scoped** ignores (e.g. `local_checkpoints/` or `scratch/`) **or** suffixes unlikely to appear in **`tests/`** fixtures (e.g. `*.dev.sqlite3`). **Do not** add a bare `*.jsonl` if the repo might commit fixture **`.jsonl`** files later—verify with `git check-ignore -v` and the full test suite. |
 | **D. Python / packaging / tooling noise** | Standard hygiene; keep aligned with existing blocks. | `__pycache__/`, `*.py[cod]`, `.venv/`, `venv/`, `dist/`, `build/`, `*.egg-info/`, `.pytest_cache/`, `.ruff_cache/`, `.mypy_cache/`, `htmlcov/`, etc. (already largely present—merge duplicates when tightening). |
 | **E. Placeholder / mistaken paths** | Agents sometimes create literal **`path/`** trees from examples. | Keep **`path/`** (already present) unless a future **real** top-level package needs that name (then replace with a narrower pattern and document here). |
@@ -89,16 +89,6 @@ Treat the backlog **Review and tighten `.gitignore` for local secrets and orches
 | **G3** | **`CONTRIBUTING.md`** contains a short **“What must never be committed”** section (see **[CONTRIBUTING.md](../CONTRIBUTING.md#what-must-never-be-committed)**) pointing here for full rules and aligned with §2 categories (extend the bullet list if new ignore categories are added). | Doc review. |
 | **G4** | Intentional **exceptions** (§3) are documented in **`.gitignore`** comments and, if subtle, in this doc (§3 table or §7). | Review. |
 | **G5** | Representative **§2** paths stay enforced by **`tests/test_gitignore_contract.py`** (via **`git check-ignore`**). When you add or remove ignore rules that change expected behavior for common local filenames, extend or adjust that test in the **same** change set so CI catches spec drift. | **`uv run pytest tests/test_gitignore_contract.py`**; full suite per §5.1. |
-
-**Traceability (original backlog wording):**
-
-| Backlog acceptance line | Maps to |
-| ----------------------- | ------- |
-| “`.gitignore` updated with justified patterns; no overlap that breaks packaging” | **G1**, **G2**, §4 |
-| “Short note in `CONTRIBUTING.md` on what must never be committed” | **G3** |
-| “Do not ignore files required for reproducible builds; document intentional exceptions” | §3, **G4** |
-| “If pre-commit is added later…” | Pre-commit paragraph below |
-| “Contract tests” / CI enforcement | **G5**, §8 |
 
 **Pre-commit hooks:** Not required for this backlog. If the project adds **pre-commit** later, hooks such as **detect-secrets** or **gitleaks** may **supplement** but **not replace** clear **`.gitignore`** hygiene; update this section with the hook names and scope when introduced.
 
