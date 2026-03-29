@@ -10,6 +10,10 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 5. **Not a lever on core** — This repo does not exist to steer replayt core; propose upstream changes through normal
    channels.
 
+## Typing and PEP 561 (packaged type information)
+
+Integrators using **mypy**, **Pyright**, or similar tools expect **inline** annotations plus a PEP 561 **`py.typed`** marker when a package advertises itself as typed, or else a documented **stub** story. This repository’s **baseline**, **acceptance criteria**, **`py.typed`** / wheel packaging notes, optional **mypy** or **pyright** smoke, and contributor annotation rules live in **[BACKLOG_PEP561_TYPING_POSTURE.md](BACKLOG_PEP561_TYPING_POSTURE.md)** and in **CONTRIBUTING.md** (**Public API typing**).
+
 ## Replayt boundary testing
 
 **Contract-style** replayt boundary tests (import **replayt**, exercise supported public APIs the bridge uses) must fail with **messages that name the contract** under test (handler transitions, `RunContext.data`, runner/store wiring, etc.), not only deep stack traces. Normative expectations, anti-patterns, skip/issue rules, CI/command parity, and the product backlog acceptance mapping live in **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
@@ -24,7 +28,7 @@ This section is the **source of truth** for how pins, ranges, and extras are cho
 | -------- | -------------------- | -------------- |
 | **Minimum supported** | Lowest **replayt** / **LangGraph** / **Python** versions the maintainers commit to supporting, based on features the bridge uses and security posture | Lower bounds in `[project.dependencies]` and `requires-python`; repeated in this doc for readability |
 | **Upper bounds** | `< next major` on **replayt** and **langgraph** so `pip install` does not silently pull a new major | Upper bounds in `[project.dependencies]` |
-| **Tested matrix** | **Python** 3.11 and 3.12 in GitHub Actions; each job runs **`uv sync --frozen --extra dev`** then **`uv run pytest`** from the same resolved graph recorded in **`uv.lock`** (no **`demo`** extra). | `.github/workflows/ci.yml`; **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** |
+| **Tested matrix** | **Python** 3.11 and 3.12 in GitHub Actions; job **`test`** runs **`uv sync --frozen --extra dev`** then **`uv run pytest`**, **`uv run ruff check src tests`**, and **`uv run mypy -p replayt_langgraph_bridge`** from the same resolved graph in **`uv.lock`** (no **`demo`** extra). | `.github/workflows/ci.yml`; **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** |
 | **Locked CI resolution** | Root **`uv.lock`** freezes the **`[dev]`** install (core + dev tools, **no** **`demo`**) so CI and release branches replay the same transitive graph; **`test`** and **`supply-chain`** install with **`uv sync --frozen --extra dev`**. | **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §3–§4 |
 | **Core install in CI** | **`test`** (and **`supply-chain`**) install the bridge for checks **without** optional **demo / LLM-sample** extras—**`[dev]`** only via the lock. When a **`demo`** extra exists, CI must still prove the **default + dev** surface is enough for the main test suite. | `.github/workflows/ci.yml`; README **Dependency strategy** |
 | **Optional verification** | Before widening ranges or after upstream incidents, maintainers may install explicit versions locally or in a branch (e.g. `pip install 'replayt==x.y.z'`) and run **pytest**; document outcomes in a compatibility issue | Maintainer workflow; see template below |
@@ -35,7 +39,7 @@ Optional extras must stay **out of** `[project.dependencies]` unless they are re
 
 - **Minimum supported versions**: Set from tested bridge behavior and acceptable security posture; do not set a floor higher than necessary without cause.
 - **Upper bounds**: Prefer `< next-major` on **replayt** and **langgraph** until CI and release notes prove the next major is safe.
-- **Optional extras**: Declare under `[project.optional-dependencies]` only. **`dev`** holds tooling (**pytest**, **ruff**, **pip-audit**); it is not installed for `pip install replayt-langgraph-bridge` without an extra.
+- **Optional extras**: Declare under `[project.optional-dependencies]` only. **`dev`** holds tooling (**pytest**, **ruff**, **pip-audit**, **mypy**); it is not installed for `pip install replayt-langgraph-bridge` without an extra.
 - **Demo / LLM provider clients**: Packages needed **only** for examples or integration samples that call **vendor LLM APIs** (OpenAI, Anthropic, etc.) must **not** appear in `[project.dependencies]`. Declare them under a dedicated optional extra (recommended name: **`demo`**, or `llm-demo` if you need to disambiguate). Document in the README extras matrix that installing that extra opts into those clients and the **network / credential** expectations that come with them.
 
 ### Core vs demo extras (LLM clients and supply chain)

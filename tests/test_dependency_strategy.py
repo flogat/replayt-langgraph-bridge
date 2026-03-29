@@ -40,7 +40,7 @@ def test_pyproject_matches_documented_runtime_contract():
         "replayt>=0.4.0,<0.5",
         "langgraph>=1.1.0,<1.2",
     ]
-    dev_only = {"pytest", "ruff", "pip-audit"}
+    dev_only = {"pytest", "ruff", "pip-audit", "mypy"}
     runtime_names = {_pep508_name(req) for req in project["dependencies"]}
     assert dev_only.isdisjoint(runtime_names), (
         "runtime dependencies must not list dev-only tools"
@@ -51,7 +51,7 @@ def test_pyproject_dev_extra_lists_contributor_tooling():
     data = tomllib.loads(_PYPROJECT.read_text(encoding="utf-8"))
     dev = data["project"]["optional-dependencies"]["dev"]
     names = {_pep508_name(req) for req in dev}
-    assert {"pytest", "ruff", "pip-audit"}.issubset(names)
+    assert {"pytest", "ruff", "pip-audit", "mypy"}.issubset(names)
 
 
 def test_core_dependencies_exclude_llm_vendor_clients():
@@ -99,6 +99,9 @@ def test_ci_workflow_installs_dev_without_demo_extra():
     ci_path = _REPO_ROOT / ".github" / "workflows" / "ci.yml"
     assert ci_path.is_file(), "expected .github/workflows/ci.yml"
     text = ci_path.read_text(encoding="utf-8")
+    assert "uv run mypy -p replayt_langgraph_bridge" in text, (
+        "CI must run the same mypy smoke as CONTRIBUTING (PEP 561 backlog A2)"
+    )
     assert "uv sync" in text
     assert "--frozen" in text
     assert "--extra dev" in text
@@ -131,6 +134,7 @@ def test_uv_lockfile_committed_for_dev_install():
     assert "requires-python" in text
     assert "replayt-langgraph-bridge" in text
     assert 'name = "pytest"' in text
+    assert 'name = "mypy"' in text
 
 
 def test_python_version_requirement():

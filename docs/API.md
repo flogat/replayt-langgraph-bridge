@@ -7,6 +7,7 @@ Normative contract for integrators: what may be imported, stability expectations
 - **Small surface** — Prefer factory/builder entry points (`compile_replayt_workflow`, `initial_bridge_state`) and typed shapes over exposing LangGraph wiring details.
 - **One import path** — Integrators should use `from replayt_langgraph_bridge import …` (or `import replayt_langgraph_bridge`). Submodules under `replayt_langgraph_bridge` are **not** a second public API unless explicitly listed below as supported.
 - **Documented stability** — Every name in the public export set has a docstring (module or object) and is summarized here and in **[README.md](../README.md)**.
+- **Type checkers** — Public symbols should carry accurate **inline** annotations; whether the distribution ships a PEP 561 **`py.typed`** marker, optional stub policy, and **mypy** / **pyright** smoke (CI or documented commands) are specified in **[BACKLOG_PEP561_TYPING_POSTURE.md](BACKLOG_PEP561_TYPING_POSTURE.md)**.
 
 ## Source of truth for exported names
 
@@ -67,6 +68,7 @@ In-repo **tests** may import private helpers (e.g. functions prefixed with `_` i
 | Bridge-originated logging and redaction | **[LOG_REDACTION.md](LOG_REDACTION.md)** |
 | Replayt-facing tests and assertion style | **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** |
 | Dependency ranges and compatibility process | **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)** |
+| PEP 561 **`py.typed`**, stub policy, contributor annotation rules | **[BACKLOG_PEP561_TYPING_POSTURE.md](BACKLOG_PEP561_TYPING_POSTURE.md)** |
 
 ## `compile_replayt_workflow` (extra keyword arguments)
 

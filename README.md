@@ -19,7 +19,7 @@ This project follows a deliberate **dependency and pin policy** so downstream in
 
 - **Runtime** (installed with `pip install replayt-langgraph-bridge`): `replayt>=0.4.0,<0.5` and `langgraph>=1.1.0,<1.2`, declared in **`pyproject.toml`** with short comments explaining bounds.
 - **Minimum supported** vs **upper bounds**: Lower bounds reflect features and support posture; `< next-major` caps automatic upgrades until maintainers validate a new line.
-- **What CI exercises**: **Python** 3.11 and 3.12 jobs install **`[dev]`** from committed **`uv.lock`** (**`uv sync --frozen --extra dev`**) and run **`uv run pytest`** (no path or marker filter)—**without** any optional **`demo`** extra. The same command runs **unit tests and contract-style replayt boundary tests** together; normative scope and acceptance mapping are in **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**. That proves the integrator-relevant install path stays green when demo-only LLM client dependencies are not present. Regeneration and security→lock workflow: **[docs/DEPENDENCY_LOCK_STRATEGY.md](docs/DEPENDENCY_LOCK_STRATEGY.md)**.
+- **What CI exercises**: **Python** 3.11 and 3.12 jobs install **`[dev]`** from committed **`uv.lock`** (**`uv sync --frozen --extra dev`**) and run **`uv run pytest`** (no path or marker filter), **`uv run ruff check src tests`**, and **`uv run mypy -p replayt_langgraph_bridge`**—**without** any optional **`demo`** extra. The **pytest** run collects **unit tests and contract-style replayt boundary tests** together; normative scope and acceptance mapping are in **[docs/REPLAYT_BOUNDARY_TESTS.md](docs/REPLAYT_BOUNDARY_TESTS.md)**. That proves the integrator-relevant install path stays green when demo-only LLM client dependencies are not present. Regeneration and security→lock workflow: **[docs/DEPENDENCY_LOCK_STRATEGY.md](docs/DEPENDENCY_LOCK_STRATEGY.md)**.
 - **Contributor install (locked, matches CI):** **`uv sync --frozen --extra dev`** (see **[CONTRIBUTING.md](CONTRIBUTING.md)**). **`pip install -e ".[dev]"`** still resolves loosely for ad-hoc work but is not the CI graph.
 - **Upstream majors or risky bumps**: Use the **Compatibility Update** issue template (`.github/ISSUE_TEMPLATE/compatibility_update.md`) and follow the maintainer checklist in **[docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy](docs/DESIGN_PRINCIPLES.md#dependency-and-pin-policy)**.
 
@@ -30,7 +30,7 @@ The full policy (selection rules, LangGraph major rollout risk, **core vs demo L
 | Install command | Purpose | Declared outbound LLM vendor clients |
 | --- | --- | --- |
 | `pip install replayt-langgraph-bridge` | Core bridge runtime (**replayt**, **langgraph** per `pyproject.toml`) | **No** — core must not list LLM provider SDKs; see **[DESIGN_PRINCIPLES.md — Core vs demo extras](docs/DESIGN_PRINCIPLES.md#core-vs-demo-extras-llm-clients-and-supply-chain)** |
-| `pip install replayt-langgraph-bridge[dev]` | Contributor tooling (**pytest**, **ruff**, **pip-audit**) | **No** |
+| `pip install replayt-langgraph-bridge[dev]` | Contributor tooling (**pytest**, **ruff**, **pip-audit**, **mypy** smoke) | **No** |
 | `pip install replayt-langgraph-bridge[demo]` | Optional **openai**, **anthropic**, **langchain-openai**, and **langchain-anthropic** for samples that call vendor LLM APIs (see `pyproject.toml`) | **Yes** |
 
 **Note:** **langgraph** (and its transitive dependencies) may include generic HTTP or messaging libraries used by the framework; the matrix above refers to **direct** bridge requirements that exist primarily to invoke **LLM vendor** APIs. Transitive behavior follows upstream packages you install.
@@ -44,7 +44,7 @@ The full policy (selection rules, LangGraph major rollout risk, **core vs demo L
 - **Environment variables:** Provide provider credentials via the environment (for example **`OPENAI_API_KEY`**, **`ANTHROPIC_API_KEY`**). LangChain-routed calls may need **`LANGCHAIN_API_KEY`** or other vars per upstream documentation. Do not commit **`.env`** or raw keys. See **[Secrets handling](#secrets-handling)** and **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
 - **Cost:** Usage is **metered and billed by the model vendor** (and any tracing SaaS you enable). This package does not cap spend or hide charges.
 - **Logs and redaction:** Bridge-originated structured logs follow **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. Application and sample code should not log raw API keys, prompts, or completions unless your own policy explicitly allows it and you apply equivalent controls.
-- **CI:** The default **`test`** job syncs **`[dev]`** only from **`uv.lock`** and runs **`uv run pytest`** with **no** live LLM calls (**[`.github/workflows/ci.yml`](.github/workflows/ci.yml)**).
+- **CI:** The default **`test`** job syncs **`[dev]`** only from **`uv.lock`**, runs **`uv run pytest`**, **ruff**, and the **mypy** package smoke, with **no** live LLM calls (**[`.github/workflows/ci.yml`](.github/workflows/ci.yml)**).
 
 ## Reference documentation (optional)
 
@@ -165,6 +165,10 @@ result = graph.invoke(
 ```
 
 To **pause and resume** across two **`invoke`** calls, compile with **`interrupt_before`** or **`interrupt_after`** (replayt step names). Run the first **`invoke`** with initial state, **`config`**, and **`context`**. For the continuation **`invoke`**, pass **`None`** as the graph input, keep the same **`config`** and **`context`**, and reuse the same compiled graph and saver. See **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** §6 and **`test_resume_second_invoke_uses_memory_checkpointer`**.
+
+## Typing (PEP 561)
+
+Wheels and sdists ship a **`py.typed`** marker under **`replayt_langgraph_bridge`** so type checkers can treat the package as **inline**-typed for the stable names in **`__all__`** (see **[docs/API.md](docs/API.md)** and **[CONTRIBUTING.md](CONTRIBUTING.md)** — **Public API typing**). Stub policy and smoke scope are in **[docs/BACKLOG_PEP561_TYPING_POSTURE.md](docs/BACKLOG_PEP561_TYPING_POSTURE.md)**. After **`uv sync --frozen --extra dev`**, contributors run **`uv run mypy -p replayt_langgraph_bridge`** (same as CI).
 
 ## Public API
 

@@ -2,7 +2,7 @@
 
 This document is the **normative specification** for backlog **Add reproducible lock or constraint strategy for release branches**. It defines what the **Builder** must implement so dependency resolution for automated checks is **repeatable**, **diffable**, and aligned with **[docs/DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#dependency-and-pin-policy)** and **[README.md](../README.md)**.
 
-**Status:** Root **`uv.lock`** freezes the **`[dev]`** install (core + **pytest** / **ruff** / **pip-audit**, **no** **`demo`**). CI jobs **`test`** and **`supply-chain`** use **`uv sync --frozen --extra dev`**; regeneration commands live in **CONTRIBUTING.md**.
+**Status:** Root **`uv.lock`** freezes the **`[dev]`** install (core + **pytest** / **ruff** / **pip-audit** / **mypy**, **no** **`demo`**). CI jobs **`test`** and **`supply-chain`** use **`uv sync --frozen --extra dev`**; regeneration commands live in **CONTRIBUTING.md**.
 
 ## 1. Goals
 
@@ -26,7 +26,7 @@ The Builder **must** commit **one** of the following (team-approved; default rec
 
 ### 3.1 Minimum locked install surface
 
-The lock **must** cover exactly what the **`test`** job needs today: **editable install of the package with the `dev` extra** (core runtime deps + **pytest**, **ruff**, **pip-audit**), equivalent to:
+The lock **must** cover exactly what the **`test`** job needs today: **editable install of the package with the `dev` extra** (core runtime deps + **pytest**, **ruff**, **pip-audit**, **mypy**), equivalent to:
 
 ```bash
 pip install -e ".[dev]"
