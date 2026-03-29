@@ -9,6 +9,9 @@ the same on-disk ``SqliteSaver`` and ``thread_id``), not a subprocess. Cross-pro
 omitted to keep CI fast and deterministic; ``BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md`` §3.2
 allows (B) when (A) is skipped with rationale (this docstring).
 
+**Import:** ``langgraph.checkpoint.sqlite`` comes from ``langgraph-checkpoint-sqlite`` (**[dev]**).
+The test skips if that namespace is missing so pytest collection stays green on core-only installs.
+
 **Platform:** Linux is the primary CI target. The test is single-threaded and uses ``tmp_path``
 (SQLite under pytest’s temp dir). On Windows/WSL, SQLite locking differs from Linux; integrators
 should follow upstream saver docs for concurrent access. This test does not use concurrent writers.
@@ -20,7 +23,7 @@ import sqlite3
 import uuid
 from pathlib import Path
 
-from langgraph.checkpoint.sqlite import SqliteSaver
+import pytest
 from replayt.persistence import JSONLStore
 from replayt.runner import Runner
 from replayt.workflow import Workflow
@@ -33,6 +36,14 @@ def test_sqlite_checkpoint_resume_after_fresh_compile(tmp_path: Path) -> None:
 
     Proves checkpoint bytes on disk survive a new compiled graph object (CHECKPOINT_PERSISTENCE §7).
     """
+    # ``langgraph.checkpoint.sqlite`` is shipped by ``langgraph-checkpoint-sqlite`` ([dev] / lock),
+    # not the default ``langgraph`` wheel; lazy import keeps collection green without [dev].
+    pytest.importorskip(
+        "langgraph.checkpoint.sqlite",
+        reason="install [dev] / langgraph-checkpoint-sqlite for SqliteSaver disk tests",
+    )
+    from langgraph.checkpoint.sqlite import SqliteSaver
+
     db_path = tmp_path / "checkpoints.sqlite"
     store_path = tmp_path / "replayt_events.jsonl"
     conn = sqlite3.connect(str(db_path), check_same_thread=False)

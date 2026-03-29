@@ -71,7 +71,7 @@ When the first integration (or any later change) adds or tightens **runtime** de
 
 ### Current dependency constraints
 
-- **replayt**: `>=0.4.0,<0.5` (initial integration target, 0.4.x line)
+- **replayt**: `>=0.4.0,<0.5` (initial integration target, 0.4.x line). **0.5+** readiness: **[BACKLOG_REPLAYT_05_READINESS.md](BACKLOG_REPLAYT_05_READINESS.md)**; draft **Compatibility Update** body **[COMPATIBILITY_UPDATE_REPLAYT_05.md](COMPATIBILITY_UPDATE_REPLAYT_05.md)**. Widen only after a published **0.5.x** (or approved prerelease) is CI-green per that backlog (**R3** / **R4**).
 - **LangGraph** (`langgraph` on PyPI): `>=1.1.0,<1.2` (initial integration target, 1.1.x line)
 - **Python**: `>=3.11` (`requires-python`, aligned with supported stack)
 - **demo** (optional): **openai**, **anthropic**, **langchain-openai**, **langchain-anthropic** under `[project.optional-dependencies] demo` for vendor-LLM samples only; CI default path does not install this extra (see README extras matrix).

@@ -4,7 +4,7 @@ Normative **spec and acceptance criteria** for Mission Control backlog **Replayt
 
 **Ecosystem stance:** Consumer-side pins, shims, tests, and docs live **in this repository** per **[REPLAYT_ECOSYSTEM_IDEA.md](REPLAYT_ECOSYSTEM_IDEA.md)**.
 
-**Related normative docs:** **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#breaking-upstream-releases--triage)** (triage, pins); **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** (§1 symbol table, actionable messages, backlog mapping); issue template **[`.github/ISSUE_TEMPLATE/compatibility_update.md`](../.github/ISSUE_TEMPLATE/compatibility_update.md)**; **[CONTRIBUTING.md](../CONTRIBUTING.md)**; **`pyproject.toml`**; **`uv.lock`** / **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)**.
+**Related normative docs:** **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#breaking-upstream-releases--triage)** (triage, pins); **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** (§1 symbol table, actionable messages, backlog mapping); issue template **[`.github/ISSUE_TEMPLATE/compatibility_update.md`](../.github/ISSUE_TEMPLATE/compatibility_update.md)**; draft issue body **[COMPATIBILITY_UPDATE_REPLAYT_05.md](COMPATIBILITY_UPDATE_REPLAYT_05.md)**; **[CONTRIBUTING.md](../CONTRIBUTING.md)**; **`pyproject.toml`**; **`uv.lock`** / **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)**.
 
 ---
 

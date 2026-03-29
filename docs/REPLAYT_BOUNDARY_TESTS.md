@@ -8,6 +8,11 @@ This document defines **what** integration-style tests must prove about the **re
 
 **Non-goals:** LangGraph runtime internals (covered indirectly via compiled graphs where needed); exhaustive replayt API coverage beyond what the bridge uses.
 
+## Related documents
+
+- **[BACKLOG_REPLAYT_05_READINESS.md](BACKLOG_REPLAYT_05_READINESS.md)** — **replayt 0.5+** consumer checklist (R1–R5) and inventory procedure.
+- **[COMPATIBILITY_UPDATE_REPLAYT_05.md](COMPATIBILITY_UPDATE_REPLAYT_05.md)** — draft **Compatibility Update** issue body for filing when tracking **0.5.x**.
+
 ---
 
 ## Product backlog: Add contract-style tests at the replayt boundary
