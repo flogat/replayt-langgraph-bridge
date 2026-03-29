@@ -57,7 +57,9 @@ def test_pyproject_dev_extra_lists_contributor_tooling():
     data = tomllib.loads(_PYPROJECT.read_text(encoding="utf-8"))
     dev = data["project"]["optional-dependencies"]["dev"]
     names = {_pep508_name(req) for req in dev}
-    assert {"pytest", "ruff", "pip-audit", "mypy"}.issubset(names)
+    assert {"pytest", "ruff", "pip-audit", "mypy", "langgraph-checkpoint-sqlite"}.issubset(
+        names
+    )
 
 
 def test_core_dependencies_exclude_llm_vendor_clients():

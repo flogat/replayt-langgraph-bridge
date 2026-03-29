@@ -79,8 +79,8 @@ As an **integrator**, I can read **CHECKPOINT_PERSISTENCE.md** and **this backlo
 
 ## 5. Spec gate / builder checklist (phases 2b / 3)
 
-- [ ] **`langgraph-checkpoint-sqlite`** (or chosen disk saver) declared under **`dev`** with **`pyproject.toml`** comment; **`uv.lock`** regenerated; CI **`test`** job stays **`[dev]`**-only.
-- [ ] New **`tests/`** module (or clearly scoped tests in an existing module) implements §3.2 with §3.1 constraints.
-- [ ] §3.3 traceability and platform notes satisfied.
-- [ ] **`docs/CHECKPOINT_PERSISTENCE.md`** §7 disk bullet checked off; **README** optional one-line pointer if maintainers want discoverability (not mandatory if **CHECKPOINT_PERSISTENCE** §7 is sufficient).
-- [ ] **`CHANGELOG.md` — Unreleased** updated per §3.4 when implementation merges.
+- [x] **`langgraph-checkpoint-sqlite`** (or chosen disk saver) declared under **`dev`** with **`pyproject.toml`** comment; **`uv.lock`** regenerated; CI **`test`** job stays **`[dev]`**-only.
+- [x] New **`tests/`** module (or clearly scoped tests in an existing module) implements §3.2 with §3.1 constraints.
+- [x] §3.3 traceability and platform notes satisfied.
+- [x] **`docs/CHECKPOINT_PERSISTENCE.md`** §7 disk bullet checked off; **README** optional one-line pointer if maintainers want discoverability (not mandatory if **CHECKPOINT_PERSISTENCE** §7 is sufficient).
+- [x] **`CHANGELOG.md` — Unreleased** updated per §3.4 when implementation merges.
