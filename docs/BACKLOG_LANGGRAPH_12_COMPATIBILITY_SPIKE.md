@@ -117,11 +117,11 @@ When the Builder **widens** **`langgraph`** (not required for the spike note alo
 
 ## 7. Spec gate / builder checklist (phases 2b / 3)
 
-- [ ] **§3** spike procedure executed on a branch; versions recorded.
-- [ ] **§4** maintainer note landed (**DEPENDENCY_AUDIT** and/or **Compatibility Update** issue + links).
-- [ ] **`tests/test_bridge_graph.py`** green on candidate **1.2.x** after any bridge shims, or failures triaged with explicit **LG12** follow-ups.
-- [ ] If pin widens: **`pyproject.toml`**, **`uv.lock`**, **README**, **DESIGN_PRINCIPLES**, **CHANGELOG** — **LG12-A4**–**A6**.
-- [ ] **`tests/test_dependency_strategy.py`** (or successor) still reflects declared **`langgraph`** range if contract tests encode it.
+- [x] **§3** spike procedure executed on a branch; versions recorded (**no PyPI `langgraph` 1.2.x** as of **2026-03-29**; baseline **1.1.3**).
+- [x] **§4** maintainer note landed (**DEPENDENCY_AUDIT** **History**).
+- [x] **`tests/test_bridge_graph.py`** green on resolved stack (**1.1.3**); **1.2.x** drift **unknown** until a candidate exists (**DEPENDENCY_AUDIT** table).
+- [ ] If pin widens: **`pyproject.toml`**, **`uv.lock`**, **README**, **DESIGN_PRINCIPLES**, **CHANGELOG** — **LG12-A4**–**A6** (deferred: hold **`<1.2`** until **1.2.x** is published and tested).
+- [x] **`tests/test_dependency_strategy.py`** (or successor) still reflects declared **`langgraph`** range if contract tests encode it.
 
 ---
 
