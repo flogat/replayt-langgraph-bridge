@@ -4,7 +4,38 @@ Normative guidance for **deployers** when LangGraph **checkpointers**, **graph r
 
 **Scope:** Integrator-owned configuration—**replayt-langgraph-bridge** does not implement TLS, IAM, vault integration, or storage ACLs. It accepts a LangGraph `Checkpointer` you supply and forwards execution to **replayt** and **LangGraph** as documented in **[API.md](API.md)**.
 
-**Related bridge specs:** checkpoint persistence scope, in-memory vs durable, and skew/corruption failure modes in **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**; asset and adversary framing in **[THREAT_MODEL.md](THREAT_MODEL.md)**; untrusted inbound dict state in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; bridge log redaction (not a substitute for storage access control) in **[LOG_REDACTION.md](LOG_REDACTION.md)**.
+**Related bridge specs:** checkpoint persistence scope, in-memory vs durable, skew/corruption failure modes, and the **two persistence planes** in **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** (start at **[Integrator runbook: remote checkpoints](CHECKPOINT_PERSISTENCE.md#integrator-runbook-remote-checkpoints)** when coming from this doc); asset and adversary framing in **[THREAT_MODEL.md](THREAT_MODEL.md)**; untrusted inbound dict state in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; bridge log redaction (not a substitute for storage access control) in **[LOG_REDACTION.md](LOG_REDACTION.md)**. Spec and acceptance criteria for this runbook shape: **[BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md](BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md)**.
+
+---
+
+## Integrator runbook: remote checkpoints
+
+When LangGraph checkpoints become **durable**, **network-attached**, or **shared**, treat **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** and **this document** as **one operator story**:
+
+- **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** is normative for **what** gets serialized into checkpoints, **how** the LangGraph checkpointer plane relates to the replayt **Runner** / **store** plane, and **documented failure modes** (corruption, schema skew, wrong **`thread_id`**).
+- **This document** is normative for **controls you must supply**: transport security, **identity**, **`thread_id`** / namespace discipline, and **secrets**—none of which the bridge implements.
+
+You may start from either file; before production, complete both the **persistence contract** and the **checklist** below. The companion entry point on the persistence side: **[CHECKPOINT_PERSISTENCE.md — Integrator runbook: remote checkpoints](CHECKPOINT_PERSISTENCE.md#integrator-runbook-remote-checkpoints)**.
+
+### Integrator checklist: remote or multi-tenant checkpoints
+
+Pre-flight when enabling **remote** or **multi-tenant** checkpoint paths (topologies **T2**–**T5** in [§1](#1-supported-deployment-topologies-and-required-controls)):
+
+- **TLS / transport** — Use **TLS** (or equivalent) to **network-attached** stores and graph APIs; enable **certificate verification**; meet the **T3** / **T4** minimum controls in the topology table.
+- **Identity and authorization** — **Authenticate** every **invoke** / resume path that crosses a trust boundary; **authorize** per tenant or principal; do **not** reuse one production “god” credential across customers (**T4**).
+- **`thread_id` and tenancy** — Own **`config["configurable"]["thread_id"]`** and backing namespaces (database names, bucket prefixes): **stable per tenant**, **no collisions** across customers, and **separate** dev / stage / prod conventions per [§4](#4-development-staging-and-production). A wrong or reused **`thread_id`** breaks resume isolation—see **[CHECKPOINT_PERSISTENCE.md — §6 Failure modes](CHECKPOINT_PERSISTENCE.md#6-failure-modes-corrupt-data-and-version-skew)**.
+- **Secret handling** — Do **not** place secrets or unnecessary **PII** in **`ReplaytBridgeState["context"]`**; serialized checkpoints are **outside** bridge **log redaction** (**[LOG_REDACTION.md](LOG_REDACTION.md)**). Keep credentials in the environment or a secret manager; see **[CHECKPOINT_PERSISTENCE.md — §5 Secrets, PII, and serialized state](CHECKPOINT_PERSISTENCE.md#5-secrets-pii-and-serialized-state)** and **[DESIGN_PRINCIPLES.md — Secrets policy](DESIGN_PRINCIPLES.md#secrets-policy)**.
+
+### What this package does not guarantee (multi-tenant and distributed storage)
+
+**replayt-langgraph-bridge** is a **framework adapter**. Unless a different guarantee is explicitly documented and tested under **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** or **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**, this package does **not**:
+
+- Implement **TLS**, **network policies**, **IAM** / **RBAC**, **vault** wiring, or storage **ACLs**.
+- **Assign**, **validate**, **enforce**, or **scope** **`thread_id`** or checkpoint **namespaces**—your LangGraph **`config`** and deployment do.
+- **Encrypt**, **decrypt**, **re-key**, or **migrate** checkpoint **blobs** across LangGraph versions, regions, or tenants.
+- Substitute **inbound state validation** (**[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**) or **bridge-originated log redaction** for **checkpoint store access control** or **authenticated remote graph APIs**.
+
+For **which bytes** live in the LangGraph checkpoint plane vs the replayt **Runner** / **store** plane, see **[CHECKPOINT_PERSISTENCE.md — Two persistence planes](CHECKPOINT_PERSISTENCE.md#two-persistence-planes-langgraph-checkpointer-vs-replayt-runner--store)**.
 
 ---
 
@@ -81,3 +112,9 @@ Treat the following as **done** when this backlog item is fully delivered in the
 - [x] **Upstream cross-links** — LangGraph persistence and GitHub Security; replayt PyPI (and placeholder note for future replayt security URL).
 
 Future **code or sample** changes that introduce checkpointing or remote services should **repeat** a short warning in-repo if they use **permissive** defaults for brevity.
+
+---
+
+## 7. Builder-facing acceptance criteria (hosted checkpoint runbook backlog)
+
+Treat Mission Control item **Hosted checkpoint runbook: tighten cross-links and integrator checklist** (`af6b342e-289d-4173-a317-2c9815746cbf`) as **done** when **[BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md](BACKLOG_HOSTED_CHECKPOINT_RUNBOOK.md)** **§3** (**H1**–**H7**) is satisfied, including contract tests (**H7**) and **CHANGELOG.md** notes for integrator-visible doc edits.
