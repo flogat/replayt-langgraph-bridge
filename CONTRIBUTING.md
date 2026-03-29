@@ -90,7 +90,7 @@ After **`uv sync --frozen --extra dev`** (or **`uv sync --extra dev`** if you ar
 uv run pip-audit --ignore-vuln CVE-2026-4539 --desc
 ```
 
-Same flags as **`.github/workflows/ci.yml`** job **`supply-chain`**. Document accepted ignores in **`docs/DEPENDENCY_AUDIT.md`**.
+Same flags as **`.github/workflows/ci.yml`** job **`supply-chain`** and **`.github/workflows/uv-lock-refresh.yml`**. Document accepted ignores in **`docs/DEPENDENCY_AUDIT.md`**; keep those invocations aligned.
 
 ## Changelog
 

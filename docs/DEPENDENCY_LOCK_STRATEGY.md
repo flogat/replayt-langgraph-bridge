@@ -81,7 +81,7 @@ This subsection is the **SLA-style playbook** for failures in GitHub Actions job
 
 #### Severity and what CI enforces
 
-- **`pip-audit`** reports **CVE-style identifiers** (and with **`--desc`**, short descriptions). The PyPA CLI used in CI **does not** expose a “only high/critical” gate: **any** finding fails **`supply-chain`** unless that CVE is listed in **`--ignore-vuln`** and documented under **Accepted risks** in **DEPENDENCY_AUDIT.md** (mirrored in **`.github/workflows/ci.yml`**).
+- **`pip-audit`** reports **CVE-style identifiers** (and with **`--desc`**, short descriptions). The PyPA CLI used in CI **does not** expose a “only high/critical” gate: **any** finding fails **`supply-chain`** (and the **UV lock refresh** workflow) unless that CVE is listed in **`--ignore-vuln`** and documented under **Accepted risks** in **DEPENDENCY_AUDIT.md** (mirrored in **`.github/workflows/ci.yml`** job **`supply-chain`** and **`.github/workflows/uv-lock-refresh.yml`**).
 - **CVSS / vendor severity labels** (if present in advisory text) inform **how fast** maintainers act and how prominently **CHANGELOG.md** calls the work out; they **do not** override the binary pass/fail unless the project adds a different tool or policy later (today: **fail on any reported CVE** except documented ignores).
 
 #### Response expectations (maintainer-facing)
@@ -90,12 +90,12 @@ This subsection is the **SLA-style playbook** for failures in GitHub Actions job
 | --------- | ---------------- |
 | **New CVE on a direct or transitive dep** with a **patched version** resolvable inside current **`pyproject.toml`** ranges | Land a **lock refresh** (**`uv sync --extra dev`**, commit **`uv.lock`**) and green **pytest** / **`pip-audit`** locally in the **same PR**; merge on the **normal integration cadence** (do not leave **`master`** red overnight without an owner). |
 | **Fix requires range / extra / `requires-python` change** | Open or extend a **Compatibility Update** issue (**[`.github/ISSUE_TEMPLATE/compatibility_update.md`](../.github/ISSUE_TEMPLATE/compatibility_update.md)**), follow **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md#breaking-upstream-releases--triage)**; ship constraint + lock + docs + **CHANGELOG** in one coherent change set when possible. |
-| **No fixed release yet** or fix is **infeasible** in-tree | Document **Accepted risk** in **DEPENDENCY_AUDIT.md** (exploitability in **this** repo’s usage, upstream tracking link or issue reference, removal criteria), add the matching **`--ignore-vuln`** flag(s) to **`.github/workflows/ci.yml`** job **`supply-chain`** so local and CI invocations stay identical. **Escalation:** coordinated disclosure or embargoed issues follow **[SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md)** and root **`SECURITY.md`**—do not discuss non-public details in open PRs. |
+| **No fixed release yet** or fix is **infeasible** in-tree | Document **Accepted risk** in **DEPENDENCY_AUDIT.md** (exploitability in **this** repo’s usage, upstream tracking link or issue reference, removal criteria), add the matching **`--ignore-vuln`** flag(s) to **`.github/workflows/ci.yml`** job **`supply-chain`** and **`.github/workflows/uv-lock-refresh.yml`** so local and CI invocations stay identical. **Escalation:** coordinated disclosure or embargoed issues follow **[SECURITY_REPORTING_SPEC.md](SECURITY_REPORTING_SPEC.md)** and root **`SECURITY.md`**—do not discuss non-public details in open PRs. |
 | **False positive / scanner mismatch** | Prefer an **upstream issue** (PyPI metadata, advisory DB, or dependency maintainer) linked from **DEPENDENCY_AUDIT.md**; only then a documented ignore with the same **workflow parity** as other accepted risks. |
 
 #### Prefer refreshing `uv.lock` (default path)
 
-1. Reproduce with **`uv sync --frozen --extra dev`** then **`uv run pip-audit`** using the **exact flags** from **CONTRIBUTING.md** / **`.github/workflows/ci.yml`**.
+1. Reproduce with **`uv sync --frozen --extra dev`** then **`uv run pip-audit`** using the **exact flags** from **CONTRIBUTING.md**, **`.github/workflows/ci.yml`** job **`supply-chain`**, and **`.github/workflows/uv-lock-refresh.yml`**.
 2. Identify the **vulnerable distribution(s)** in the output; use **`uv lock`** / **`uv sync --extra dev`** (without **`--frozen`**) to pull **patched** versions **within** declared ranges.
 3. Run **`uv run pytest`**, **`uv run ruff check src tests`**, and **`uv run mypy -p replayt_langgraph_bridge`** as in job **`test`**; re-run **`pip-audit`** until clean or until you move to the documented-ignore path.
 4. Commit **`uv.lock`** (and **`pyproject.toml`** only if ranges or extras changed). PR description should name **CVE IDs** and **packages** bumped.
