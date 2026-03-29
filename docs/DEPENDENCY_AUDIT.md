@@ -33,6 +33,10 @@ When vulnerabilities are reported, we assess them based on:
 
 ## History
 
+### LangGraph 1.2.x compatibility spike (backlog `ad68b829`)
+
+**Spec:** **[BACKLOG_LANGGRAPH_12_COMPATIBILITY_SPIKE.md](BACKLOG_LANGGRAPH_12_COMPATIBILITY_SPIKE.md)** — acceptance criteria for a time-boxed **1.2.x** branch spike, **`compile_replayt_workflow` / checkpointer / `invoke`** inventory, and a maintainer note (this **History** section and/or a **Compatibility Update** issue). **Outcome:** _(pending — fill in after phase **3**)_.
+
 ### Initial Setup
 - Added `pip-audit` to CI workflow
 - Created dependency audit documentation

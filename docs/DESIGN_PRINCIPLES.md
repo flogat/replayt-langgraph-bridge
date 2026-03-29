@@ -99,6 +99,7 @@ When **replayt** or **langgraph** ships a new **major**, or you intend to widen/
 - **Minor/patch** (within the declared range): Expected to be safe; CI on **Python** 3.11, **3.12**, and **3.13** exercises **latest resolvable** patch releases in range over time.
 - **Major** (e.g. 1.2+, 2.x): Assume **breaking** LangGraph API or semantics until proven otherwise; expect bridge changes, expanded tests, and a deliberate range bump—not a silent widen.
 - **Transition**: If feasible, support overlapping bridge releases or documented migration steps rather than leaving integrators on an unpinned cliff.
+- **1.2.x spike (active backlog):** Time-boxed compatibility investigation, API inventory against **`tests/test_bridge_graph.py`**, maintainer note, and pin / SemVer recommendation — **[BACKLOG_LANGGRAPH_12_COMPATIBILITY_SPIKE.md](BACKLOG_LANGGRAPH_12_COMPATIBILITY_SPIKE.md)** (Mission Control `ad68b829-7393-4455-8ecd-0c57fcd04cee`).
 
 ### Builder-facing acceptance criteria (dependency policy backlog)
 
