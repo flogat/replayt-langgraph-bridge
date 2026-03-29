@@ -3,16 +3,17 @@
 ## Development setup
 
 1. Clone the repository
-2. Install **[uv](https://docs.astral.sh/uv/getting-started/installation/)** (CI pins **0.11.2** in **`.github/workflows/ci.yml`** via **`astral-sh/setup-uv`**).
-3. Install dependencies from the lockfile (same graph as CI):
+2. For local secrets and optional LLM-related variable **names** (comment-only template), see **[`.env.example`](.env.example)**. Copy to **`.env`** or set variables in your shell; never commit **`.env`** or raw keys (**[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)**).
+3. Install **[uv](https://docs.astral.sh/uv/getting-started/installation/)** (CI pins **0.11.2** in **`.github/workflows/ci.yml`** via **`astral-sh/setup-uv`**).
+4. Install dependencies from the lockfile (same graph as CI):
 
    ```bash
    uv sync --frozen --extra dev
    ```
 
-4. Run tests: `uv run pytest`
-5. Run linting: `uv run ruff check src tests`
-6. Run the **mypy** smoke (bridge package only; **`follow_imports = "skip"`** and **`ignore_missing_imports = true`** in **`pyproject.toml`** so analysis stays on **`replayt_langgraph_bridge`** and does not expand into **replayt** / **langgraph**):
+5. Run tests: `uv run pytest`
+6. Run linting: `uv run ruff check src tests`
+7. Run the **mypy** smoke (bridge package only; **`follow_imports = "skip"`** and **`ignore_missing_imports = true`** in **`pyproject.toml`** so analysis stays on **`replayt_langgraph_bridge`** and does not expand into **replayt** / **langgraph**):
 
    ```bash
    uv run mypy -p replayt_langgraph_bridge
@@ -28,7 +29,7 @@ Use **`uv run pytest` with no extra paths or markers** for the integrator-releva
 
 Do **not** commit:
 
-- **Secrets** — API keys, tokens, passwords, private keys, or any file whose primary purpose is holding them (for example **`.env`**, **`.env.local`**, raw **`*.pem`** / **`id_rsa`** private key material, or ad-hoc credential dumps). Cloud or OAuth tooling may use names such as **`application_default_credentials.json`**; never commit those into this tree—if your local workflow drops them next to the repo, add a **narrow** **`.gitignore`** rule per **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** (optional catalog and collision rules), not a catch-all that could hide tracked fixtures later. The same applies to copied **CLI or vendor credential files** (for example **`.netrc`**, **`.aws/credentials`**, or a **`gcloud`**-style application-default path) if they appear **under the repository tree**—prefer a documented subdirectory and a scoped ignore rule over broad `credentials` globs (**§6** in that doc).
+- **Secrets** — API keys, tokens, passwords, private keys, or any file whose primary purpose is holding them (for example **`.env`**, **`.env.local`**, raw **`*.pem`** / **`id_rsa`** private key material, or ad-hoc credential dumps). Use **[`.env.example`](.env.example)** as the **tracked** comment-only template; it is **not** a place to put values—copy to **`.env`** locally (**`.env`** stays ignored). Cloud or OAuth tooling may use names such as **`application_default_credentials.json`**; never commit those into this tree—if your local workflow drops them next to the repo, add a **narrow** **`.gitignore`** rule per **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** (optional catalog and collision rules), not a catch-all that could hide tracked fixtures later. The same applies to copied **CLI or vendor credential files** (for example **`.netrc`**, **`.aws/credentials`**, or a **`gcloud`**-style application-default path) if they appear **under the repository tree**—prefer a documented subdirectory and a scoped ignore rule over broad `credentials` globs (**§6** in that doc).
 - **Orchestration / agent scratch** — Paths under **`.orchestrator/`**, local agent skill trees such as **`.cursor/skills/`**, and similar tool output meant only for your machine (see **`.gitignore`** comments).
 - **Local persistence experiments** — Checkpoint files, local SQLite DBs, or store dumps you create while developing graphs, unless the project explicitly chooses to track them as fixtures (today: keep them local or under a documented ignored directory).
 

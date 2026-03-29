@@ -15,8 +15,7 @@ alignment_result.json
 # A. Environment and secrets files
 .env
 .env.*
-# If a tracked .env.example is added, insert the next line immediately below:
-# !.env.example
+!.env.example
 .envrc
 .direnv/
 *.pem

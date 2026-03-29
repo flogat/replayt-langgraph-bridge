@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`.env.example`** — Root comment-only template for optional LLM-related and bridge redaction variable names (**`OPENAI_API_KEY`**, **`ANTHROPIC_API_KEY`**, **`LANGCHAIN_*`**, **`REPLAYT_BRIDGE_STRICT_REDACT`**); **`.gitignore`** **`!.env.example`** negation under **`.env.*`**; **README** / **CONTRIBUTING** links; **`tests/test_gitignore_contract.py`** asserts the path is not ignored (phase **3**, backlog **Add `.env.example` aligned with GITIGNORE_AND_LOCAL_ARTIFACTS**).
 - **Large-workflow compile advisory** — After a successful `compile_replayt_workflow`, workflows with **≥ 256** registered steps may emit `BridgeLargeGraphWarning` (**`UserWarning`**) **at most once per interpreter process**; later compiles stay silent. Threshold lives as **`_LARGE_GRAPH_STEP_THRESHOLD`** in **`replayt_langgraph_bridge.graph`**. Documented in **[docs/GRAPH_CONSTRUCTION_ERRORS.md](docs/GRAPH_CONSTRUCTION_ERRORS.md)** §4.3, **[docs/API.md](docs/API.md)**, and **`tests/test_large_graph_compile_advisory.py`** (phase **3**, backlog **Large-workflow compile ergonomics: doc limits and optional warning hook**).
 
 ### Changed
@@ -17,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **GITIGNORE_AND_LOCAL_ARTIFACTS** — §3 table includes **`.env.example`** as a tracked path; §7.1 matches the shipped root template and active **`!.env.example`** negation (phase **3**, backlog **Add `.env.example` aligned with GITIGNORE_AND_LOCAL_ARTIFACTS**).
 - **Bridge logging reference** — **[docs/API.md](docs/API.md)** **Bridge logging**: logger qualname, ``NOTSET`` / propagation, last-resort **ERROR** path, **INFO**/**DEBUG** handler note, stdlib silence snippet, and cross-links to **GRAPH_CONSTRUCTION_ERRORS**, **LOG_REDACTION**, and **STATE_PAYLOAD_VALIDATION**. **`compile_replayt_workflow`** docstring matches that section. **`tests/test_bridge_logging_reference_contract.py`** locks **`BRIDGE_LOGGER_NAME`** and **`get_bridge_logger().name`**.
 - **Python 3.13 CI matrix (spec)** — **[docs/BACKLOG_PYTHON_313_CI_MATRIX.md](docs/BACKLOG_PYTHON_313_CI_MATRIX.md)** (**P1–P3** acceptance), **Compatibility Update** template **Python interpreter / CI matrix expansion** checklist, **DESIGN_PRINCIPLES** (**Python 3.13 and CI matrix lag** + **Tested matrix** cross-link), **DEPENDENCY_LOCK_STRATEGY** §3.2 policy hook, **CONTRIBUTING** pointer (phase **2** spec, backlog **Python 3.13 CI matrix readiness issue and policy hook**).
 - **Durable replayt store vs LangGraph checkpoint** — **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** adds **Two persistence planes (LangGraph checkpointer vs replayt Runner / store)** (table, Mermaid, layer-grouped failure bullets); **README** links the anchor; **BACKLOG_LANGGRAPH_CHECKPOINT_SLICE** deferred row updated; § renumber §3–§8 with cross-ref fixes; **`tests/test_checkpoint_persistence_two_planes_contract.py`** (phase **3**, backlog **Durable replayt store vs LangGraph checkpoint: single ownership diagram**).
