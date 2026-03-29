@@ -59,11 +59,11 @@ python examples/llm_node_graph.py
 
 ## Reference documentation (optional)
 
-This checkout does not yet include [`docs/reference-documentation/`](docs/reference-documentation/). The normative
-**spec and acceptance criteria** for adding optional, version-aligned **replayt** and **LangGraph** excerpts or a links
-manifest live in **[`docs/BACKLOG_REFERENCE_DOCUMENTATION.md`](docs/BACKLOG_REFERENCE_DOCUMENTATION.md)** (Mission Control
-item `0867a72f-8b61-4a00-b076-ddb45cd1b7c8`). Implement against that backlog; keep provenance and licensing constraints
-described there.
+The checkout includes **[`docs/reference-documentation/README.md`](docs/reference-documentation/README.md)**:
+version-oriented **replayt** and **LangGraph** links (**`links.manifest.json`**), pin alignment with **`pyproject.toml`**
+and **`uv.lock`**, and first-party **`bridge-integration-notes.md`**. Normative **spec and acceptance criteria** (**R1–R9**)
+are in **[`docs/BACKLOG_REFERENCE_DOCUMENTATION.md`](docs/BACKLOG_REFERENCE_DOCUMENTATION.md)** (Mission Control item
+`0867a72f-8b61-4a00-b076-ddb45cd1b7c8`).
 
 ## Installation
 

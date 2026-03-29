@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **Upstream reference bundle** — **[`docs/reference-documentation/README.md`](docs/reference-documentation/README.md)** with **`links.manifest.json`** (replayt + LangGraph URLs, **`pin_note`** / **`last_reviewed`** per **R6**) and **`bridge-integration-notes.md`** (first-party integration summary). **README** **Reference documentation** updated; normative spec **[`docs/BACKLOG_REFERENCE_DOCUMENTATION.md`](docs/BACKLOG_REFERENCE_DOCUMENTATION.md)** (phase **3**, backlog **docs/reference-documentation: optional upstream LangGraph/replayt mirrors**).
+
 ### Added
 
 - **`BridgeInvokeContextError`** — Step-node entry in **`replayt_langgraph_bridge.graph`** validates LangGraph **`invoke`** / **`ainvoke`** **`context`** before **`RunContext`** or **`runner._current_state`**: omitted context, missing **`runner`**, **`runner=None`**, wrong type, or **`Runner`** for a different **`Workflow`** than the compiled graph. **`str(exc)`** includes **`replayt bridge invoke context`**; **`code`** is **`missing_runner`** or **`runner_workflow_mismatch`**. Exported from **`replayt_langgraph_bridge`**; **`docs/GRAPH_CONSTRUCTION_ERRORS.md`** §2 / §3.4, **`docs/API.md`**, **`docs/REPLAYT_BOUNDARY_TESTS.md`**, **README**; tests in **`tests/test_bridge_graph.py`** (phase **3**, backlog **Graph construction errors: user-facing message audit**).

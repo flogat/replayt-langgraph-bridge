@@ -1,0 +1,44 @@
+[
+  {
+    "url": "https://pypi.org/project/replayt/0.4.25/",
+    "title": "replayt 0.4.25 on PyPI",
+    "topic": "replayt package metadata and project links",
+    "pin_note": "Matches replayt>=0.4.0,<0.5 in pyproject.toml; uv.lock resolves replayt==0.4.25 for uv sync --frozen --extra dev (regenerations may change the patch).",
+    "last_reviewed": "2026-03-29"
+  },
+  {
+    "url": "https://pypi.org/project/replayt/",
+    "title": "replayt on PyPI (latest in index)",
+    "topic": "replayt releases and changelog pointers",
+    "pin_note": "Upper bound <0.5 in pyproject.toml; confirm PyPI still lists compatible 0.4.x before widening.",
+    "last_reviewed": "2026-03-29"
+  },
+  {
+    "url": "https://docs.langchain.com/oss/python/langgraph/overview",
+    "title": "LangGraph overview (Python)",
+    "topic": "langgraph graphs, compilation, execution model",
+    "pin_note": "Targets langgraph>=1.1.0,<1.2; uv.lock resolves langgraph==1.1.3. Follow the doc set that matches the minor you run.",
+    "last_reviewed": "2026-03-29"
+  },
+  {
+    "url": "https://docs.langchain.com/oss/python/langgraph/graph-api",
+    "title": "LangGraph graph API (Python)",
+    "topic": "StateGraph, nodes, edges, compile",
+    "pin_note": "Bridge maps replayt steps to LangGraph nodes; API details drift with langgraph minor/patch—keep pins and this manifest in sync when bumping.",
+    "last_reviewed": "2026-03-29"
+  },
+  {
+    "url": "https://docs.langchain.com/oss/python/langgraph/persistence",
+    "title": "LangGraph persistence and checkpoints (Python)",
+    "topic": "checkpointers, threads, resume",
+    "pin_note": "Bridge supplies compiled graphs for integrator-chosen Checkpointer implementations; same pyproject/uv.lock pin story as other langgraph entries.",
+    "last_reviewed": "2026-03-29"
+  },
+  {
+    "url": "https://pypi.org/project/langgraph/1.1.3/",
+    "title": "langgraph 1.1.3 on PyPI",
+    "topic": "langgraph distribution metadata",
+    "pin_note": "Resolved version from uv.lock at manifest review; regenerated locks may advance the patch within >=1.1.0,<1.2.",
+    "last_reviewed": "2026-03-29"
+  }
+]
