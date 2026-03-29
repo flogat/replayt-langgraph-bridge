@@ -19,7 +19,7 @@ These names are **stable** under semantic versioning for this package: breaking 
 
 | Symbol | Role |
 | ------ | ---- |
-| `compile_replayt_workflow` | Build a LangGraph compiled graph from a replayt `Workflow`. |
+| `compile_replayt_workflow` | Build a LangGraph compiled graph from a replayt `Workflow`. Compile-time error contract: **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)**. For many steps, see the same doc §5 (non-normative scale and profiling guidance). |
 | `initial_bridge_state` | Construct validated initial channel state for the first `invoke`. |
 | `ReplaytBridgeState` | `TypedDict` describing the bridge channel shape (`context`, `replayt_next`, optional `bridge_state_schema_version`). Wire format and limits are normative in **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**. |
 | `BridgeStateValidationError` | Raised for rejected inbound state (subclass of `ValueError`; stable, generic `str` messages). |
@@ -77,6 +77,7 @@ In-repo **tests** may import private helpers (e.g. functions prefixed with `_` i
 | Hosted checkpoints, remote runtimes, TLS, and access control | **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** |
 | Inbound state limits and schema version | **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** |
 | Compile-time and routing/mapping errors (`compile_replayt_workflow`, `replayt_next`) | **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** |
+| Large workflows: non-normative scale expectations, profiling pointers, optional advisory spec | **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** §5–§4.3; **[BACKLOG_LARGE_WORKFLOW_COMPILE_ERGONOMICS.md](BACKLOG_LARGE_WORKFLOW_COMPILE_ERGONOMICS.md)** |
 | Bridge logger qualname, default levels, silence | **[Bridge logging](#bridge-logging-silence-and-verbosity)** |
 | Bridge-originated logging and redaction | **[LOG_REDACTION.md](LOG_REDACTION.md)** |
 | Replayt-facing tests and assertion style | **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** |
