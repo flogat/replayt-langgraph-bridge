@@ -13,7 +13,7 @@ Normative **spec and acceptance criteria** for Mission Control backlog **Release
 | **Canonical runtime list** | `replayt_langgraph_bridge.__all__` in **`src/replayt_langgraph_bridge/__init__.py`**. |
 | **Normative doc list** | **Stable public symbols** table (first column **`Symbol`**) in **[API.md](API.md)** § **Stable public symbols (integrator-facing)**. |
 | **README** | **[README.md](../README.md)** states supported names are **exactly** those in **`__all__`**; the bullet **Summary** is narrative and **must not** contradict the canonical set (it does not need to enumerate every symbol if it defers to **`__all__`** / **API.md**). |
-| **Automation today** | **No** automated check enforces **`__all__`** ↔ **API.md** set equality; maintainers rely on manual review (see **API.md** builder checklist). |
+| **Automation today** | Default **`pytest`** (including CI job **`test`**, **`uv run pytest`** with no path filter) runs **`tests/test_public_api.py`** **`test_all_matches_docs_api_stable_table`**, which parses the **Stable public symbols** table per **E2** and requires set equality with **`replayt_langgraph_bridge.__all__`**; failures list **`only_in_all`** and **`only_in_api_md`** (**E3**). |
 | **Changelog / SemVer** | **[RELEASE_CHANGELOG.md](RELEASE_CHANGELOG.md)** defines **MAJOR** / **MINOR** / **PATCH** and **Breaking** / **Experimental** lead-ins; phase **2** adds explicit **public export set** bump guidance in that doc (§ **Public export set and SemVer**). |
 
 ---
@@ -66,12 +66,12 @@ Phase **2** (this spec) may add a **Documentation** bullet for the new backlog f
 
 ## 6. Spec gate / builder checklist (phases 2b / 3)
 
-- [ ] **E1** — Default **`pytest`** fails on **`__all__`** vs **API.md** set mismatch.
-- [ ] **E2** — Parser scoped to the **Stable public symbols** table per normative rules.
-- [ ] **E3** — Actionable, contract-named failure output.
-- [ ] **E4** — No unnecessary new runtime dependencies.
-- [ ] **E5** — CI **`test`** job runs the check.
-- [ ] **E6** — **RELEASE_CHANGELOG.md** includes **Public export set and SemVer**.
-- [ ] **E7** — **CONTRIBUTING.md** points at export + changelog workflow.
-- [ ] **E8** — **API.md** cross-links and **Source of truth** note updated.
-- [ ] **CHANGELOG.md** updated for user-visible / contributor-notable delivery when implementation ships.
+- [x] **E1** — Default **`pytest`** fails on **`__all__`** vs **API.md** set mismatch.
+- [x] **E2** — Parser scoped to the **Stable public symbols** table per normative rules.
+- [x] **E3** — Actionable, contract-named failure output.
+- [x] **E4** — No unnecessary new runtime dependencies.
+- [x] **E5** — CI **`test`** job runs the check.
+- [x] **E6** — **RELEASE_CHANGELOG.md** includes **Public export set and SemVer**.
+- [x] **E7** — **CONTRIBUTING.md** points at export + changelog workflow.
+- [x] **E8** — **API.md** cross-links and **Source of truth** note updated.
+- [x] **CHANGELOG.md** updated for user-visible / contributor-notable delivery when implementation ships.
