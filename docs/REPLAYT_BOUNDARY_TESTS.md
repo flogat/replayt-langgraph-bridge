@@ -141,6 +141,8 @@ If a scenario cannot run because replayt lacks a public API (or CI environment l
 
 Tests that **require** packages from the **`demo`** optional extra must not break the **core + dev** install path. Prefer **`pytest.importorskip("openai")`** (or the relevant module) with a **reason** that names the **`demo`** extra, or a dedicated marker documented in **`CONTRIBUTING.md`**.
 
+**First-party runnable samples** under **`examples/`** must **not** perform side effects at **import** time (so accidental **`tests/`** imports do not call the network). The **`examples/llm_node_graph.py`** contract is specified in **[BACKLOG_FIRST_PARTY_LLM_SAMPLE.md](BACKLOG_FIRST_PARTY_LLM_SAMPLE.md)** §3.1 and §3.6.
+
 ---
 
 ## 4. Traceability
@@ -163,6 +165,7 @@ When landing tests, ensure:
 - **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** — Compile and routing exception taxonomy, logging, and test obligations for the graph mapping backlog.
 - **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)** — **`interrupt_before` / `interrupt_after`** cookbook and test acceptance (Mission Control backlog `4b64a655-bb06-49e5-8912-61b06626a034`).
 - **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)** — Disk-backed (**SQLite**) checkpoint round-trip pytest and CI acceptance (Mission Control backlog `255db7a8-876d-475d-8c69-cdb5f0c9fcc0`).
+- **[BACKLOG_FIRST_PARTY_LLM_SAMPLE.md](BACKLOG_FIRST_PARTY_LLM_SAMPLE.md)** — First-party **`examples/`** LLM sample, **`[demo]`** extra, CI boundaries, env vars, and redaction acceptance (Mission Control backlog `74a40ce9-cd64-4ab3-bda8-50296e094201`).
 
 ---
 
