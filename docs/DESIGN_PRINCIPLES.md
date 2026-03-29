@@ -184,7 +184,7 @@ For a detailed threat model, see [THREAT_MODEL.md](THREAT_MODEL.md). For checkpo
 | Artifact | Status |
 | -------- | ------ |
 | **`demo` extra** (**openai**, **anthropic**, **langchain-openai**, **langchain-anthropic**) | Declared in **`pyproject.toml`** for optional vendor-LLM samples |
-| Runnable first-party LLM demo / `examples/` in this repo | **Not shipped** — deterministic tests and integrator-owned graphs apply; see **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)** |
+| Runnable first-party LLM demo / `examples/` in this repo | **Shipped** — **`examples/llm_node_graph.py`** (opt-in **`[demo]`** + env keys; see **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)** and **[BACKLOG_FIRST_PARTY_LLM_SAMPLE.md](BACKLOG_FIRST_PARTY_LLM_SAMPLE.md)**) |
 | CI default **`test`** job | **`[dev]`** only from **`uv.lock`**; no keys or live provider calls required |
 
 ### Builder acceptance criteria (LLM demo boundaries)
@@ -206,7 +206,7 @@ Treat the product backlog **Document LLM and secrets posture before any live-mod
 | **S3** | **If** no such example exists: explicit **“not included”** (or equivalent) and a **pointer to future work** (ecosystem ideas + **`demo`** packaging path). | **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)**; README **LLM demos**; **[REPLAYT_ECOSYSTEM_IDEA.md](REPLAYT_ECOSYSTEM_IDEA.md#optional-vendor-llm-samples)**; **`pyproject.toml`** optional **`demo`** extra |
 | **S4** | **CI** stays **credential-free by default**: primary **`test`** job uses **`[dev]`** only (no **`[demo]`**), **no** scripted live model calls. | **`.github/workflows/ci.yml`**; success metric in **[MISSION.md](MISSION.md)**; **[Dependency and Pin Policy](#minimum-supported-vs-upper-bounds-vs-what-ci-exercises)** |
 
-**Note:** Today the repository matches **S3** and **S4**; **S2** applies when a first-party sample lands. Changing that state requires updating **MISSION**, **README**, and this section in the same change set as the sample.
+**Note:** With **`examples/llm_node_graph.py`**, the repository matches **S2** and **S4**. **S3** applies only when no such example exists.
 
 ### Packaging and operations (summary)
 

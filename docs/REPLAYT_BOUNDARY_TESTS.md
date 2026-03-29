@@ -141,7 +141,7 @@ If a scenario cannot run because replayt lacks a public API (or CI environment l
 
 Tests that **require** packages from the **`demo`** optional extra must not break the **core + dev** install path. Prefer **`pytest.importorskip("openai")`** (or the relevant module) with a **reason** that names the **`demo`** extra, or a dedicated marker documented in **`CONTRIBUTING.md`**.
 
-**First-party runnable samples** under **`examples/`** must **not** perform side effects at **import** time (so accidental **`tests/`** imports do not call the network). The planned **`examples/llm_node_graph.py`** contract is specified in **[BACKLOG_FIRST_PARTY_LLM_SAMPLE.md](BACKLOG_FIRST_PARTY_LLM_SAMPLE.md)** §3.1 and §3.6.
+**First-party runnable samples** under **`examples/`** must **not** perform side effects at **import** time (so accidental **`tests/`** imports do not call the network). The **`examples/llm_node_graph.py`** contract is specified in **[BACKLOG_FIRST_PARTY_LLM_SAMPLE.md](BACKLOG_FIRST_PARTY_LLM_SAMPLE.md)** §3.1 and §3.6.
 
 ---
 

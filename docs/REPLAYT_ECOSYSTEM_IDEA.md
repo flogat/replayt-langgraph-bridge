@@ -16,6 +16,6 @@ This package **uses** replayt as a dependency. It is **not** a fork or extension
 
 ## Optional vendor-LLM samples
 
-Teams may combine this bridge with LangGraph nodes that call OpenAI, Anthropic, or similar APIs. That is **optional**: use **`pip install replayt-langgraph-bridge[demo]`** when you need those client libraries in your environment. This repository **does not yet ship** a first-party reference graph that calls a live model; packaging, secrets, CI, and redaction expectations are normative in **[DESIGN_PRINCIPLES.md — LLM and demos](DESIGN_PRINCIPLES.md#llm-and-demos)** and **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)**.
+Teams may combine this bridge with LangGraph nodes that call OpenAI, Anthropic, or similar APIs. That is **optional**: use **`pip install replayt-langgraph-bridge[demo]`** when you need those client libraries in your environment. This repository ships a minimal opt-in sample at **`examples/llm_node_graph.py`**. Packaging, secrets, CI, and redaction expectations are normative in **[DESIGN_PRINCIPLES.md — LLM and demos](DESIGN_PRINCIPLES.md#llm-and-demos)** and **[MISSION.md](MISSION.md#llm-demos-and-optional-samples-scope)**.
 
 See **[MISSION.md](MISSION.md)** for users, owned scope vs. delegated responsibilities, and success metrics (including automated tests and CI).

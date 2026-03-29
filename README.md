@@ -37,14 +37,24 @@ The full policy (selection rules, LangGraph major rollout risk, **core vs demo L
 
 ### LLM demos (optional samples)
 
-**Shipped in this repository today:** The optional **`[demo]`** extra declares vendor LLM client packages only. There is **no** committed first-party script under `examples/` (or similar) that invokes a live model. **Planned** first-party sample acceptance criteria (path, env vars, CI boundaries, redaction): **[docs/BACKLOG_FIRST_PARTY_LLM_SAMPLE.md](docs/BACKLOG_FIRST_PARTY_LLM_SAMPLE.md)**. Scope and policy are normative in **[docs/MISSION.md](docs/MISSION.md#llm-demos-and-optional-samples-scope)** and **[docs/DESIGN_PRINCIPLES.md — LLM and demos](docs/DESIGN_PRINCIPLES.md#llm-and-demos)**.
+**Shipped sample:** **[`examples/llm_node_graph.py`](examples/llm_node_graph.py)** is a minimal replayt + LangGraph example with one LangChain-backed LLM step. It is **not** imported by the default package; run it only after installing **`[demo]`**. Normative acceptance detail lives in **[docs/BACKLOG_FIRST_PARTY_LLM_SAMPLE.md](docs/BACKLOG_FIRST_PARTY_LLM_SAMPLE.md)**. Scope and policy are normative in **[docs/MISSION.md](docs/MISSION.md#llm-demos-and-optional-samples-scope)** and **[docs/DESIGN_PRINCIPLES.md — LLM and demos](docs/DESIGN_PRINCIPLES.md#llm-and-demos)**.
 
-**If you install `[demo]`** for your own code or a future shipped sample:
+**Install and run (local, opt-in):**
 
-- **Environment variables:** Provide provider credentials via the environment (for example **`OPENAI_API_KEY`**, **`ANTHROPIC_API_KEY`**). LangChain-routed calls may need **`LANGCHAIN_API_KEY`** or other vars per upstream documentation. Do not commit **`.env`** or raw keys. See **[Secrets handling](#secrets-handling)** and **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
-- **Cost:** Usage is **metered and billed by the model vendor** (and any tracing SaaS you enable). This package does not cap spend or hide charges.
-- **Logs and redaction:** Bridge-originated structured logs follow **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. Application and sample code should not log raw API keys, prompts, or completions unless your own policy explicitly allows it and you apply equivalent controls.
-- **CI:** The default **`test`** job syncs **`[dev]`** only from **`uv.lock`**, runs **`uv run pytest`**, **ruff**, and the **mypy** package smoke, with **no** live LLM calls (**[`.github/workflows/ci.yml`](.github/workflows/ci.yml)**).
+```bash
+pip install -e ".[demo]"
+# or: uv sync --extra demo
+export OPENAI_API_KEY=...   # and/or ANTHROPIC_API_KEY; optional LLM_PROVIDER=openai|anthropic
+python examples/llm_node_graph.py
+```
+
+**Environment variables:** The example and **[`.env.example`](.env.example)** describe **`OPENAI_API_KEY`**, **`ANTHROPIC_API_KEY`**, and optional **`LLM_PROVIDER`**. The sample does **not** enable LangSmith / LangChain tracing env vars; see upstream LangChain docs if you add tracing. Do not commit **`.env`** or raw keys. See **[Secrets handling](#secrets-handling)** and **[docs/DESIGN_PRINCIPLES.md#secrets-policy](docs/DESIGN_PRINCIPLES.md#secrets-policy)**.
+
+**Cost:** Usage is **metered and billed by the model vendor** (and any tracing SaaS you enable). This package does not cap spend or hide charges.
+
+**Logs and redaction:** Bridge-originated structured logs follow **[docs/LOG_REDACTION.md](docs/LOG_REDACTION.md)**. The sample avoids printing keys or model text; treat graph context like any persistence boundary if you extend it.
+
+**CI:** The default **`test`** job syncs **`[dev]`** only from **`uv.lock`**, runs **`uv run pytest`**, **ruff**, and the **mypy** package smoke, with **no** **`[demo]`** install and **no** live LLM calls (**[`.github/workflows/ci.yml`](.github/workflows/ci.yml)**).
 
 ## Reference documentation (optional)
 

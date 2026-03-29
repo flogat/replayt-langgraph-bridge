@@ -1,9 +1,6 @@
-"""Contract tests for documented LLM demo scope, no-sample posture, and CI defaults.
+"""Contract tests for documented LLM demo scope, shipped sample pointers, and CI defaults.
 
-Maps to **docs/DESIGN_PRINCIPLES.md** — *Product acceptance criteria (verbatim backlog: LLM and secrets posture)* (**S1**, **S3**, **S4**).
-
-**S2** applies only after a committed first-party live-model sample exists; add README/MISSION checks and demo-gated
-tests then (see **docs/REPLAYT_BOUNDARY_TESTS.md** §3.4).
+Maps to **docs/DESIGN_PRINCIPLES.md** — *Product acceptance criteria (verbatim backlog: LLM and secrets posture)* (**S1**, **S2**, **S4**).
 """
 
 from __future__ import annotations
@@ -24,10 +21,10 @@ def test_mission_states_llm_demo_scope() -> None:
     assert "replayt-langgraph-bridge[demo]" in text
 
 
-def test_mission_documents_no_committed_llm_sample_and_future_work() -> None:
-    """S3: explicit not-included stance and pointer to future work + demo packaging."""
+def test_mission_documents_shipped_llm_sample_and_future_work() -> None:
+    """S2: committed sample path, ecosystem pointer, and demo packaging."""
     text = _MISSION.read_text(encoding="utf-8")
-    assert "does not" in text
+    assert "examples/llm_node_graph.py" in text
     assert "examples/" in text
     assert "REPLAYT_ECOSYSTEM_IDEA.md" in text
     assert "optional-vendor-llm-samples" in text
@@ -54,5 +51,5 @@ def test_readme_llm_demos_section_links_normative_docs() -> None:
     assert "### LLM demos" in text
     assert "MISSION.md#llm-demos-and-optional-samples-scope" in text
     assert "DESIGN_PRINCIPLES.md#llm-and-demos" in text
-    assert "There is **no** committed first-party script" in text
-    assert "examples/" in text
+    assert "examples/llm_node_graph.py" in text
+    assert "BACKLOG_FIRST_PARTY_LLM_SAMPLE.md" in text

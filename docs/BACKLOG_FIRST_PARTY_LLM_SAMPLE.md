@@ -14,7 +14,7 @@ Normative **spec and acceptance criteria** for Mission Control backlog **Ship fi
 - Primary GitHub Actions job **`test`** uses **`uv sync --frozen --extra dev`** (no **`demo`**), full **pytest** collection, **ruff**, **mypy** — **no** scripted live vendor LLM calls.
 - **`tests/test_dependency_strategy.py`** (or successor) enforces demo-only packages stay out of core deps.
 
-**Gap (this backlog):** There is **no** committed **runnable** first-party script under **`examples/`** that exercises the bridge together with a **live** (or live-capable) LangChain chat model behind **`[demo]`** installs. Integrators lack a **minimal, copy-paste** pattern that stays aligned with **MISSION** / **DESIGN_PRINCIPLES** posture.
+**Gap (historical):** Before phase **3**, there was no committed runnable first-party script under **`examples/`**. Phase **3** landed **`examples/llm_node_graph.py`** against this spec.
 
 ---
 
@@ -109,13 +109,13 @@ As a **maintainer**, I keep **default CI** unchanged: **`[dev]`**-only frozen in
 
 ## 6. Spec gate / builder checklist (phases 2b / 3)
 
-- [ ] **`examples/llm_node_graph.py`** (or documented alternate under **`examples/`**) implements §3.1–§3.2.
-- [ ] §3.3 env / cost / LangChain vars documented in README + example + **`.env.example`** delta if needed.
-- [ ] §3.4 logging / redaction / secrets posture satisfied.
-- [ ] §3.5 **README**, **MISSION.md**, **DESIGN_PRINCIPLES.md** updated; **S2** satisfied.
-- [ ] §3.6 CI and pytest default path unchanged and green.
-- [ ] §3.7 **CHANGELOG.md — Unreleased** updated.
-- [ ] **`tests/test_dependency_strategy.py`** (or equivalent) still matches **`pyproject.toml`** if **`demo`** deps change.
+- [x] **`examples/llm_node_graph.py`** (or documented alternate under **`examples/`**) implements §3.1–§3.2.
+- [x] §3.3 env / cost / LangChain vars documented in README + example + **`.env.example`** delta if needed.
+- [x] §3.4 logging / redaction / secrets posture satisfied.
+- [x] §3.5 **README**, **MISSION.md**, **DESIGN_PRINCIPLES.md** updated; **S2** satisfied.
+- [x] §3.6 CI and pytest default path unchanged and green.
+- [x] §3.7 **CHANGELOG.md — Unreleased** updated.
+- [x] **`tests/test_dependency_strategy.py`** (or equivalent) still matches **`pyproject.toml`** if **`demo`** deps change.
 
 ---
 
@@ -132,4 +132,4 @@ As a **maintainer**, I keep **default CI** unchanged: **`[dev]`**-only frozen in
 | Phase | Action |
 | ----- | ------ |
 | **2** (spec lead) | Added this backlog spec; default example filename **`examples/llm_node_graph.py`**. |
-| **3** (builder) | Implement §3; if filename differs, update §8 and all inbound links. |
+| **3** (builder) | Implemented **`examples/llm_node_graph.py`**, docs, **`.env.example`**, **CHANGELOG**, and **`tests/test_examples_llm_node_graph_contract.py`**. |
