@@ -8,7 +8,7 @@ checkpoint-resumed channel state that the bridge consumes, and any other **publi
 
 **Status:** Implemented in `replayt_langgraph_bridge.state_validation` and wired from `graph.py`
 (`validate_inbound_bridge_state`, `BridgeValidatingCheckpointSaver`). CI locks behavior in
-`tests/test_state_payload_validation.py`.
+`tests/test_state_payload_validation.py`. Extended **parametrized** regression coverage is specified in **§9**.
 
 ---
 
@@ -134,6 +134,9 @@ Map backlog acceptance criteria to verifiable items:
 - [x] **CHANGELOG:** User-visible behavior and any new public exception type documented under
       **Unreleased**.
 
+**Extended suite (Mission Control — State payload validation fuzz and regression):** criteria **§9**; **§9.6**
+checklist in **§9** records completion for Mission Control `945d5aa3-41cb-4806-a49b-8756186e7046`.
+
 ---
 
 ## 8. Related documents
@@ -143,3 +146,71 @@ Map backlog acceptance criteria to verifiable items:
 - **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** — Deployment topologies and controls when checkpoints or graph APIs leave a single trusted process.
 - **[LOG_REDACTION.md](LOG_REDACTION.md)** — Bridge-originated log redaction (orthogonal to payload validation).
 - **[DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md)** — Security considerations summary.
+
+---
+
+## 9. Fuzz and regression test suite (parametrized boundaries)
+
+This section is the **normative acceptance contract** for backlog **State payload validation fuzz and regression suite** (Mission Control `945d5aa3-41cb-4806-a49b-8756186e7046`). It **does not** change §4 limits or §5 public error strings; it requires **tighter automated coverage** so boundary changes fail CI with **clear, contract-named failures**.
+
+### 9.1 Scope and placement
+
+| Topic | Requirement |
+| ----- | ----------- |
+| **Primary module** | Extend **`tests/test_state_payload_validation.py`** unless a split is justified (e.g. file size); avoid broad refactors—prefer **`@pytest.mark.parametrize`** and small helpers shared inside that module. |
+| **CI / install** | Tests run under the default **`uv run pytest`** invocation (**`[dev]`** only, no **`demo`** extra), same as the rest of the suite. |
+| **“Fuzz” meaning** | **Deterministic** boundary and malformed-input matrices: exact limits ± 1, representative disallowed types, and schema-type skew. **Out of scope** for this backlog: random/property-based fuzzers, network I/O, or vendor LLM calls. Optional follow-up: **`hypothesis`** behind a documented marker is allowed only if it stays fast and default-CI-clean. |
+| **Constants** | Parametrized cases **must** derive numeric boundaries from the same **`replayt_langgraph_bridge.state_validation`** exports the implementation uses (e.g. `MAX_CONTEXT_NESTING_DEPTH`, `MAX_CONTEXT_STRING_BYTES`, `MAX_CONTEXT_WALK_NODES`, `MAX_CONTEXT_TOP_LEVEL_KEYS`, `MAX_REPLAYT_NEXT_LEN`, `SUPPORTED_BRIDGE_STATE_SCHEMA_VERSIONS`) so limit tweaks update tests mechanically. |
+
+### 9.2 Boundary size parametrization (minimum matrix)
+
+Each row must be covered with **`pytest.mark.parametrize`** (or an equivalent table-driven pattern) so **at-limit accepts** and **over-limit rejects** (or the documented one-sided expectation) are visible in pytest output.
+
+| Dimension | Accept case | Reject case | Public `str(exception)` (§5) |
+| --------- | ----------- | ----------- | ---------------------------- |
+| **`context` nesting depth** | Depth equal to **`MAX_CONTEXT_NESTING_DEPTH`** at deepest leaf | Depth **`MAX_CONTEXT_NESTING_DEPTH + 1`** | `Invalid bridge state` |
+| **Total UTF-8 bytes of all `str` values in `context`** | Sum equal to **`MAX_CONTEXT_STRING_BYTES`** | Sum **`MAX_CONTEXT_STRING_BYTES + 1`** | `Invalid bridge state` |
+| **Walk node count** | **`MAX_CONTEXT_WALK_NODES`** distinct visited nodes (dict keys / sequence elements / set items per implementation walk) | **`MAX_CONTEXT_WALK_NODES + 1`** | `Invalid bridge state` |
+| **Top-level `context` keys** | **`MAX_CONTEXT_TOP_LEVEL_KEYS`** keys | **`MAX_CONTEXT_TOP_LEVEL_KEYS + 1`** | `Invalid bridge state` |
+| **`replayt_next` length** | After `str()`, length **`MAX_REPLAYT_NEXT_LEN`** | Length **`MAX_REPLAYT_NEXT_LEN + 1`** | `Invalid bridge state` |
+
+**Implementation hint:** shallow wide dicts, fan-out lists, or balanced trees can hit node limits without exceeding depth or string caps; reuse or add helpers next to **`_deep_nest_dict`** in the test module.
+
+### 9.3 Schema version and malformed wire values
+
+| Case | Expected | Public message substring (`pytest.raises(..., match=...)`) |
+| ---- | -------- | ------------------------------------------------------------ |
+| Explicit **unsupported** int (not in **`SUPPORTED_BRIDGE_STATE_SCHEMA_VERSIONS`**) | `BridgeStateValidationError` | `Unsupported bridge state schema version` |
+| **`bridge_state_schema_version` present but wrong type** (`str`, `float`, `bool`, `None`, list, …) — anywhere the implementation resolves schema (top-level state **and** `__start__` channel merge per **`validate_input_checkpoint_channel_values`**) | `BridgeStateValidationError` | `Invalid bridge state` |
+| **Omitted** version | Treated as **`1`** (§3); valid minimal payload still passes | — |
+| **Explicit supported version** (e.g. **`1`**) | Passes when shape is otherwise valid | — |
+
+### 9.4 Checkpoint non-mutation invariants (regression)
+
+Keep or supersede existing graph-level tests with a **parametrized** table where practical:
+
+1. **First `invoke` rejection** — Invalid inbound state: **no** workflow step handler runs; **no** new durable checkpoint tuple for that thread (same pattern as current **`MemorySaver.list` / `get_tuple` assertions in §6).
+2. **Resume rejection** — After one good **`invoke`**, a second **`invoke`** with invalid state: checkpoint **count** and **latest checkpoint id** unchanged; channel values do not pick up corrupting fields from the rejected payload (align with existing **`bridge_state_schema_version` channel** assertions).
+
+**Optional extension (not required for done):** repeat (1) or (2) with a **disk/sqlite** saver if the project already carries a **`[dev]`**-available checkpointer for deterministic tests (**[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**, **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)**).
+
+### 9.5 Actionable failures (project conventions)
+
+**Bridge inbound validation** is **not** a replayt-upstream contract; it follows **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** only where tests also exercise **replayt** APIs (e.g. **`Workflow`**, **`Runner`**, **`JSONLStore`**).
+
+| Layer | Rule |
+| ----- | ---- |
+| **Public exception text** | Remains the **stable generic** strings in §5 (`Invalid bridge state` / `Unsupported bridge state schema version`). **`pytest.raises(..., match=...)`** must use those substrings (or full strings), not ad hoc phrases. |
+| **Test docstrings** | Each parametrized scenario (or group) cites **this document** and the **§4 table row** or **§9.3 row** under test (e.g. “STATE_PAYLOAD_VALIDATION §9.2 walk node limit”). |
+| **Non-parametrized asserts** | When asserting checkpoint ids, handler flags, or log content, use **two-argument `assert`** or messages that name the invariant (e.g. `STATE_PAYLOAD_VALIDATION §6: checkpoint id unchanged after rejected resume`). |
+| **Debug logging** | Keep or extend coverage that **DEBUG** records do **not** embed raw payload secrets (see existing **`test_debug_log_emits_without_payload_values`** pattern). |
+
+### 9.6 Builder acceptance checklist (§9 completion)
+
+- [x] **§9.2** — Parametrized boundary tests for all five dimensions (accept + reject) via exported limits.
+- [x] **§9.3** — Parametrized or table-driven tests for unsupported version, bad types (including **`__start__`** path), omitted vs explicit supported version.
+- [x] **§9.4** — Parametrized graph + checkpointer tests for first-invoke and resume non-mutation (minimum: **`MemorySaver`**).
+- [x] **§9.5** — Docstrings and `match=` patterns satisfy the table above; no user data in public exception assertions beyond what §5 allows.
+- [x] **CHANGELOG** — Add **`[Unreleased]`** bullet **only** if implementation changes **integrator-visible** validation behavior or messages; **spec-only** or **test-only** landings need no entry per **[CONTRIBUTING.md](../CONTRIBUTING.md)** unless maintainers deem the new regression suite noteworthy for release notes.
+
+---
