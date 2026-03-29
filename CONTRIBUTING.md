@@ -50,6 +50,8 @@ When adding or renaming symbols intended for integrators, update **`replayt_lang
 
 Normative policy and security→lock workflow: **[docs/DEPENDENCY_LOCK_STRATEGY.md](docs/DEPENDENCY_LOCK_STRATEGY.md)**. CI installs **`[dev]`** only from committed **`uv.lock`** (**`uv sync --frozen --extra dev`**); the optional **`demo`** extra is not part of that lock-driven install.
 
+**Maintainers — `pip-audit` / job `supply-chain` failures:** Use the SLA-style triage playbook in **DEPENDENCY_LOCK_STRATEGY** (**[pip-audit / `supply-chain` job failure triage](docs/DEPENDENCY_LOCK_STRATEGY.md#pip-audit--supply-chain-job-failure-triage-maintainer-playbook)**): how severity relates to CI, when to refresh **`uv.lock`** vs document an ignore with upstream tracking, and **CHANGELOG** / **DEPENDENCY_AUDIT** expectations.
+
 ### Regenerating `uv.lock`
 
 Run whenever **`pyproject.toml`** changes **`[project.dependencies]`**, **`[project.optional-dependencies]`**, or **`requires-python`** in a way that affects the **`[dev]`** install CI uses:

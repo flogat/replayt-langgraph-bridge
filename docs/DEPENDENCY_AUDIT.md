@@ -6,7 +6,7 @@ This document tracks supply-chain vulnerabilities that have been identified and 
 
 All dependencies are scanned using **`uv run pip-audit --ignore-vuln CVE-2026-4539 --desc`** in the CI pipeline (`supply-chain` job), after the same **`uv sync --frozen --extra dev`** step as the **`test`** job. The PyPA tool does not support a `--severity-high` filter; any reported vulnerability fails the job except CVEs explicitly ignored here and mirrored in the workflow.
 
-**Locked resolution:** `pip-audit` runs in the **same frozen `[dev]` environment** as **`test`** (**`uv run`** after **`uv sync --frozen --extra dev`**), so reported CVEs match the committed **`uv.lock`** graph. Security alert handling and lock regeneration are mapped in **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §6.
+**Locked resolution:** `pip-audit` runs in the **same frozen `[dev]` environment** as **`test`** (**`uv run`** after **`uv sync --frozen --extra dev`**), so reported CVEs match the committed **`uv.lock`** graph. Security alert handling, lock regeneration, and **SLA-style** triage for **`supply-chain`** failures are mapped in **[DEPENDENCY_LOCK_STRATEGY.md](DEPENDENCY_LOCK_STRATEGY.md)** §6 (including **[pip-audit / `supply-chain` job failure triage](DEPENDENCY_LOCK_STRATEGY.md#pip-audit--supply-chain-job-failure-triage-maintainer-playbook)**).
 
 ## Current Status
 
