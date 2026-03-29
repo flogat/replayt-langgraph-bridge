@@ -2,7 +2,7 @@
 
 Normative **spec and acceptance criteria** for Mission Control backlog **Add LangGraph checkpoint integration slice** (item `6e2e8723-57c1-4f0c-bb74-6e9eb10beb23`). Phase **2** (spec lead) owns this document; phase **3** (builder) implements or verifies against it; phase **2b** (spec gate) checks completeness.
 
-**Related normative docs:** persistence contract **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**; inbound state and wrapped saver **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; hosted backends **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**; public entry points **[API.md](API.md)** and **README**. **Human-in-the-loop interrupts** (copy-paste cookbook + **`interrupt_after`** test obligations): **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)**. **Two persistence planes** (replayt **Runner** / store vs LangGraph **Checkpointer** — operator diagram and failure-mode grouping): **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**.
+**Related normative docs:** persistence contract **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)**; inbound state and wrapped saver **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)**; hosted backends **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)**; public entry points **[API.md](API.md)** and **README**. **Human-in-the-loop interrupts** (copy-paste cookbook + **`interrupt_after`** test obligations): **[BACKLOG_HITL_INTERRUPT_COOKBOOK.md](BACKLOG_HITL_INTERRUPT_COOKBOOK.md)**. **Two persistence planes** (replayt **Runner** / store vs LangGraph **Checkpointer** — operator diagram and failure-mode grouping): **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**. **Disk-backed checkpoint round-trip (SQLite / CI pytest):** **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)** (Mission Control `255db7a8-876d-475d-8c69-cdb5f0c9fcc0`).
 
 ---
 
@@ -25,7 +25,7 @@ Unless scope is explicitly widened below, this backlog covers **verification, do
 | ----------------------- | -------------------------------------- |
 | Integrator passes a LangGraph **1.1.x**-compatible **`Checkpointer`** into **`compile_replayt_workflow`** | Bridge-shipped **default** durable backend or encryption |
 | **In-process** checkpoint round-trip (e.g. **`MemorySaver`**) for docs, CI, and local debugging | **Distributed** coordination, multi-tenant isolation guarantees |
-| **Resume** semantics: multiple **`invoke`** calls with the same **`thread_id`** (via **`config["configurable"]`**) and the same compiled graph + saver, including **`interrupt_before` / `interrupt_after`** where needed | In-repo **first-class** samples for every upstream saver (SQLite, Postgres, cloud); integrators follow **LangGraph / langgraph-checkpoint** docs until a backlog adds maintained examples |
+| **Resume** semantics: multiple **`invoke`** calls with the same **`thread_id`** (via **`config["configurable"]`**) and the same compiled graph + saver, including **`interrupt_before` / `interrupt_after`** where needed | In-repo **first-class** samples for every upstream saver (SQLite, Postgres, cloud); integrators follow **LangGraph / langgraph-checkpoint** docs until a backlog adds maintained examples. **Exception:** a **focused disk-backed round-trip pytest** (SQLite-oriented) is **in scope** under **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)** — that backlog supplies CI proof, not a full cookbook matrix. |
 | **Limitations** documented: ephemeral vs durable vs hosted (**CHECKPOINT_PERSISTENCE.md** §3–4; **HOSTED_DEPLOYMENT_AUTHZ.md**) | Equating LangGraph checkpoint durability with **replayt** **Runner** / **store** durability (separate ownership; operator-facing diagram and failure-mode grouping in **CHECKPOINT_PERSISTENCE.md** — **Two persistence planes (LangGraph checkpointer vs replayt Runner / store)**; normative acceptance in **[BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md](BACKLOG_DURABLE_REPLAYT_VS_LANGGRAPH_CHECKPOINT.md)**). |
 
 ---
@@ -62,7 +62,7 @@ Docs explicitly state:
 
 - [x] **README** checkpoint example matches **LangGraph 1.1.x** **`invoke`** / **`config`** shape maintained in **`tests/test_bridge_graph.py`** (update docs if upstream renames keys). _(Verified phase **3**.)_
 - [x] **`compile_replayt_workflow`** signature and behavior match **[API.md](API.md)** and **README** Public API bullets. _(Verified phase **3**.)_
-- [x] §3 acceptance criteria remain satisfied after any code change; if **SQLite** (or other disk) round-trip becomes a **new** requirement, add tests + **CHANGELOG** under **Unreleased** and extend §2 “in scope” explicitly. _(No disk round-trip required for this slice; criteria satisfied phase **3**.)_
+- [x] §3 acceptance criteria remain satisfied after any code change. **Disk-backed (SQLite) round-trip** is **not** part of this slice’s closure; it is specified in **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)** (builder checklist there). When that backlog ships, extend **CHANGELOG** under **Unreleased** per that spec §3.4.
 
 ---
 

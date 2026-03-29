@@ -20,6 +20,8 @@ dev = [
   "pip-audit>=2.7.0",
   # PEP 561 smoke for bridge-owned modules; upstream deps use ignore_missing_imports in [tool.mypy]
   "mypy>=1.11.0",
+  # SQLite LangGraph checkpointer for disk round-trip CI (not part of default pip install surface)
+  "langgraph-checkpoint-sqlite>=2.0.0",
 ]
 # Vendor LLM HTTP/API clients and thin LangChain wrappers for samples only—not required for the public bridge API.
 demo = [

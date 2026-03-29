@@ -75,6 +75,7 @@ In-repo **tests** may import private helpers (e.g. functions prefixed with `_` i
 | ----- | ------------- |
 | Checkpoint persistence scope, backends pattern (langgraph 1.1.x), failure modes | **[CHECKPOINT_PERSISTENCE.md](CHECKPOINT_PERSISTENCE.md)** |
 | Backlog: checkpoint slice acceptance criteria and in/out of scope | **[BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md](BACKLOG_LANGGRAPH_CHECKPOINT_SLICE.md)** |
+| Backlog: disk-backed (SQLite) checkpoint round-trip pytest + CI / lockfile obligations | **[BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)** |
 | Hosted checkpoints, remote runtimes, TLS, and access control | **[HOSTED_DEPLOYMENT_AUTHZ.md](HOSTED_DEPLOYMENT_AUTHZ.md)** |
 | Inbound state limits and schema version | **[STATE_PAYLOAD_VALIDATION.md](STATE_PAYLOAD_VALIDATION.md)** |
 | Compile-time and routing/mapping errors (`compile_replayt_workflow`, `replayt_next`) | **[GRAPH_CONSTRUCTION_ERRORS.md](GRAPH_CONSTRUCTION_ERRORS.md)** |
