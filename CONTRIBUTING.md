@@ -31,6 +31,13 @@ Integration-style tests that call **replayt** must follow that document (contrac
 
 When adding or renaming symbols intended for integrators, update **`replayt_langgraph_bridge.__all__`**, **[docs/API.md](docs/API.md)**, the **Public API** section of **README.md**, and **`tests/test_public_api.py`** (`_STABLE_PUBLIC_NAMES`) together (see **API.md** for the checklist).
 
+### Public API typing (annotations)
+
+- Symbols in **`replayt_langgraph_bridge.__all__`** are the **supported public surface** for type checkers as well as runtime imports. Keep their annotations **consistent** with **[docs/API.md](docs/API.md)** and actual behavior; when signatures, return types, or structural types (**`TypedDict`**, **`Literal`**, type aliases) change, update docstrings and **API.md** in the same change set (same checklist as above).
+- Prefer **explicit** parameter and return annotations on public callables and structural types (**`ReplaytBridgeState`**, stable exception **`code`** literals, **`RedactorHook`**) so integrators and tools do not depend on inference across re-exports.
+- **Internal modules** (`graph.py`, `state_validation.py`, etc.) may use broader types (**`Any`**, looser generics) where required for LangGraph or replayt interoperability; that is **not** permission to expose new integrator-facing names without adding them to **`__all__`**, **API.md**, **README**, and **`tests/test_public_api.py`**.
+- **PEP 561** packaging (**`py.typed`** in wheels/sdists), **stub** policy, and **mypy** / **pyright** smoke (**CI** or documented local commands) are defined in **[docs/BACKLOG_PEP561_TYPING_POSTURE.md](docs/BACKLOG_PEP561_TYPING_POSTURE.md)**. When landing that work, follow the backlog checklist and update **README** / **CHANGELOG** as specified there.
+
 ## Dependency management
 
 Normative policy and security→lock workflow: **[docs/DEPENDENCY_LOCK_STRATEGY.md](docs/DEPENDENCY_LOCK_STRATEGY.md)**. CI installs **`[dev]`** only from committed **`uv.lock`** (**`uv sync --frozen --extra dev`**); the optional **`demo`** extra is not part of that lock-driven install.

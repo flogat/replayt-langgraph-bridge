@@ -10,6 +10,10 @@ Revise as the project matures. Defaults below are minimal—expand with rules fo
 5. **Not a lever on core** — This repo does not exist to steer replayt core; propose upstream changes through normal
    channels.
 
+## Typing and PEP 561 (packaged type information)
+
+Integrators using **mypy**, **Pyright**, or similar tools expect **inline** annotations plus a PEP 561 **`py.typed`** marker when a package advertises itself as typed, or else a documented **stub** story. This repository’s **baseline**, **acceptance criteria**, **`py.typed`** / wheel packaging notes, optional **mypy** or **pyright** smoke, and contributor annotation rules live in **[BACKLOG_PEP561_TYPING_POSTURE.md](BACKLOG_PEP561_TYPING_POSTURE.md)** and in **CONTRIBUTING.md** (**Public API typing**).
+
 ## Replayt boundary testing
 
 **Contract-style** replayt boundary tests (import **replayt**, exercise supported public APIs the bridge uses) must fail with **messages that name the contract** under test (handler transitions, `RunContext.data`, runner/store wiring, etc.), not only deep stack traces. Normative expectations, anti-patterns, skip/issue rules, CI/command parity, and the product backlog acceptance mapping live in **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)**.
