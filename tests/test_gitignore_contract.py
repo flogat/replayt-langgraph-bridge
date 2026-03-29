@@ -86,6 +86,7 @@ def test_gitignore_does_not_hide_packaging_and_ci_paths() -> None:
     for rel in (
         "pyproject.toml",
         "uv.lock",
+        ".env.example",
         "src/replayt_langgraph_bridge/__init__.py",
         "tests/test_gitignore_contract.py",
         "docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md",

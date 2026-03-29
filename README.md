@@ -58,7 +58,7 @@ pip install replayt-langgraph-bridge
 ```
 
 ### Secrets handling
-**Important**: Never commit secrets to version control. Store API keys and tokens in environment variables.
+**Important**: Never commit secrets to version control. Store API keys and tokens in environment variables. For a **tracked**, comment-only list of common variable names, see **[`.env.example`](.env.example)** (copy to **`.env`** locally; **`.env`** is gitignored).
 
 **Note:** The `.env` examples below are **developer convenience** only. Production should use a secret manager and the network and access controls in **[docs/HOSTED_DEPLOYMENT_AUTHZ.md](docs/HOSTED_DEPLOYMENT_AUTHZ.md)**.
 
