@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- **SQLite checkpoint failure-fix triage** — **[docs/BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md](docs/BACKLOG_DISK_CHECKPOINT_SQLITE_ROUNDTRIP.md)** and **[docs/CHECKPOINT_PERSISTENCE.md](docs/CHECKPOINT_PERSISTENCE.md)** now define a **reproduction gate** for Mission Control wrapper items that list **`tests.test_disk_checkpoint_sqlite_roundtrip`** as a pre-existing failure: rerun the full **`[dev]`** suite first, and treat an already-green run as backlog completion rather than weakening the disk-checkpoint contract (phase **2**, backlog **Fix 1 pre-existing test failures**).
+
 - **`.gitignore`** — ignore **`.netrc`** (CLI credential drops in the clone); **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** §2.A / §6 and §2 table; **`tests/test_gitignore_contract.py`** and **CONTRIBUTING** (**G3** / **G5**) (phase **3**, backlog **Review and tighten `.gitignore` for local secrets and orchestrator artifacts**).
 
 - **`.gitignore` / local secrets backlog (spec)** — **[docs/BACKLOG_GITIGNORE_LOCAL_SECRETS.md](docs/BACKLOG_GITIGNORE_LOCAL_SECRETS.md)** (Mission Control **`27853c00-77f0-403a-9ff2-6d45f3255a4f`**): acceptance mapping to **G1**–**G5**, zero-diff audit path, non-goals; **[docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md](docs/GITIGNORE_AND_LOCAL_ARTIFACTS.md)** §0 / §2.B / §5 tightened for **private prompts** and duplicate traceability removed (phase **2**, backlog **Review and tighten `.gitignore` for local secrets and orchestrator artifacts**).

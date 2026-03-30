@@ -16,6 +16,8 @@ Normative **spec and acceptance criteria** for Mission Control backlog **Add opt
 
 **Dependency reality (as of spec time):** Root **`uv.lock`** for **`uv sync --frozen --extra dev`** resolves **`langgraph`** and **`langgraph-checkpoint`** but **does not** include a SQLite saver distribution. Upstream ships **`langgraph-checkpoint-sqlite`** (PyPI) as the common **SQLite** implementation; the Builder must add a **version compatible** with the locked **`langgraph-checkpoint`** line, declare it under **`[project.optional-dependencies] dev`** with a short comment, and **regenerate **`uv.lock`**** so default CI installs it. If maintainers prefer a different **non-network disk-backed** saver documented for the same LangGraph line, this spec still applies **mutatis mutandis** (filesystem store, same proof obligations)—but the backlog title names **SQLite** as the **primary** target.
 
+**Mission Control failure-fix wrappers:** Later backlog items may name **`tests.test_disk_checkpoint_sqlite_roundtrip`** as a **pre-existing failure** even when the branch already carries the intended disk-checkpoint implementation. For those wrapper items, **this document remains the source of truth**. The Builder must first rerun the repository-standard **`[dev]`** path (**`uv sync --frozen --extra dev`** then **`uv run pytest`** with **no filter**) and treat a **green** full-suite run as evidence that the wrapper item is already satisfied on the current branch. In that case, do **not** weaken the test, dependency, or persistence contract merely to make a change.
+
 ---
 
 ## 2. User story (normative intent)
@@ -38,6 +40,7 @@ As an **integrator**, I can read **CHECKPOINT_PERSISTENCE.md** and **this backlo
 
 | Criterion | Done when (normative) |
 | --------- | ---------------------- |
+| **Reproduction gate for wrapper items** | When a backlog item is phrased as “fix pre-existing test failures” and names **`tests.test_disk_checkpoint_sqlite_roundtrip`**, the Builder first runs the repository-standard **`[dev]`** suite (**`uv sync --frozen --extra dev`** then **`uv run pytest`**). If that full run is already green, **no implementation change is required** for that wrapper item; handoff should cite the passing run instead of altering this contract. |
 | **Default CI** | The test is collected and passes under **`.github/workflows/ci.yml`** job **`test`**: **`uv sync --frozen --extra dev`** then **`uv run pytest`** with **no path or marker filter** (same contract as **[REPLAYT_BOUNDARY_TESTS.md](REPLAYT_BOUNDARY_TESTS.md)** and **README** / **CONTRIBUTING**). |
 | **No `demo` extra** | The scenario does **not** require **`replayt-langgraph-bridge[demo]`** or live vendor LLM clients. |
 | **No network credentials** | No cloud checkpoint backends, no HTTP APIs, no outbound network **required** for the assertion path. |
@@ -80,6 +83,7 @@ As an **integrator**, I can read **CHECKPOINT_PERSISTENCE.md** and **this backlo
 ## 5. Spec gate / builder checklist (phases 2b / 3)
 
 - [x] **`langgraph-checkpoint-sqlite`** (or chosen disk saver) declared under **`dev`** with **`pyproject.toml`** comment; **`uv.lock`** regenerated; CI **`test`** job stays **`[dev]`**-only.
+- [x] Failure-fix wrapper items for **`tests.test_disk_checkpoint_sqlite_roundtrip`** honor the **reproduction gate** in §3.1 before changing code, tests, or docs; a no-op close is acceptable when the documented **`[dev]`** full suite is already green on the current branch.
 - [x] New **`tests/`** module (or clearly scoped tests in an existing module) implements §3.2 with §3.1 constraints.
 - [x] §3.3 traceability and platform notes satisfied.
 - [x] **`docs/CHECKPOINT_PERSISTENCE.md`** §7 disk bullet checked off; **README** optional one-line pointer if maintainers want discoverability (not mandatory if **CHECKPOINT_PERSISTENCE** §7 is sufficient).
